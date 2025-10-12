@@ -60,7 +60,7 @@ solidity: {
 To use production profile: `npx hardhat build --profile production`
 
 ### Networks
-Your project has 4 configured networks:
+Your project has 5 configured networks:
 
 #### 1. hardhatMainnet (Default Local)
 ```typescript
@@ -95,6 +95,22 @@ sepolia: {
 - Real Ethereum testnet
 - Requires RPC URL and private key
 - See "Deploying to Real Networks" section below
+
+#### 4. baseSepolia (Base Testnet)
+```typescript
+baseSepolia: {
+  type: "http",
+  chainType: "op",
+  url: process.env.BASE_RPC_URL || "https://sepolia.base.org",
+  accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+  chainId: 84532,
+}
+```
+- Base L2 testnet (Optimism-based)
+- Uses `.env` file for configuration
+- Chain ID: 84532
+- Free RPC endpoint available
+- Get Base Sepolia ETH from [Base Sepolia Faucet](https://www.coinbase.com/faucets/base-ethereum-goerli-faucet)
 
 ---
 
@@ -206,12 +222,15 @@ export default buildModule("CounterModule", (m) => {
   // Deploy the Counter contract
   const counter = m.contract("Counter");
   
-  // Call incBy with value 5 after deployment
-  m.call(counter, "incBy", [5n]);
-  
   // Return the contract instance
   return { counter };
 });
+```
+
+**Note:** You can optionally call functions after deployment:
+```typescript
+// To call a function after deployment
+m.call(counter, "incBy", [5n]);
 ```
 
 ### Deployment Commands
@@ -248,11 +267,33 @@ Deployment info is saved in `ignition/deployments/` directory.
 
 ## 🌐 Deploying to Real Networks
 
-### Setting Up Sepolia Testnet
+### Setting Up Base Sepolia (Recommended)
 
-1. **Create a `.env` file** (or use Hardhat vars):
+1. **Create a `.env` file** in the `smartcontract/` directory:
 ```bash
-# Option 1: Use Hardhat configuration variables (recommended)
+# Base Sepolia RPC URL - Public endpoint (free)
+BASE_RPC_URL=https://sepolia.base.org
+
+# Your wallet private key (without 0x prefix)
+PRIVATE_KEY=your_private_key_here
+```
+
+2. **Get Base Sepolia ETH**:
+   - Visit [Base Sepolia Faucet](https://www.coinbase.com/faucets/base-ethereum-goerli-faucet)
+   - Or bridge from Ethereum Sepolia
+
+3. **Deploy**:
+```bash
+npx hardhat ignition deploy ignition/modules/Counter.ts --network baseSepolia
+```
+
+4. **View on BaseScan**:
+   - Visit: https://sepolia.basescan.org/address/YOUR_CONTRACT_ADDRESS
+
+### Setting Up Ethereum Sepolia Testnet
+
+1. **Use Hardhat configuration variables**:
+```bash
 npx hardhat vars set SEPOLIA_RPC_URL
 # Enter your Alchemy/Infura RPC URL when prompted
 
@@ -531,4 +572,272 @@ npx hardhat build --force
 **Happy Building! 🚀**
 
 For questions or issues, check the [Hardhat GitHub Discussions](https://github.com/NomicFoundation/hardhat/discussions)
+
+---
+
+## 📋 Complete Command Cheatsheet
+
+### 🚀 Project Setup
+```bash
+# Create new Hardhat project
+npx hardhat init
+
+# Install dependencies
+npm install
+
+# Install additional packages
+npm install --save-dev dotenv
+npm install --save-dev @nomicfoundation/hardhat-ignition
+```
+
+### 🔨 Compilation
+```bash
+# Compile contracts (default profile)
+npx hardhat build
+
+# Compile with production optimization
+npx hardhat build --profile production
+
+# Force recompile
+npx hardhat build --force
+
+# Clean artifacts
+npx hardhat clean
+```
+
+### 🧪 Testing
+```bash
+# Run all tests (Solidity + TypeScript)
+npx hardhat test
+
+# Run only Solidity tests
+npx hardhat test solidity
+
+# Run only TypeScript/Node.js tests
+npx hardhat test nodejs
+
+# Run specific test file
+npx hardhat test test/Counter.ts
+
+# Run tests with gas reporting
+npx hardhat test --gas-reporter
+
+# Run tests with coverage
+npx hardhat coverage
+```
+
+### 🚀 Deployment
+```bash
+# Deploy to local temporary network
+npx hardhat ignition deploy ignition/modules/Counter.ts
+
+# Deploy to Base Sepolia testnet
+npx hardhat ignition deploy ignition/modules/Counter.ts --network baseSepolia
+
+# Deploy to Ethereum Sepolia testnet
+npx hardhat ignition deploy ignition/modules/Counter.ts --network sepolia
+
+# Deploy to local Optimism simulation
+npx hardhat ignition deploy ignition/modules/Counter.ts --network hardhatOp
+
+# Deploy with production profile (optimized)
+npx hardhat ignition deploy ignition/modules/Counter.ts --network baseSepolia --profile production
+
+# Check deployment status
+npx hardhat ignition status chain-84532
+```
+
+### ✅ Verification
+```bash
+# Verify contract on Etherscan/BaseScan
+npx hardhat ignition verify <network-name>
+
+# Verify on Base Sepolia
+npx hardhat ignition verify baseSepolia
+
+# Verify on Ethereum Sepolia
+npx hardhat ignition verify sepolia
+```
+
+### 🌐 Network Management
+```bash
+# Start persistent local Hardhat node
+npx hardhat node
+
+# Run script on specific network
+npx hardhat run scripts/my-script.ts --network baseSepolia
+
+# Get network information
+npx hardhat network
+```
+
+### 🔐 Configuration & Secrets
+```bash
+# Set configuration variable (encrypted storage)
+npx hardhat vars set VARIABLE_NAME
+
+# Get configuration variable
+npx hardhat vars get VARIABLE_NAME
+
+# List all configuration variables
+npx hardhat vars list
+
+```
+
+### 📜 Scripts
+```bash
+# Run custom script (local network)
+npx hardhat run scripts/my-script.ts
+
+# Run script on Base Sepolia
+npx hardhat run scripts/my-script.ts --network baseSepolia
+
+# Run script on specific network
+npx hardhat run scripts/my-script.ts --network <network-name>
+```
+
+### 🔍 Utilities
+```bash
+# Show all available tasks
+npx hardhat help
+
+# Show help for specific task
+npx hardhat help <task-name>
+
+# Check Hardhat version
+npx hardhat --version
+
+# Show console (REPL)
+npx hardhat console
+
+# Show console on specific network
+npx hardhat console --network baseSepolia
+```
+
+### 📦 Package Management
+```bash
+# Install project dependencies
+npm install
+
+# Update Hardhat and plugins
+npm update hardhat @nomicfoundation/hardhat-ignition
+
+# Audit dependencies for vulnerabilities
+npm audit
+
+# Check for outdated packages
+npm outdated
+```
+
+### 🎯 Quick Workflows
+
+#### Complete Development Cycle
+```bash
+# 1. Create/edit contract in contracts/
+# 2. Compile
+npx hardhat build
+
+# 3. Write tests
+# - Solidity tests: contracts/*.t.sol
+# - TypeScript tests: test/*.ts
+
+# 4. Run tests
+npx hardhat test
+
+# 5. Create deployment module: ignition/modules/*.ts
+
+# 6. Deploy locally to test
+npx hardhat ignition deploy ignition/modules/Counter.ts
+
+# 7. Deploy to testnet
+npx hardhat ignition deploy ignition/modules/Counter.ts --network baseSepolia
+```
+
+#### Deploy to Base Sepolia (Full Flow)
+```bash
+# 1. Set up .env file
+echo "BASE_RPC_URL=https://sepolia.base.org" > .env
+echo "PRIVATE_KEY=your_private_key_here" >> .env
+
+# 2. Compile with optimization
+npx hardhat build --profile production
+
+# 3. Run tests
+npx hardhat test
+
+# 4. Deploy
+npx hardhat ignition deploy ignition/modules/Counter.ts --network baseSepolia
+
+# 5. Verify on BaseScan (if you have API key)
+npx hardhat ignition verify baseSepolia
+```
+
+#### Debugging Failed Deployments
+```bash
+# 1. Check deployment journal
+cat ignition/deployments/chain-84532/journal.jsonl
+
+# 2. Check deployed addresses
+cat ignition/deployments/chain-84532/deployed_addresses.json
+
+# 3. Clean and rebuild
+npx hardhat clean
+npx hardhat build
+
+# 4. Try deploying again (will resume from last successful step)
+npx hardhat ignition deploy ignition/modules/Counter.ts --network baseSepolia
+```
+
+### 🔑 Network Quick Reference
+
+| Network | Command Flag | Chain ID | Type |
+|---------|-------------|----------|------|
+| Local (temporary) | (default) | 31337 | Simulated |
+| Local Optimism | `--network hardhatOp` | - | Simulated |
+| Ethereum Sepolia | `--network sepolia` | 11155111 | Testnet |
+| Base Sepolia | `--network baseSepolia` | 84532 | L2 Testnet |
+
+### 📝 File Locations Quick Reference
+
+```
+contracts/           → Smart contracts (.sol)
+contracts/*.t.sol    → Solidity tests
+test/               → TypeScript tests (.ts)
+ignition/modules/   → Deployment modules
+ignition/deployments/ → Deployment history & addresses
+scripts/            → Custom automation scripts
+hardhat.config.ts   → Configuration file
+.env                → Environment variables (DON'T COMMIT!)
+```
+
+### 💡 Pro Tips
+
+```bash
+# Run multiple commands in sequence
+npx hardhat clean && npx hardhat build && npx hardhat test
+
+# Check gas usage in tests
+npx hardhat test --gas-reporter
+
+# Run tests in watch mode (requires nodemon)
+npx nodemon --exec "npx hardhat test" --watch contracts --watch test
+
+# Get contract size
+npx hardhat size-contracts
+
+# Flatten contract for verification (if needed)
+npx hardhat flatten contracts/Counter.sol > flattened.sol
+```
+
+---
+
+**🎯 Most Common Commands (Daily Use)**
+
+```bash
+npx hardhat build                    # Compile
+npx hardhat test                     # Test
+npx hardhat ignition deploy ignition/modules/Counter.ts --network baseSepolia  # Deploy
+npx hardhat clean                    # Clean
+npx hardhat help                     # Help
+```
 
