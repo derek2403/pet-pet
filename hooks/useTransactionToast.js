@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useNotification } from "@blockscout/app-sdk";
 
 /**
@@ -12,20 +13,20 @@ export const useTransactionToast = (chainId = "1") => {
    * @param {string} txHash - The transaction hash
    * @param {string} customChainId - Optional chain ID override
    */
-  const showTransactionToast = (txHash, customChainId = null) => {
+  const showTransactionToast = useCallback((txHash, customChainId = null) => {
     try {
       openTxToast(customChainId || chainId, txHash);
     } catch (error) {
       console.error("Failed to show transaction toast:", error);
     }
-  };
+  }, [openTxToast, chainId]);
 
   /**
    * Handle transaction with automatic notification
    * @param {Function} transactionFn - Async function that returns transaction hash or transaction object
    * @param {Object} options - Configuration options
    */
-  const handleTransactionWithNotification = async (transactionFn, options = {}) => {
+  const handleTransactionWithNotification = useCallback(async (transactionFn, options = {}) => {
     const { 
       onSuccess, 
       onError, 
@@ -64,7 +65,7 @@ export const useTransactionToast = (chainId = "1") => {
       
       throw error; // Re-throw to allow component-level error handling
     }
-  };
+  }, [showTransactionToast]);
 
   return {
     showTransactionToast,
