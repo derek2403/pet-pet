@@ -96,10 +96,6 @@ export default function MockExplorer() {
             <div className="text-pink-500 text-3xl font-bold">▲▲</div>
             <h1 className="text-2xl font-semibold">Moca Chain</h1>
           </div>
-          <Button className="bg-pink-400 hover:bg-pink-500 text-white rounded-full px-6">
-            <LogIn className="w-4 h-4 mr-2" />
-            Connect
-          </Button>
         </div>
 
         {/* Main Content */}
