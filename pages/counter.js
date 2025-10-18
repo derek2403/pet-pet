@@ -8,8 +8,8 @@ import { COUNTER_CONTRACT } from '../config/contracts';
 export default function Counter() { 
   const { address, isConnected, chain } = useAccount();
   const [incrementValue, setIncrementValue] = useState('');
-  const { showTransactionToast } = useTransactionToast("84532");
-  const { showAddressTransactions, showAllTransactions } = useTransactionHistory("84532");
+  const { showTransactionToast } = useTransactionToast("2403");
+  const { showAddressTransactions, showAllTransactions } = useTransactionHistory("2403");
   
   // Read counter value
   const { data: counterValue, refetch, isLoading: isReading } = useReadContract({
@@ -74,7 +74,7 @@ export default function Counter() {
             ⚡ Counter DApp
           </h1>
           <p className="text-gray-600 text-lg">
-            Interact with your Counter smart contract on Base Sepolia
+            Interact with your Counter smart contract on PetPet Testnet
           </p>
         </div>
 
@@ -112,11 +112,11 @@ export default function Counter() {
                 Wrong Network
               </h2>
               <p className="text-gray-600 mb-6">
-                Please switch to Base Sepolia network in your wallet
+                Please switch to PetPet Testnet network in your wallet
               </p>
               <div className="p-4 bg-red-50 rounded-lg border border-red-200 inline-block">
                 <p className="text-sm text-red-800">
-                  Current: <strong>{chain?.name}</strong> → Required: <strong>Base Sepolia</strong>
+                  Current: <strong>{chain?.name}</strong> → Required: <strong>PetPet Testnet</strong>
                 </p>
               </div>
             </div>
@@ -247,7 +247,7 @@ export default function Counter() {
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
               <span className="text-gray-600">Contract Address:</span>
               <a 
-                href={`https://sepolia.basescan.org/address/${COUNTER_CONTRACT.address}`}
+                href={`https://explorerl2new-duckchain-testnet-wnuixy9lec.t.conduit.xyz/address/${COUNTER_CONTRACT.address}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-mono text-blue-600 hover:text-blue-800 text-xs"
@@ -257,7 +257,7 @@ export default function Counter() {
             </div>
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
               <span className="text-gray-600">Network:</span>
-              <span className="font-medium">Base Sepolia (Chain ID: 84532)</span>
+              <span className="font-medium">PetPet Testnet (Chain ID: 2403)</span>
             </div>
             {isConnected && (
               <div className="flex justify-between items-center py-2">
