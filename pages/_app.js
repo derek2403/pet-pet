@@ -14,6 +14,9 @@ const petPetTestnet = {
     default: { http: ['https://c2e90a7139bb5f5fe1c6deab725ee1a45631b952-8545.dstack-prod5.phala.network/'] },
     public: { http: ['https://c2e90a7139bb5f5fe1c6deab725ee1a45631b952-8545.dstack-prod5.phala.network/'] }
   },
+  blockExplorers: {
+    default: { name: 'PetPet Explorer', url: 'https://petpet.cloud.blockscout.com/' }
+  },
   testnet: true
 };
 
