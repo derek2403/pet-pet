@@ -104,10 +104,10 @@ export default function MockExplorer() {
 
           {/* Search Bar */}
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
             <Input
               placeholder="Search by Block / Txn / Address / Bucket / Object / Group..."
-              className="pl-12 py-6 text-base bg-white/80 backdrop-blur-sm border-gray-200 rounded-2xl"
+              className="w-full pl-14 pr-6 py-6 text-base bg-white border-gray-200 rounded-full shadow-sm"
             />
           </div>
 
