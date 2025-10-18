@@ -1,7 +1,7 @@
 // Counter Contract Configuration
 export const COUNTER_CONTRACT = {
-  address: "0x896C5D0A1f234be5961Ae3b37a470B435EE86075",
-  chainId: 84532, // Base Sepolia
+  address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  chainId: 2403, // PetPet Testnet
   abi: [
     {
       "inputs": [],
