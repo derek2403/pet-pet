@@ -40,9 +40,16 @@ const config: HardhatUserConfig = {
     baseSepolia: {
       type: "http",
       chainType: "op",
-      url: process.env.BASE_RPC_URL || "https://sepolia.base.org",
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      url: configVariable("BASE_RPC_URL"),
+      accounts: [configVariable("PRIVATE_KEY")],
       chainId: 84532,
+    },
+    petPetTestnet: {
+      type: "http",
+      chainType: "l1",
+      url: configVariable("PETPET_TESTNET_RPC_URL"),
+      accounts: [configVariable("PRIVATE_KEY")],
+      chainId: 2403,
     },
   },
 };
