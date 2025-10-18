@@ -48,8 +48,8 @@ export default function MockExplorer() {
       status: "Success",
       from: "0x43...A93d",
       to: "EntryPoint",
-      value: "0 MOCA",
-      fee: "0 MOCA",
+      value: "0 PET",
+      fee: "0 PET",
       time: "6m",
     },
     {
@@ -58,8 +58,8 @@ export default function MockExplorer() {
       status: "Success",
       from: "0x32...0b32",
       to: "0xC2...7ae7",
-      value: "0.2 MOCA",
-      fee: "0 MOCA",
+      value: "0.2 PET",
+      fee: "0 PET",
       time: "10m",
     },
     {
@@ -68,8 +68,8 @@ export default function MockExplorer() {
       status: "Success",
       from: "0x22...2c48",
       to: "0x59...eb35",
-      value: "0.1 MOCA",
-      fee: "0 MOCA",
+      value: "0.1 PET",
+      fee: "0 PET",
       time: "21m",
     },
     {
@@ -78,8 +78,8 @@ export default function MockExplorer() {
       status: "Success",
       from: "0x32...0b32",
       to: "0xC2...7ae7",
-      value: "0.1 MOCA",
-      fee: "0 MOCA",
+      value: "0.1 PET",
+      fee: "0 PET",
       time: "25m",
     },
   ];
@@ -94,13 +94,13 @@ export default function MockExplorer() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <div className="text-pink-500 text-3xl font-bold">▲▲</div>
-            <h1 className="text-2xl font-semibold">Moca Chain</h1>
+            <h1 className="text-2xl font-semibold">Pet Pet Chain</h1>
           </div>
         </div>
 
         {/* Main Content */}
         <div className="space-y-6">
-          <h1 className="text-4xl font-bold">Moca Chain explorer</h1>
+          <h1 className="text-4xl font-bold">Pet Pet Chain explorer</h1>
 
           {/* Search Bar */}
           <div className="relative">
