@@ -47,9 +47,9 @@ export default function PhoneTracker() {
     setError(null);
 
     const options = {
-      enableHighAccuracy: true,
-      timeout: 5000,
-      maximumAge: 0,
+      enableHighAccuracy: true,  // Use GPS instead of network/WiFi
+      timeout: 10000,             // Increased timeout for better accuracy
+      maximumAge: 0,              // Always get fresh position, no caching
     };
 
     watchIdRef.current = navigator.geolocation.watchPosition(
