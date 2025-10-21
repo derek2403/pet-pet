@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { ethers } from 'ethers';
 import { REGISTRY_ADDRESS } from '../config/contracts';
+import { useTransactionToast } from '../hooks/useTransactionToast';
+import { useTransactionHistory } from '../hooks/useTransactionHistory';
 
 const REGISTRY_ABI = REGISTRY_ADDRESS.abi;
 
@@ -76,6 +78,10 @@ export default function TestPage() {
   const [allPets, setAllPets] = useState([]);
   const [selectedPet, setSelectedPet] = useState(null);
   const [petStats, setPetStats] = useState(null);
+
+  // Initialize transaction hooks with Base Sepolia chain ID
+  const { showTransactionToast, handleTransactionWithNotification } = useTransactionToast("84532");
+  const { showAddressTransactions, openTransactionPopup } = useTransactionHistory("84532");
 
   // Connect wallet
   const connectWallet = async () => {
@@ -252,7 +258,15 @@ export default function TestPage() {
       );
 
       setMessage('⏳ Please confirm transaction in MetaMask...');
+      
+      // Deploy contract
       const contract = await ContractFactory.deploy(petName, account);
+      const deployTx = contract.deploymentTransaction();
+      
+      // Show deployment toast
+      if (deployTx && deployTx.hash) {
+        showTransactionToast(deployTx.hash);
+      }
       
       setMessage('⏳ Waiting for deployment confirmation...');
       await contract.waitForDeployment();
@@ -261,10 +275,21 @@ export default function TestPage() {
       console.log('Pet deployed at:', petAddress);
       setMessage(`✅ Contract deployed! Registering in registry...`);
 
-      // Register the pet in the registry
-      const tx = await registry.registerPet(petName, petAddress, account);
-      setMessage('⏳ Registering pet...');
-      await tx.wait();
+      // Register the pet in the registry with transaction toast
+      await handleTransactionWithNotification(
+        async () => {
+          const tx = await registry.registerPet(petName, petAddress, account);
+          setMessage('⏳ Registering pet...');
+          await tx.wait();
+          return tx;
+        },
+        {
+          onSuccess: (result, txHash) => {
+            console.log('Registration transaction:', txHash);
+          },
+          showToast: true
+        }
+      );
 
       setMessage(`✅ Pet "${petName}" (contract ${compileResult.contractName}) created at ${petAddress}`);
       
@@ -361,18 +386,31 @@ export default function TestPage() {
       const signer = await provider.getSigner();
       const pet = new ethers.Contract(selectedPet.address, PET_ABI, signer);
       
-      let tx;
-      if (type === 'walk') tx = await pet.walk(value);
-      else if (type === 'run') tx = await pet.run(value);
-      else if (type === 'eat') tx = await pet.eat(value);
-      else if (type === 'drink') tx = await pet.drink(value);
-      
-      setMessage('⏳ Logging activity...');
-      await tx.wait();
-      setMessage(`✅ Activity logged!`);
-      
-      // Refresh pet stats
-      viewPet(selectedPet.address);
+      // Execute transaction with toast
+      await handleTransactionWithNotification(
+        async () => {
+          let tx;
+          if (type === 'walk') tx = await pet.walk(value);
+          else if (type === 'run') tx = await pet.run(value);
+          else if (type === 'eat') tx = await pet.eat(value);
+          else if (type === 'drink') tx = await pet.drink(value);
+          
+          setMessage('⏳ Logging activity...');
+          await tx.wait();
+          return tx;
+        },
+        {
+          onSuccess: () => {
+            setMessage(`✅ Activity logged!`);
+            // Refresh pet stats
+            viewPet(selectedPet.address);
+          },
+          onError: (error) => {
+            setMessage('❌ Error: ' + (error.reason || error.message));
+          },
+          showToast: true
+        }
+      );
     } catch (error) {
       console.error(error);
       setMessage('❌ Error: ' + (error.reason || error.message));
@@ -407,7 +445,23 @@ export default function TestPage() {
         </button>
       ) : (
         <div style={{ marginBottom: '40px' }}>
-          <p style={{ color: 'green', marginBottom: '20px' }}>{message}</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <p style={{ color: 'green', margin: 0 }}>{message}</p>
+            <button
+              onClick={() => showAddressTransactions(account)}
+              style={{
+                padding: '10px 20px',
+                fontSize: '14px',
+                background: '#6366f1',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}
+            >
+              📜 View My Transaction History
+            </button>
+          </div>
           
           {/* Create Pet Section */}
           <div style={{ 
@@ -458,7 +512,25 @@ export default function TestPage() {
             padding: '30px',
             marginBottom: '30px'
           }}>
-            <h2>🐕 My Pets ({myPets.length})</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2 style={{ margin: 0 }}>🐕 My Pets ({myPets.length})</h2>
+              {myPets.length > 0 && (
+                <button
+                  onClick={() => showAddressTransactions(account)}
+                  style={{
+                    padding: '8px 16px',
+                    fontSize: '13px',
+                    background: '#8b5cf6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  📊 View All Pet Transactions
+                </button>
+              )}
+            </div>
             {myPets.length === 0 ? (
               <p style={{ color: '#666' }}>You haven't created any pets yet.</p>
             ) : (
@@ -492,21 +564,37 @@ export default function TestPage() {
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2 style={{ margin: 0 }}>🐾 {selectedPet.name}</h2>
-                <button
-                  onClick={() => verifyPetContract(selectedPet.address, selectedPet.name, selectedPet.owner)}
-                  disabled={loading}
-                  style={{
-                    padding: '10px 20px',
-                    background: '#8b5cf6',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    fontSize: '14px'
-                  }}
-                >
-                  🔍 Verify Contract
-                </button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    onClick={() => showAddressTransactions(selectedPet.address)}
+                    style={{
+                      padding: '10px 20px',
+                      background: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    📜 Pet History
+                  </button>
+                  <button
+                    onClick={() => verifyPetContract(selectedPet.address, selectedPet.name, selectedPet.owner)}
+                    disabled={loading}
+                    style={{
+                      padding: '10px 20px',
+                      background: '#8b5cf6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    🔍 Verify Contract
+                  </button>
+                </div>
               </div>
               <p><strong>Address:</strong> <code>{selectedPet.address}</code></p>
               <p><strong>Owner:</strong> <code>{selectedPet.owner}</code></p>
