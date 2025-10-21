@@ -3,36 +3,46 @@ import { io } from 'socket.io-client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-
-type SimpleDet = { class: string; score: number };
+import { 
+  calculateMovement, 
+  classifyActivity, 
+  getActivityColor,
+  getActivityEmoji 
+} from '@/lib/dogActivityHelpers';
+import { 
+  drawPetWithActivity, 
+  drawDetectedObject, 
+  drawZone 
+} from '@/lib/canvasDrawing';
 
 export default function DogCamera() {
   const [cameraActive, setCameraActive] = useState(false);
   const [connected, setConnected] = useState(false);
-
+  const [currentActivity, setCurrentActivity] = useState('Unknown');
   const [modelLoaded, setModelLoaded] = useState(false);
   const [dogDetected, setDogDetected] = useState(false);
-  const [detectedObjects, setDetectedObjects] = useState<SimpleDet[]>([]);
   const [petName, setPetName] = useState('My Dog');
   const [nameSet, setNameSet] = useState(false);
-  const [stats, setStats] = useState<{ movement: number | string; confidence: number | string; fps: number }>({
+  const [stats, setStats] = useState({
     movement: 0,
     confidence: 0,
     fps: 0,
+  });
+  const [detectedObjects, setDetectedObjects] = useState<any[]>([]);
+  const [zones, setZones] = useState<{ food: any; water: any; bed: any }>({
+    food: null,
+    water: null,
+    bed: null,
   });
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const socketRef = useRef<ReturnType<typeof io> | null>(null);
-
   const modelRef = useRef<any>(null);
   const animationRef = useRef<number | null>(null);
-  const lastCenterRef = useRef<{ x: number; y: number } | null>(null);
-  const fpsCounterRef = useRef<{ frames: number; lastTime: number; fps: number }>({
-    frames: 0,
-    lastTime: Date.now(),
-    fps: 0,
-  });
+  const lastPositionRef = useRef<{ centerX: number; centerY: number } | null>(null);
+  const activityHistoryRef = useRef<any[]>([]);
+  const fpsCounterRef = useRef<{ frames: number; lastTime: number; fps: number }>({ frames: 0, lastTime: Date.now(), fps: 0 });
 
   useEffect(() => {
     // Initialize socket connection
@@ -61,13 +71,13 @@ export default function DogCamera() {
       console.log('Loading TensorFlow.js...');
       const tf = await import('@tensorflow/tfjs');
       await tf.ready();
-      console.log('TFJS backend:', tf.getBackend());
+      console.log('TensorFlow.js backend ready:', tf.getBackend());
 
-      console.log('Loading COCO-SSD...');
+      console.log('Loading COCO-SSD model...');
       const cocoSsd = await import('@tensorflow-models/coco-ssd');
       modelRef.current = await cocoSsd.load();
       setModelLoaded(true);
-      console.log('Model loaded');
+      console.log('Model loaded successfully!');
     } catch (error) {
       console.error('Error loading model:', error);
       alert('Failed to load AI model. Check console for details.');
@@ -92,7 +102,7 @@ export default function DogCamera() {
           if (!modelLoaded) {
             loadModel();
           }
-          detectLoop();
+          detectObjects();
         };
       }
     } catch (error) {
@@ -103,9 +113,7 @@ export default function DogCamera() {
 
   const stopCamera = () => {
     if (videoRef.current && videoRef.current.srcObject) {
-      (videoRef.current.srcObject as MediaStream)
-        .getTracks()
-        .forEach((track) => track.stop());
+      (videoRef.current.srcObject as MediaStream).getTracks().forEach((track) => track.stop());
       videoRef.current.srcObject = null;
     }
     if (animationRef.current) {
@@ -114,81 +122,122 @@ export default function DogCamera() {
     setCameraActive(false);
   };
 
-  const detectLoop = async () => {
+  const detectObjects = async () => {
     if (!modelRef.current || !videoRef.current || !canvasRef.current) {
-      animationRef.current = requestAnimationFrame(detectLoop);
+      animationRef.current = requestAnimationFrame(detectObjects);
       return;
     }
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d')!;
+
+    // Set canvas size to match video
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
     try {
+      // Run detection
       const predictions: any[] = await modelRef.current.detect(video);
 
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Debug list
+      // Update detected objects for debugging
       setDetectedObjects(predictions.map((p) => ({ class: p.class, score: p.score })));
 
-      // Find pet-ish object
-      const pet = predictions.find(
+      // Find dog/cat/bird/person (pets)
+      const dog = predictions.find(
         (p) => p.class === 'dog' || p.class === 'cat' || p.class === 'bird' || p.class === 'person'
       );
 
-      if (pet) {
+      if (dog) {
         setDogDetected(true);
 
-        // Simple movement estimate from bbox center delta (px/frame)
-        const centerX = (pet.bbox[0] + pet.bbox[2]) / 2;
-        const centerY = (pet.bbox[1] + pet.bbox[3]) / 2;
-        let movement = 0;
-        if (lastCenterRef.current) {
-          const dx = centerX - lastCenterRef.current.x;
-          const dy = centerY - lastCenterRef.current.y;
-          movement = Math.sqrt(dx * dx + dy * dy);
+        const currentBox = {
+          centerX: (dog.bbox[0] + dog.bbox[2]) / 2,
+          centerY: (dog.bbox[1] + dog.bbox[3]) / 2,
+        };
+
+        const movement = calculateMovement(currentBox, lastPositionRef.current);
+        lastPositionRef.current = currentBox;
+
+        const { activity, confidence } = classifyActivity(dog, predictions, movement, zones);
+
+        setCurrentActivity(activity);
+        setStats({
+          movement: Number(movement.toFixed(1)),
+          confidence: Math.round(confidence * 100),
+          fps: fpsCounterRef.current.fps,
+        });
+
+        // Send to server
+        if (socketRef.current && connected) {
+          const activityData = {
+            petName,
+            activity,
+            confidence,
+            movement,
+            timestamp: Date.now(),
+            position: currentBox,
+          };
+
+          socketRef.current.emit('pet-activity', activityData);
+
+          // Store in history
+          activityHistoryRef.current.push(activityData);
+          if (activityHistoryRef.current.length > 1000) {
+            activityHistoryRef.current.shift();
+          }
         }
-        lastCenterRef.current = { x: centerX, y: centerY };
 
-        setStats((prev) => ({
-          ...prev,
-          movement: movement.toFixed(1),
-          confidence: Math.round(pet.score * 100),
-        }));
-
-        // Draw a simple bounding box + label
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = 'lime';
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.strokeRect(pet.bbox[0], pet.bbox[1], pet.bbox[2], pet.bbox[3]);
-        const label = `${pet.class} ${(pet.score * 100).toFixed(0)}%`;
-        const labelW = ctx.measureText(label).width + 10;
-        ctx.fillRect(pet.bbox[0], Math.max(0, pet.bbox[1] - 24), labelW, 20);
-        ctx.fillStyle = 'white';
-        ctx.font = '14px sans-serif';
-        ctx.fillText(label, pet.bbox[0] + 5, Math.max(12, pet.bbox[1] - 8));
+        // Draw dog bounding box with activity label
+        drawPetWithActivity(ctx, dog, `${getActivityEmoji(activity)} ${activity}`, getActivityColor(activity));
       } else {
         setDogDetected(false);
+        setCurrentActivity('No dog detected');
       }
 
-      // FPS
+      // Draw other objects (bowls, etc.)
+      predictions.forEach((prediction) => {
+        if (prediction.class === 'bowl' || prediction.class === 'cup' || prediction.class === 'bottle') {
+          drawDetectedObject(ctx, prediction, 'object');
+        }
+      });
+
+      // Draw zones
+      (Object.entries(zones) as [string, any][]).forEach(([name, zone]) => {
+        drawZone(ctx, zone, name);
+      });
+
+      // Calculate FPS
       fpsCounterRef.current.frames++;
       const now = Date.now();
       if (now - fpsCounterRef.current.lastTime >= 1000) {
         fpsCounterRef.current.fps = fpsCounterRef.current.frames;
         fpsCounterRef.current.frames = 0;
         fpsCounterRef.current.lastTime = now;
-        setStats((prev) => ({ ...prev, fps: fpsCounterRef.current.fps }));
       }
     } catch (error) {
       console.error('Detection error:', error);
     }
 
-    animationRef.current = requestAnimationFrame(detectLoop);
+    animationRef.current = requestAnimationFrame(detectObjects);
+  };
+
+  const handleCanvasClick = (e: MouseEvent, zoneName: string) => {
+    if (!canvasRef.current) return;
+
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * canvasRef.current.width;
+    const y = ((e.clientY - rect.top) / rect.height) * canvasRef.current.height;
+
+    setZones((prev) => ({
+      ...prev,
+      [zoneName]: { x, y },
+    }));
+
+    alert(`${zoneName.charAt(0).toUpperCase() + zoneName.slice(1)} zone set!`);
   };
 
   return (
@@ -306,6 +355,55 @@ export default function DogCamera() {
             )}
           </div>
 
+          {/* Zone Setup Buttons */}
+          {cameraActive && (
+            <div className="mb-4 flex gap-2 flex-wrap">
+              <Button
+                onClick={() => {
+                  const zoneName = prompt('Click on camera to set zone. Enter zone name:', 'food');
+                  if (!zoneName || !canvasRef.current) return;
+                  const handler = (ev: MouseEvent) => {
+                    handleCanvasClick(ev, zoneName);
+                    canvasRef.current?.removeEventListener('click', handler);
+                  };
+                  canvasRef.current.addEventListener('click', handler);
+                }}
+                variant="outline"
+                className="text-sm"
+              >
+                📍 Set Food Zone
+              </Button>
+              <Button
+                onClick={() => {
+                  if (!canvasRef.current) return;
+                  const handler = (ev: MouseEvent) => {
+                    handleCanvasClick(ev, 'water');
+                    canvasRef.current?.removeEventListener('click', handler);
+                  };
+                  canvasRef.current.addEventListener('click', handler);
+                }}
+                variant="outline"
+                className="text-sm"
+              >
+                💧 Set Water Zone
+              </Button>
+              <Button
+                onClick={() => {
+                  if (!canvasRef.current) return;
+                  const handler = (ev: MouseEvent) => {
+                    handleCanvasClick(ev, 'bed');
+                    canvasRef.current?.removeEventListener('click', handler);
+                  };
+                  canvasRef.current.addEventListener('click', handler);
+                }}
+                variant="outline"
+                className="text-sm"
+              >
+                🛏️ Set Bed Zone
+              </Button>
+            </div>
+          )}
+
           {/* Video Display */}
           <div className="relative mb-6 bg-black rounded-lg overflow-hidden">
             <video
@@ -330,20 +428,20 @@ export default function DogCamera() {
             )}
           </div>
 
-          {/* Stats */}
+          {/* Activity Display */}
           {cameraActive && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <Card className="p-4 bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-                <div className="text-sm text-gray-600 mb-1">Current Status</div>
+                <div className="text-sm text-gray-600 mb-1">Current Activity</div>
                 <div className="text-2xl font-bold text-green-800">
-                  {dogDetected ? 'Dog in view' : 'Looking for dog...'}
+                  {currentActivity}
                 </div>
               </Card>
 
               <Card className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-                <div className="text-sm text-gray-600 mb-1">Movement (px/frame)</div>
+                <div className="text-sm text-gray-600 mb-1">Movement</div>
                 <div className="text-2xl font-bold text-blue-800">
-                  {stats.movement}
+                  {stats.movement} px/frame
                 </div>
               </Card>
 
@@ -362,7 +460,9 @@ export default function DogCamera() {
             <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
               <li>Enter your pet's name and click "Start Camera"</li>
               <li>Point camera at your dog in the room</li>
-              <li>Ensure good lighting and keep still for best results</li>
+              <li>Click zone buttons and then click on camera where food/water/bed are located</li>
+              <li>AI will automatically detect and classify activities</li>
+              <li>View live activity on the dog dashboard</li>
             </ol>
           </Card>
         </Card>
