@@ -1,35 +1,97 @@
-// Counter Contract Configuration
-export const COUNTER_CONTRACT = {
-  address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-  chainId: 2403, // PetPet Testnet
+// PetPet Registry Contract Configuration
+export const REGISTRY_ADDRESS = {
+  address: "0xaC73F8dB1AdaB4bbf3Ec511e2E078ab78c51a789",
+  chainId: 84532, // Base Sepolia
   abi: [
     {
-      "inputs": [],
-      "name": "inc",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "petName",
+          "type": "string"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "petContract",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "PetRegistered",
+      "type": "event"
     },
     {
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "by",
+          "name": "",
           "type": "uint256"
         }
       ],
-      "name": "incBy",
-      "outputs": [],
-      "stateMutability": "nonpayable",
+      "name": "allPets",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
       "inputs": [],
-      "name": "x",
+      "name": "getAllPets",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "pets",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "petName",
+          "type": "string"
+        }
+      ],
+      "name": "getPetByName",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "petContract",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPetCount",
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "",
+          "name": "count",
           "type": "uint256"
         }
       ],
@@ -37,18 +99,108 @@ export const COUNTER_CONTRACT = {
       "type": "function"
     },
     {
-      "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "getPetsByOwner",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "pets",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "petName",
+          "type": "string"
+        }
+      ],
+      "name": "isPetNameAvailable",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "available",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "name": "petsByName",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
           "internalType": "uint256",
-          "name": "by",
+          "name": "",
           "type": "uint256"
         }
       ],
-      "name": "Increment",
-      "type": "event"
+      "name": "petsByOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "petName",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "petContract",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "registerPet",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     }
   ]
-};
-
+}

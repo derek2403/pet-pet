@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { ethers } from 'ethers';
-import REGISTRY_ABI from '../utils/abi.json';
+import { REGISTRY_ADDRESS } from '../config/contracts';
 
-// Your deployed PetRegistry address on Base Sepolia
-const REGISTRY_ADDRESS = '0xaC73F8dB1AdaB4bbf3Ec511e2E078ab78c51a789';
+const REGISTRY_ABI = REGISTRY_ADDRESS.abi;
 
 // Base Sepolia RPC URL (fallback)
 const BASE_SEPOLIA_RPC = 'https://sepolia.base.org';
@@ -142,7 +141,7 @@ export default function TestPage() {
   // Verify contract is deployed
   const verifyContract = async (provider) => {
     try {
-      const code = await provider.getCode(REGISTRY_ADDRESS);
+      const code = await provider.getCode(REGISTRY_ADDRESS.address);
       console.log('Contract code length:', code.length);
       if (code === '0x') {
         throw new Error('No contract found at this address on Base Sepolia');
@@ -176,11 +175,11 @@ export default function TestPage() {
       // Verify contract exists
       const contractExists = await verifyContract(provider);
       if (!contractExists) {
-        setMessage('❌ Contract not found! Make sure you deployed to Base Sepolia at: ' + REGISTRY_ADDRESS);
+        setMessage('❌ Contract not found! Make sure you deployed to Base Sepolia at: ' + REGISTRY_ADDRESS.address);
         return;
       }
       
-      const registry = new ethers.Contract(REGISTRY_ADDRESS, REGISTRY_ABI, provider);
+      const registry = new ethers.Contract(REGISTRY_ADDRESS.address, REGISTRY_ABI, provider);
       console.log('Registry contract created');
       
       // Get total count
@@ -217,7 +216,7 @@ export default function TestPage() {
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const registry = new ethers.Contract(REGISTRY_ADDRESS, REGISTRY_ABI, signer);
+      const registry = new ethers.Contract(REGISTRY_ADDRESS.address, REGISTRY_ABI, signer);
 
       // Check if name is available
       const available = await registry.isPetNameAvailable(petName);
@@ -386,7 +385,7 @@ export default function TestPage() {
     <div style={{ padding: '40px', fontFamily: 'system-ui', maxWidth: '1200px', margin: '0 auto' }}>
       <h1 style={{ fontSize: '48px', marginBottom: '10px' }}>🐾 PetPet Test Page</h1>
       <p style={{ color: '#666', marginBottom: '30px' }}>
-        Connected to Base Sepolia | Registry: <code>{REGISTRY_ADDRESS}</code>
+        Connected to Base Sepolia | Registry: <code>{REGISTRY_ADDRESS.address}</code>
       </p>
 
       {/* Connect Wallet */}
@@ -650,11 +649,11 @@ export default function TestPage() {
       }}>
         <h3>🔗 Contract Information:</h3>
         <p><strong>Network:</strong> Base Sepolia (Chain ID: 84532)</p>
-        <p><strong>Registry Address:</strong> <code>{REGISTRY_ADDRESS}</code></p>
+        <p><strong>Registry Address:</strong> <code>{REGISTRY_ADDRESS.address}</code></p>
         <p><strong>System:</strong> Dynamic pet contracts (each pet = unique contract name)</p>
         <p>
           <a 
-            href={`https://base-sepolia.blockscout.com/address/${REGISTRY_ADDRESS}`} 
+            href={`https://base-sepolia.blockscout.com/address/${REGISTRY_ADDRESS.address}`} 
             target="_blank" 
             rel="noopener noreferrer"
             style={{ color: '#0070f3' }}
