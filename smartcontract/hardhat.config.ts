@@ -45,6 +45,24 @@ const config: HardhatUserConfig = {
       chainId: 84532,
     },
   },
+  etherscan: {
+    apiKey: {
+      baseSepolia: "abc123abc123abc123abc123abc123abc1", // Blockscout doesn't need real key, just non-empty
+    },
+    customChains: [
+      {
+        network: "baseSepolia",
+        chainId: 84532,
+        urls: {
+          apiURL: "https://base-sepolia.blockscout.com/api",
+          browserURL: "https://base-sepolia.blockscout.com",
+        },
+      },
+    ],
+  },
+  sourcify: {
+    enabled: false,
+  },
 };
 
 export default config;
