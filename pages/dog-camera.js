@@ -28,21 +28,21 @@ export default function DogCamera() {
     confidence: 0,
     fps: 0,
   });
-  const [detectedObjects, setDetectedObjects] = useState<any[]>([]);
-  const [zones, setZones] = useState<{ food: any; water: any; bed: any }>({
+  const [detectedObjects, setDetectedObjects] = useState([]);
+  const [zones, setZones] = useState({
     food: null,
     water: null,
     bed: null,
   });
 
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const socketRef = useRef<ReturnType<typeof io> | null>(null);
-  const modelRef = useRef<any>(null);
-  const animationRef = useRef<number | null>(null);
-  const lastPositionRef = useRef<{ centerX: number; centerY: number } | null>(null);
-  const activityHistoryRef = useRef<any[]>([]);
-  const fpsCounterRef = useRef<{ frames: number; lastTime: number; fps: number }>({ frames: 0, lastTime: Date.now(), fps: 0 });
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const socketRef = useRef(null);
+  const modelRef = useRef(null);
+  const animationRef = useRef(null);
+  const lastPositionRef = useRef(null);
+  const activityHistoryRef = useRef([]);
+  const fpsCounterRef = useRef({ frames: 0, lastTime: Date.now(), fps: 0 });
 
   useEffect(() => {
     // Initialize socket connection
@@ -95,9 +95,9 @@ export default function DogCamera() {
       });
 
       if (videoRef.current) {
-        videoRef.current.srcObject = stream as MediaStream;
+        videoRef.current.srcObject = stream;
         videoRef.current.onloadedmetadata = () => {
-          videoRef.current?.play();
+          videoRef.current.play();
           setCameraActive(true);
           if (!modelLoaded) {
             loadModel();
@@ -113,7 +113,7 @@ export default function DogCamera() {
 
   const stopCamera = () => {
     if (videoRef.current && videoRef.current.srcObject) {
-      (videoRef.current.srcObject as MediaStream).getTracks().forEach((track) => track.stop());
+      videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
       videoRef.current.srcObject = null;
     }
     if (animationRef.current) {
@@ -130,7 +130,7 @@ export default function DogCamera() {
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d')!;
+    const ctx = canvas.getContext('2d');
 
     // Set canvas size to match video
     canvas.width = video.videoWidth;
@@ -138,7 +138,7 @@ export default function DogCamera() {
 
     try {
       // Run detection
-      const predictions: any[] = await modelRef.current.detect(video);
+      const predictions = await modelRef.current.detect(video);
 
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -206,7 +206,7 @@ export default function DogCamera() {
       });
 
       // Draw zones
-      (Object.entries(zones) as [string, any][]).forEach(([name, zone]) => {
+      Object.entries(zones).forEach(([name, zone]) => {
         drawZone(ctx, zone, name);
       });
 
@@ -225,7 +225,7 @@ export default function DogCamera() {
     animationRef.current = requestAnimationFrame(detectObjects);
   };
 
-  const handleCanvasClick = (e: MouseEvent, zoneName: string) => {
+  const handleCanvasClick = (e, zoneName) => {
     if (!canvasRef.current) return;
 
     const rect = canvasRef.current.getBoundingClientRect();
@@ -362,9 +362,9 @@ export default function DogCamera() {
                 onClick={() => {
                   const zoneName = prompt('Click on camera to set zone. Enter zone name:', 'food');
                   if (!zoneName || !canvasRef.current) return;
-                  const handler = (ev: MouseEvent) => {
+                  const handler = (ev) => {
                     handleCanvasClick(ev, zoneName);
-                    canvasRef.current?.removeEventListener('click', handler);
+                    canvasRef.current.removeEventListener('click', handler);
                   };
                   canvasRef.current.addEventListener('click', handler);
                 }}
@@ -376,9 +376,9 @@ export default function DogCamera() {
               <Button
                 onClick={() => {
                   if (!canvasRef.current) return;
-                  const handler = (ev: MouseEvent) => {
+                  const handler = (ev) => {
                     handleCanvasClick(ev, 'water');
-                    canvasRef.current?.removeEventListener('click', handler);
+                    canvasRef.current.removeEventListener('click', handler);
                   };
                   canvasRef.current.addEventListener('click', handler);
                 }}
@@ -390,9 +390,9 @@ export default function DogCamera() {
               <Button
                 onClick={() => {
                   if (!canvasRef.current) return;
-                  const handler = (ev: MouseEvent) => {
+                  const handler = (ev) => {
                     handleCanvasClick(ev, 'bed');
-                    canvasRef.current?.removeEventListener('click', handler);
+                    canvasRef.current.removeEventListener('click', handler);
                   };
                   canvasRef.current.addEventListener('click', handler);
                 }}
