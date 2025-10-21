@@ -227,25 +227,38 @@ export default function TestPage() {
         return;
       }
 
-      // Deploy pet via backend API
-      setMessage('⏳ Deploying contract (this may take 30-60 seconds)...');
+      // Compile contract via backend API
+      setMessage('⏳ Compiling contract (this may take 10-20 seconds)...');
       
-      const deployResponse = await fetch('/api/deploy-pet', {
+      const compileResponse = await fetch('/api/compile-pet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          petName: petName,
-          ownerAddress: account 
-        }),
+        body: JSON.stringify({ petName: petName }),
       });
 
-      const deployResult = await deployResponse.json();
+      const compileResult = await compileResponse.json();
       
-      if (!deployResult.success) {
-        throw new Error(deployResult.error || 'Deployment failed');
+      if (!compileResult.success) {
+        throw new Error(compileResult.error || 'Compilation failed');
       }
 
-      const petAddress = deployResult.address;
+      console.log('Contract compiled:', compileResult.contractName);
+      setMessage(`✅ Compiled! Now deploying with your wallet...`);
+
+      // Deploy using user's wallet
+      const ContractFactory = new ethers.ContractFactory(
+        compileResult.abi,
+        compileResult.bytecode,
+        signer
+      );
+
+      setMessage('⏳ Please confirm transaction in MetaMask...');
+      const contract = await ContractFactory.deploy(petName, account);
+      
+      setMessage('⏳ Waiting for deployment confirmation...');
+      await contract.waitForDeployment();
+      
+      const petAddress = await contract.getAddress();
       console.log('Pet deployed at:', petAddress);
       setMessage(`✅ Contract deployed! Registering in registry...`);
 
@@ -254,7 +267,7 @@ export default function TestPage() {
       setMessage('⏳ Registering pet...');
       await tx.wait();
 
-      setMessage(`✅ Pet "${petName}" (contract ${deployResult.contractName}) created at ${petAddress}`);
+      setMessage(`✅ Pet "${petName}" (contract ${compileResult.contractName}) created at ${petAddress}`);
       
       // Auto-verify then cleanup
       setTimeout(async () => {
@@ -267,7 +280,7 @@ export default function TestPage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              contractName: deployResult.contractName
+              contractName: compileResult.contractName
             }),
           });
           console.log('Temp files cleaned up');
