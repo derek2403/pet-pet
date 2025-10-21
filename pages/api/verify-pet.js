@@ -19,7 +19,11 @@ export default async function handler(req, res) {
     console.log('Verifying pet contract:', { petAddress, petName, ownerAddress });
     
     const smartcontractPath = path.join(process.cwd(), 'smartcontract');
-    const command = `npx hardhat verify --network baseSepolia ${petAddress} "${petName}" ${ownerAddress}`;
+    
+    // Sanitize pet name for contract name
+    const contractName = petName.replace(/[^a-zA-Z0-9]/g, '');
+    
+    const command = `npx hardhat verify --network baseSepolia --contract "contracts/${contractName}.sol:${contractName}" ${petAddress} "${petName}" ${ownerAddress}`;
     
     console.log('Running command:', command);
     console.log('In directory:', smartcontractPath);

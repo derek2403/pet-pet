@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { ethers } from 'ethers';
-import FACTORY_ABI from '../utils/abi.json';
+import REGISTRY_ABI from '../utils/abi.json';
 
-// Your deployed PetFactory address on Base Sepolia
-const FACTORY_ADDRESS = '0x6F8bEe4683fF86576B0c1f81f884468f561b8615';
+// Your deployed PetRegistry address on Base Sepolia
+const REGISTRY_ADDRESS = '0xaC73F8dB1AdaB4bbf3Ec511e2E078ab78c51a789';
 
 // Base Sepolia RPC URL (fallback)
 const BASE_SEPOLIA_RPC = 'https://sepolia.base.org';
@@ -142,7 +142,7 @@ export default function TestPage() {
   // Verify contract is deployed
   const verifyContract = async (provider) => {
     try {
-      const code = await provider.getCode(FACTORY_ADDRESS);
+      const code = await provider.getCode(REGISTRY_ADDRESS);
       console.log('Contract code length:', code.length);
       if (code === '0x') {
         throw new Error('No contract found at this address on Base Sepolia');
@@ -157,7 +157,6 @@ export default function TestPage() {
   // Load user's pets and all pets
   const loadPets = async (userAddress) => {
     try {
-      // Use JsonRpcProvider as fallback to ensure we're on the right network
       let provider;
       
       try {
@@ -177,24 +176,24 @@ export default function TestPage() {
       // Verify contract exists
       const contractExists = await verifyContract(provider);
       if (!contractExists) {
-        setMessage('❌ Contract not found! Make sure you deployed to Base Sepolia at: ' + FACTORY_ADDRESS);
+        setMessage('❌ Contract not found! Make sure you deployed to Base Sepolia at: ' + REGISTRY_ADDRESS);
         return;
       }
       
-      const factory = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, provider);
-      console.log('Factory contract created');
+      const registry = new ethers.Contract(REGISTRY_ADDRESS, REGISTRY_ABI, provider);
+      console.log('Registry contract created');
       
-      // Get total count first to verify contract is accessible
-      const count = await factory.getPetCount();
+      // Get total count
+      const count = await registry.getPetCount();
       console.log('Total pet count:', count.toString());
       
       // Get user's pets
-      const userPets = await factory.getPetsByOwner(userAddress);
+      const userPets = await registry.getPetsByOwner(userAddress);
       console.log('User pets:', userPets);
       setMyPets(userPets);
       
       // Get all pets
-      const all = await factory.getAllPets();
+      const all = await registry.getAllPets();
       console.log('All pets:', all);
       setAllPets(all);
       
@@ -214,43 +213,60 @@ export default function TestPage() {
 
     try {
       setLoading(true);
-      setMessage('🔄 Creating pet...');
+      setMessage('🔄 Compiling contract for pet "' + petName + '"...');
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const factory = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, signer);
+      const registry = new ethers.Contract(REGISTRY_ADDRESS, REGISTRY_ABI, signer);
 
       // Check if name is available
-      const available = await factory.isPetNameAvailable(petName);
+      const available = await registry.isPetNameAvailable(petName);
       if (!available) {
         setMessage('❌ Pet name already taken!');
         setLoading(false);
         return;
       }
 
-      // Create the pet
-      const tx = await factory.addPet(petName);
-      setMessage('⏳ Transaction sent, waiting for confirmation...');
+      // Deploy pet via backend API
+      setMessage('⏳ Deploying contract (this may take 30-60 seconds)...');
       
-      const receipt = await tx.wait();
-      setMessage('✅ Pet created successfully! 🎉');
+      const deployResponse = await fetch('/api/deploy-pet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          petName: petName,
+          ownerAddress: account 
+        }),
+      });
+
+      const deployResult = await deployResponse.json();
       
-      // Get the pet address
-      const petAddress = await factory.getPetByName(petName);
-      console.log('Pet created at:', petAddress);
-      setMessage(`✅ Pet "${petName}" created at ${petAddress}. Verifying contract...`);
+      if (!deployResult.success) {
+        throw new Error(deployResult.error || 'Deployment failed');
+      }
+
+      const petAddress = deployResult.address;
+      console.log('Pet deployed at:', petAddress);
+      setMessage(`✅ Contract deployed! Registering in registry...`);
+
+      // Register the pet in the registry
+      const tx = await registry.registerPet(petName, petAddress, account);
+      setMessage('⏳ Registering pet...');
+      await tx.wait();
+
+      setMessage(`✅ Pet "${petName}" (contract ${deployResult.contractName}) created at ${petAddress}`);
       
-      // Auto-verify the pet contract after waiting for indexing
+      // Auto-verify
       setTimeout(async () => {
         console.log('Starting auto-verification for:', petAddress, petName, account);
         await verifyPetContract(petAddress, petName, account);
-      }, 10000); // Wait 10 seconds for contract to be indexed
+      }, 5000);
       
       setPetName('');
       loadPets(account);
     } catch (error) {
       console.error(error);
-      setMessage('❌ Error: ' + (error.reason || error.message));
+      setMessage('❌ Error: ' + (error.message || 'Failed to create pet'));
     } finally {
       setLoading(false);
     }
@@ -343,7 +359,7 @@ export default function TestPage() {
     <div style={{ padding: '40px', fontFamily: 'system-ui', maxWidth: '1200px', margin: '0 auto' }}>
       <h1 style={{ fontSize: '48px', marginBottom: '10px' }}>🐾 PetPet Test Page</h1>
       <p style={{ color: '#666', marginBottom: '30px' }}>
-        Connected to Base Sepolia | Factory: <code>{FACTORY_ADDRESS}</code>
+        Connected to Base Sepolia | Registry: <code>{REGISTRY_ADDRESS}</code>
       </p>
 
       {/* Connect Wallet */}
@@ -607,15 +623,16 @@ export default function TestPage() {
       }}>
         <h3>🔗 Contract Information:</h3>
         <p><strong>Network:</strong> Base Sepolia (Chain ID: 84532)</p>
-        <p><strong>Factory Address:</strong> <code>{FACTORY_ADDRESS}</code></p>
+        <p><strong>Registry Address:</strong> <code>{REGISTRY_ADDRESS}</code></p>
+        <p><strong>System:</strong> Dynamic pet contracts (each pet = unique contract name)</p>
         <p>
           <a 
-            href={`https://sepolia.basescan.org/address/${FACTORY_ADDRESS}`} 
+            href={`https://base-sepolia.blockscout.com/address/${REGISTRY_ADDRESS}`} 
             target="_blank" 
             rel="noopener noreferrer"
             style={{ color: '#0070f3' }}
           >
-            View on BaseScan →
+            View Registry on Blockscout →
           </a>
         </p>
       </div>
