@@ -256,10 +256,24 @@ export default function TestPage() {
 
       setMessage(`✅ Pet "${petName}" (contract ${deployResult.contractName}) created at ${petAddress}`);
       
-      // Auto-verify
+      // Auto-verify then cleanup
       setTimeout(async () => {
         console.log('Starting auto-verification for:', petAddress, petName, account);
         await verifyPetContract(petAddress, petName, account);
+        
+        // Delete temp files after verification
+        try {
+          await fetch('/api/cleanup-temp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contractName: deployResult.contractName
+            }),
+          });
+          console.log('Temp files cleaned up');
+        } catch (e) {
+          console.log('Cleanup error:', e);
+        }
       }, 5000);
       
       setPetName('');

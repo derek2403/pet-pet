@@ -89,19 +89,13 @@ main()
     const deployedAddress = match[1];
     console.log('Deployed at:', deployedAddress);
 
-    // Keep contract file for verification, only delete script
-    try {
-      await fs.unlink(scriptPath);
-      console.log('Cleaned up deployment script');
-    } catch (e) {
-      console.log('Cleanup warning:', e.message);
-    }
-
     return res.status(200).json({
       success: true,
       address: deployedAddress,
       contractName: contractName,
-      petName: petName
+      petName: petName,
+      tempContractPath: tempContractPath,
+      scriptPath: scriptPath
     });
 
   } catch (error) {
