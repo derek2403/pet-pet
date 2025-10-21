@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { ethers } from 'ethers';
-import REGISTRY_ABI from '../utils/abi.json';
+import { REGISTRY_ADDRESS } from '../config/contracts';
+import { useTransactionToast } from '../hooks/useTransactionToast';
+import { useTransactionHistory } from '../hooks/useTransactionHistory';
 
-// Your deployed PetRegistry address on Base Sepolia
-const REGISTRY_ADDRESS = '0xaC73F8dB1AdaB4bbf3Ec511e2E078ab78c51a789';
+const REGISTRY_ABI = REGISTRY_ADDRESS.abi;
 
 // Base Sepolia RPC URL (fallback)
 const BASE_SEPOLIA_RPC = 'https://sepolia.base.org';
@@ -78,6 +79,10 @@ export default function TestPage() {
   const [selectedPet, setSelectedPet] = useState(null);
   const [petStats, setPetStats] = useState(null);
 
+  // Initialize transaction hooks with Base Sepolia chain ID
+  const { showTransactionToast, handleTransactionWithNotification } = useTransactionToast("84532");
+  const { showAddressTransactions, openTransactionPopup } = useTransactionHistory("84532");
+
   // Connect wallet
   const connectWallet = async () => {
     try {
@@ -142,7 +147,7 @@ export default function TestPage() {
   // Verify contract is deployed
   const verifyContract = async (provider) => {
     try {
-      const code = await provider.getCode(REGISTRY_ADDRESS);
+      const code = await provider.getCode(REGISTRY_ADDRESS.address);
       console.log('Contract code length:', code.length);
       if (code === '0x') {
         throw new Error('No contract found at this address on Base Sepolia');
@@ -176,11 +181,11 @@ export default function TestPage() {
       // Verify contract exists
       const contractExists = await verifyContract(provider);
       if (!contractExists) {
-        setMessage('❌ Contract not found! Make sure you deployed to Base Sepolia at: ' + REGISTRY_ADDRESS);
+        setMessage('❌ Contract not found! Make sure you deployed to Base Sepolia at: ' + REGISTRY_ADDRESS.address);
         return;
       }
       
-      const registry = new ethers.Contract(REGISTRY_ADDRESS, REGISTRY_ABI, provider);
+      const registry = new ethers.Contract(REGISTRY_ADDRESS.address, REGISTRY_ABI, provider);
       console.log('Registry contract created');
       
       // Get total count
@@ -217,7 +222,7 @@ export default function TestPage() {
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const registry = new ethers.Contract(REGISTRY_ADDRESS, REGISTRY_ABI, signer);
+      const registry = new ethers.Contract(REGISTRY_ADDRESS.address, REGISTRY_ABI, signer);
 
       // Check if name is available
       const available = await registry.isPetNameAvailable(petName);
@@ -227,34 +232,66 @@ export default function TestPage() {
         return;
       }
 
-      // Deploy pet via backend API
-      setMessage('⏳ Deploying contract (this may take 30-60 seconds)...');
+      // Compile contract via backend API
+      setMessage('⏳ Compiling contract (this may take 10-20 seconds)...');
       
-      const deployResponse = await fetch('/api/deploy-pet', {
+      const compileResponse = await fetch('/api/compile-pet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          petName: petName,
-          ownerAddress: account 
-        }),
+        body: JSON.stringify({ petName: petName }),
       });
 
-      const deployResult = await deployResponse.json();
+      const compileResult = await compileResponse.json();
       
-      if (!deployResult.success) {
-        throw new Error(deployResult.error || 'Deployment failed');
+      if (!compileResult.success) {
+        throw new Error(compileResult.error || 'Compilation failed');
       }
 
-      const petAddress = deployResult.address;
+      console.log('Contract compiled:', compileResult.contractName);
+      setMessage(`✅ Compiled! Now deploying with your wallet...`);
+
+      // Deploy using user's wallet
+      const ContractFactory = new ethers.ContractFactory(
+        compileResult.abi,
+        compileResult.bytecode,
+        signer
+      );
+
+      setMessage('⏳ Please confirm transaction in MetaMask...');
+      
+      // Deploy contract
+      const contract = await ContractFactory.deploy(petName, account);
+      const deployTx = contract.deploymentTransaction();
+      
+      // Show deployment toast
+      if (deployTx && deployTx.hash) {
+        showTransactionToast(deployTx.hash);
+      }
+      
+      setMessage('⏳ Waiting for deployment confirmation...');
+      await contract.waitForDeployment();
+      
+      const petAddress = await contract.getAddress();
       console.log('Pet deployed at:', petAddress);
       setMessage(`✅ Contract deployed! Registering in registry...`);
 
-      // Register the pet in the registry
-      const tx = await registry.registerPet(petName, petAddress, account);
-      setMessage('⏳ Registering pet...');
-      await tx.wait();
+      // Register the pet in the registry with transaction toast
+      await handleTransactionWithNotification(
+        async () => {
+          const tx = await registry.registerPet(petName, petAddress, account);
+          setMessage('⏳ Registering pet...');
+          await tx.wait();
+          return tx;
+        },
+        {
+          onSuccess: (result, txHash) => {
+            console.log('Registration transaction:', txHash);
+          },
+          showToast: true
+        }
+      );
 
-      setMessage(`✅ Pet "${petName}" (contract ${deployResult.contractName}) created at ${petAddress}`);
+      setMessage(`✅ Pet "${petName}" (contract ${compileResult.contractName}) created at ${petAddress}`);
       
       // Auto-verify then cleanup
       setTimeout(async () => {
@@ -267,7 +304,7 @@ export default function TestPage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              contractName: deployResult.contractName
+              contractName: compileResult.contractName
             }),
           });
           console.log('Temp files cleaned up');
@@ -349,18 +386,31 @@ export default function TestPage() {
       const signer = await provider.getSigner();
       const pet = new ethers.Contract(selectedPet.address, PET_ABI, signer);
       
-      let tx;
-      if (type === 'walk') tx = await pet.walk(value);
-      else if (type === 'run') tx = await pet.run(value);
-      else if (type === 'eat') tx = await pet.eat(value);
-      else if (type === 'drink') tx = await pet.drink(value);
-      
-      setMessage('⏳ Logging activity...');
-      await tx.wait();
-      setMessage(`✅ Activity logged!`);
-      
-      // Refresh pet stats
-      viewPet(selectedPet.address);
+      // Execute transaction with toast
+      await handleTransactionWithNotification(
+        async () => {
+          let tx;
+          if (type === 'walk') tx = await pet.walk(value);
+          else if (type === 'run') tx = await pet.run(value);
+          else if (type === 'eat') tx = await pet.eat(value);
+          else if (type === 'drink') tx = await pet.drink(value);
+          
+          setMessage('⏳ Logging activity...');
+          await tx.wait();
+          return tx;
+        },
+        {
+          onSuccess: () => {
+            setMessage(`✅ Activity logged!`);
+            // Refresh pet stats
+            viewPet(selectedPet.address);
+          },
+          onError: (error) => {
+            setMessage('❌ Error: ' + (error.reason || error.message));
+          },
+          showToast: true
+        }
+      );
     } catch (error) {
       console.error(error);
       setMessage('❌ Error: ' + (error.reason || error.message));
@@ -373,7 +423,7 @@ export default function TestPage() {
     <div style={{ padding: '40px', fontFamily: 'system-ui', maxWidth: '1200px', margin: '0 auto' }}>
       <h1 style={{ fontSize: '48px', marginBottom: '10px' }}>🐾 PetPet Test Page</h1>
       <p style={{ color: '#666', marginBottom: '30px' }}>
-        Connected to Base Sepolia | Registry: <code>{REGISTRY_ADDRESS}</code>
+        Connected to Base Sepolia | Registry: <code>{REGISTRY_ADDRESS.address}</code>
       </p>
 
       {/* Connect Wallet */}
@@ -395,7 +445,23 @@ export default function TestPage() {
         </button>
       ) : (
         <div style={{ marginBottom: '40px' }}>
-          <p style={{ color: 'green', marginBottom: '20px' }}>{message}</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <p style={{ color: 'green', margin: 0 }}>{message}</p>
+            <button
+              onClick={() => showAddressTransactions(account)}
+              style={{
+                padding: '10px 20px',
+                fontSize: '14px',
+                background: '#6366f1',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}
+            >
+              📜 View My Transaction History
+            </button>
+          </div>
           
           {/* Create Pet Section */}
           <div style={{ 
@@ -446,7 +512,25 @@ export default function TestPage() {
             padding: '30px',
             marginBottom: '30px'
           }}>
-            <h2>🐕 My Pets ({myPets.length})</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2 style={{ margin: 0 }}>🐕 My Pets ({myPets.length})</h2>
+              {myPets.length > 0 && (
+                <button
+                  onClick={() => showAddressTransactions(account)}
+                  style={{
+                    padding: '8px 16px',
+                    fontSize: '13px',
+                    background: '#8b5cf6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  📊 View All Pet Transactions
+                </button>
+              )}
+            </div>
             {myPets.length === 0 ? (
               <p style={{ color: '#666' }}>You haven't created any pets yet.</p>
             ) : (
@@ -480,21 +564,37 @@ export default function TestPage() {
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2 style={{ margin: 0 }}>🐾 {selectedPet.name}</h2>
-                <button
-                  onClick={() => verifyPetContract(selectedPet.address, selectedPet.name, selectedPet.owner)}
-                  disabled={loading}
-                  style={{
-                    padding: '10px 20px',
-                    background: '#8b5cf6',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    fontSize: '14px'
-                  }}
-                >
-                  🔍 Verify Contract
-                </button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    onClick={() => showAddressTransactions(selectedPet.address)}
+                    style={{
+                      padding: '10px 20px',
+                      background: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    📜 Pet History
+                  </button>
+                  <button
+                    onClick={() => verifyPetContract(selectedPet.address, selectedPet.name, selectedPet.owner)}
+                    disabled={loading}
+                    style={{
+                      padding: '10px 20px',
+                      background: '#8b5cf6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    🔍 Verify Contract
+                  </button>
+                </div>
               </div>
               <p><strong>Address:</strong> <code>{selectedPet.address}</code></p>
               <p><strong>Owner:</strong> <code>{selectedPet.owner}</code></p>
@@ -637,11 +737,11 @@ export default function TestPage() {
       }}>
         <h3>🔗 Contract Information:</h3>
         <p><strong>Network:</strong> Base Sepolia (Chain ID: 84532)</p>
-        <p><strong>Registry Address:</strong> <code>{REGISTRY_ADDRESS}</code></p>
+        <p><strong>Registry Address:</strong> <code>{REGISTRY_ADDRESS.address}</code></p>
         <p><strong>System:</strong> Dynamic pet contracts (each pet = unique contract name)</p>
         <p>
           <a 
-            href={`https://base-sepolia.blockscout.com/address/${REGISTRY_ADDRESS}`} 
+            href={`https://base-sepolia.blockscout.com/address/${REGISTRY_ADDRESS.address}`} 
             target="_blank" 
             rel="noopener noreferrer"
             style={{ color: '#0070f3' }}
