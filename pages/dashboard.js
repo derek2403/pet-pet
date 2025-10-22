@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Link from 'next/link';
 import {
   Activity,
   Plus,
@@ -36,6 +37,8 @@ import {
   BarChart3,
   ScrollText,
   Home,
+  Boxes,
+  ExternalLink,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -143,6 +146,18 @@ export default function Dashboard() {
             <h1 className="text-2xl font-semibold">Pet Pet Dashboard</h1>
           </div>
           <div className="flex items-center gap-3">
+            <Link href="/room">
+              <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-full">
+                <Boxes className="w-4 h-4 mr-2" />
+                Visit 3D Room
+              </Button>
+            </Link>
+            <Link href="/petpet">
+              <Button variant="outline" className="rounded-full bg-white/80 backdrop-blur-sm border-gray-200">
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Explorer
+              </Button>
+            </Link>
             <div className="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full text-sm">
               <span className="text-gray-600">Wallet:</span>{" "}
               <span className="font-medium">0x1234...5678</span>
@@ -254,6 +269,27 @@ export default function Dashboard() {
                       </Badge>
                     </div>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Featured 3D Room Card */}
+            <Card className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 border-0 rounded-2xl overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between text-white">
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2">🏠 Explore Your Pet's 3D Room</h3>
+                    <p className="text-white/90 mb-4">
+                      Step into an interactive 3D environment powered by Spline. View and interact with your pet's cozy space in real-time!
+                    </p>
+                    <Link href="/room">
+                      <Button className="bg-white text-pink-600 hover:bg-gray-100 rounded-full">
+                        <Boxes className="w-4 h-4 mr-2" />
+                        Enter 3D Room
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="text-8xl">🏠</div>
                 </div>
               </CardContent>
             </Card>
