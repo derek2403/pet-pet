@@ -14,19 +14,19 @@ import { Plus } from "lucide-react";
  */
 export default function PetSelector({ pets }) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500">
       <div className="flex items-center gap-4">
-        {/* Pet Dropdown */}
+        {/* Pet Dropdown with enhanced styling */}
         <Select defaultValue="1">
-          <SelectTrigger className="w-[280px] bg-[#FBFAFD]/80 backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm text-[#4A4458] font-medium hover:bg-[#F6F3F9] hover:border-[#D4A5A5] transition-all">
+          <SelectTrigger className="w-[280px] bg-white/80 backdrop-blur-md border-[#E8E4F0]/50 rounded-2xl shadow-lg text-[#4A4458] font-semibold hover:bg-white hover:border-[#FF2D95] hover:shadow-xl transition-all duration-200">
             <SelectValue placeholder="Select a pet" />
           </SelectTrigger>
-          <SelectContent className="bg-[#FBFAFD] border-[#E8E4F0] rounded-xl shadow-lg">
+          <SelectContent className="bg-white/95 backdrop-blur-md border-[#E8E4F0]/50 rounded-xl shadow-xl">
             {pets.map((pet) => (
               <SelectItem 
                 key={pet.id} 
                 value={pet.id.toString()}
-                className="text-[#9E9AA7] focus:bg-[#F6F3F9] focus:text-[#4A4458] data-[state=checked]:bg-[#FFE4E8] data-[state=checked]:text-[#4A4458] data-[state=checked]:font-medium cursor-pointer"
+                className="text-[#6B6B6B] focus:bg-[#F6F3F9] focus:text-[#4A4458] data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-[#FFE4E8] data-[state=checked]:to-[#FFD4E5] data-[state=checked]:text-[#FF2D95] data-[state=checked]:font-bold cursor-pointer"
               >
                 {pet.name} ({pet.ens})
               </SelectItem>
@@ -34,8 +34,8 @@ export default function PetSelector({ pets }) {
           </SelectContent>
         </Select>
 
-        {/* Add Pet Button */}
-        <Button className="bg-[#FF4081] hover:bg-[#F50057] hover:shadow-lg hover:scale-105 transition-all duration-300 text-white font-medium rounded-2xl">
+        {/* Add Pet Button with solid pink */}
+        <Button className="bg-[#FF2D95] hover:bg-[#E6298A] hover:shadow-xl hover:scale-105 transition-all duration-300 text-white font-semibold rounded-2xl shadow-lg px-6">
           <Plus className="w-4 h-4 mr-2" />
           Add Pet
         </Button>

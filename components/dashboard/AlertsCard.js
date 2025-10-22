@@ -7,35 +7,55 @@ import { Bell } from "lucide-react";
  */
 export default function AlertsCard({ alerts }) {
   return (
-    <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm animate-in fade-in slide-in-from-right-4 duration-500">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-[#4A4458] font-medium">
-          <Bell className="w-5 h-5 text-[#D4A5A5]" />
-          Alerts
+    <Card className="bg-white/60 backdrop-blur-md border-[#E8E4F0]/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-in fade-in slide-in-from-right-4 duration-500 overflow-hidden group">
+      {/* Background gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#FFE4E8]/10 via-transparent to-[#F8F5FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      <CardHeader className="relative">
+        <CardTitle className="flex items-center gap-2 text-[#4A4458] font-semibold">
+          <div className="relative">
+            <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
+              <Bell className="w-4 h-4 text-[#FF2D95]" />
+            </div>
+            <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#FF2D95] rounded-full animate-pulse" />
+          </div>
+          Alerts & Notifications
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 relative">
         {alerts.map((alert, i) => (
           <div
             key={i}
-            className={`p-3 rounded-xl flex items-start gap-3 hover:scale-[1.02] transition-transform duration-200 ${
+            className={`p-4 rounded-xl flex items-start gap-3 hover:scale-[1.02] hover:shadow-md transition-all duration-200 border backdrop-blur-sm relative overflow-hidden group/alert ${
               alert.type === "warning"
-                ? "bg-[#FFF5F7] border border-pink-100"
+                ? "bg-gradient-to-r from-[#FFF5F7] to-[#FFE4E8] border-pink-200/50 shadow-sm"
                 : alert.type === "info"
-                ? "bg-[#F8F5FF] border border-purple-100"
-                : "bg-[#FFF5F7] border border-pink-100"
+                ? "bg-gradient-to-r from-[#F8F5FF] to-[#F0E8FF] border-purple-200/50 shadow-sm"
+                : "bg-gradient-to-r from-[#FFF5F7] to-[#FFE4E8] border-pink-200/50 shadow-sm"
             }`}
           >
-            <alert.icon
-              className={`w-5 h-5 shrink-0 mt-0.5 ${
-                alert.type === "warning"
-                  ? "text-[#D4A5A5]"
-                  : alert.type === "info"
-                  ? "text-[#C5B5D4]"
-                  : "text-[#D4A5A5]"
-              }`}
-            />
-            <p className="text-sm font-medium text-[#6B6B6B]">{alert.message}</p>
+            {/* Icon container with enhanced styling */}
+            <div className={`p-2 rounded-lg shrink-0 ${
+              alert.type === "warning"
+                ? "bg-white/60 shadow-sm"
+                : alert.type === "info"
+                ? "bg-white/60 shadow-sm"
+                : "bg-white/60 shadow-sm"
+            }`}>
+              <alert.icon
+                className={`w-4 h-4 ${
+                  alert.type === "warning"
+                    ? "text-[#FF2D95]"
+                    : alert.type === "info"
+                    ? "text-[#C5B5D4]"
+                    : "text-[#FF2D95]"
+                }`}
+              />
+            </div>
+            <p className="text-sm font-medium text-[#4A4458] leading-relaxed">{alert.message}</p>
+            
+            {/* Subtle hover effect */}
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/alert:opacity-100 transition-opacity duration-300" />
           </div>
         ))}
       </CardContent>

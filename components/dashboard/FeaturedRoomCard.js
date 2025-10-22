@@ -9,26 +9,38 @@ import { Boxes, Home as HomeIcon } from "lucide-react";
  */
 export default function FeaturedRoomCard() {
   return (
-    <Card className="bg-gradient-to-r from-[#FFF9E6] via-[#FFE4E8] via-[#F5E8FF] to-[#E8F0FF] border-0 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Boxes className="w-6 h-6 text-[#5A5A5A]" />
-              <h3 className="text-2xl font-semibold text-[#2C2C2C]">Explore Your Pet's 3D Room</h3>
+    <Card className="relative bg-gradient-to-r from-[#FFF9E6] via-[#FFE4E8] via-[#F5E8FF] to-[#E8F0FF] border-0 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:scale-[1.01] transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700 group">
+      {/* Animated gradient overlay */}
+      <div className="absolute inset-0 bg-[#FF2D95]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+      
+      {/* Decorative elements */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl" />
+      <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/20 rounded-full blur-2xl" />
+      
+      <CardContent className="p-8 relative">
+        <div className="flex items-center justify-between gap-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-white/60 rounded-xl shadow-sm">
+                <Boxes className="w-6 h-6 text-[#FF2D95]" />
+              </div>
+              <h3 className="text-2xl font-bold text-[#2C2C2C] tracking-tight">Explore Your Pet's 3D Room</h3>
             </div>
-            <p className="text-[#6B6B6B] mb-4">
-              Step into an interactive 3D environment powered by Spline. View and interact with your pet's cozy space in real-time!
+            <p className="text-[#6B6B6B] mb-6 leading-relaxed max-w-lg">
+              Step into an interactive 3D environment powered by Spline. View and interact with your pet's cozy space in real-time with immersive visualization.
             </p>
             <Link href="/room">
-              <Button className="bg-[#FF4081] hover:bg-[#F50057] hover:shadow-lg transition-all text-white font-medium rounded-full">
+              <Button className="bg-[#FF2D95] hover:bg-[#E6298A] hover:shadow-xl transition-all duration-300 text-white font-medium rounded-full px-6 py-2.5 shadow-lg">
                 <Boxes className="w-4 h-4 mr-2" />
                 Enter 3D Room
               </Button>
             </Link>
           </div>
-          <div className="p-4 bg-white/50 rounded-2xl backdrop-blur-sm shadow-sm hover:rotate-6 transition-transform duration-300">
-            <HomeIcon className="w-20 h-20 text-[#D4A5A5]" />
+          <div className="hidden md:block relative">
+            <div className="absolute inset-0 bg-[#FF2D95]/20 rounded-2xl blur-xl" />
+            <div className="relative p-6 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg group-hover:rotate-3 group-hover:scale-110 transition-all duration-500">
+              <HomeIcon className="w-24 h-24 text-[#D4A5A5]" />
+            </div>
           </div>
         </div>
       </CardContent>

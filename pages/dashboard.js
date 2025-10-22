@@ -176,11 +176,18 @@ export default function Dashboard() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-[#FFFBF5] via-[#FFF5F7] to-[#F8F5FF]"
+      className="min-h-screen bg-gradient-to-br from-[#FFFBF5] via-[#FFF5F7] to-[#F8F5FF] relative overflow-hidden"
       style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}
     >
+      {/* Subtle decorative background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-[#FFE4E8]/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#F8F5FF]/30 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-[#FFF5F7]/20 rounded-full blur-3xl" />
+      </div>
+
       {/* Header with navigation and wallet */}
-      <div className="container mx-auto px-6 py-6">
+      <div className="container mx-auto px-6 py-6 relative z-10">
         <DashboardHeader />
 
         {/* Main Content with Tabs */}
@@ -189,10 +196,10 @@ export default function Dashboard() {
           onValueChange={setActiveTab} 
           className="space-y-6"
         >
-          <TabsList ref={tabsListRef} className="relative bg-[#FBFAFD] backdrop-blur-sm border border-[#E8E4F0] p-1 rounded-2xl shadow-sm overflow-hidden">
-            {/* Sliding Pill Background */}
+          <TabsList ref={tabsListRef} className="relative bg-white/80 backdrop-blur-md border border-[#E8E4F0]/50 p-1.5 rounded-2xl shadow-lg overflow-hidden">
+            {/* Sliding Pill Background with solid pink */}
             <div
-              className="absolute rounded-xl bg-[#FF4081] shadow-sm transition-all duration-300 ease-out"
+              className="absolute rounded-xl bg-[#FF2D95] shadow-md transition-all duration-300 ease-out"
               style={{
                 left: `${pillStyle.left}px`,
                 width: `${pillStyle.width}px`,
