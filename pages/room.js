@@ -42,7 +42,7 @@ export default function Room() {
   const splineRef = useRef();
   const viewerRef = useRef(null);
   const controlsRef = useRef(null);
-  const zoomRef = useRef(1);
+  const zoomRef = useRef(1.9);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSoundOn, setIsSoundOn] = useState(false);
