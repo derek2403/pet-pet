@@ -16,7 +16,12 @@ import {
   Loader2,
   ArrowLeft,
   Eye,
-  Box
+  Box,
+  Monitor,
+  Armchair,
+  Flower,
+  Palette,
+  Image
 } from "lucide-react";
 import Link from 'next/link';
 
@@ -24,7 +29,7 @@ import Link from 'next/link';
 const Spline = dynamic(() => import('@splinetool/react-spline'), {
   ssr: false,
   loading: () => (
-    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-pink-100 to-purple-100">
+    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-pink-100 to-pink-200">
       <div className="text-center">
         <Loader2 className="w-12 h-12 text-pink-500 animate-spin mx-auto mb-4" />
         <p className="text-lg font-medium text-gray-700">Loading your Pet's Room...</p>
@@ -70,7 +75,7 @@ export default function Room() {
 
   return (
     <div 
-      className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 via-purple-50 to-blue-100"
+      className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 via-pink-100 to-pink-200"
       style={{ fontFamily: "'Poppins', 'Inter', 'Helvetica Neue', Arial, sans-serif" }}
     >
       {/* Header */}
@@ -85,11 +90,13 @@ export default function Room() {
             </Link>
           </div>
           <div className="flex items-center gap-3">
-            <div className="text-pink-500 text-3xl font-bold">🏠</div>
+            <div className="p-2 bg-pink-100 rounded-xl">
+              <Home className="w-8 h-8 text-pink-500" />
+            </div>
             <h1 className="text-2xl font-semibold">Pet's 3D Room</h1>
           </div>
           <div className="flex items-center gap-3">
-            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 px-4 py-2">
+            <Badge className="bg-pink-100 text-pink-700 hover:bg-pink-100 px-4 py-2">
               <Box className="w-3 h-3 mr-1" />
               Interactive
             </Badge>
@@ -138,7 +145,7 @@ export default function Room() {
             </CardHeader>
             <CardContent className="p-0">
               {/* Spline 3D Scene Container */}
-              <div className={`relative bg-gradient-to-br from-orange-100 via-orange-50 to-pink-50 ${isFullscreen ? 'h-[calc(100vh-200px)]' : 'h-[600px]'}`}>
+              <div className={`relative bg-gradient-to-br from-pink-100 via-pink-200 to-fuchsia-100 ${isFullscreen ? 'h-[calc(100vh-200px)]' : 'h-[600px]'}`}>
                 <Suspense fallback={
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Loader2 className="w-12 h-12 text-pink-500 animate-spin" />
@@ -195,8 +202,8 @@ export default function Room() {
             <Card className="bg-white/80 backdrop-blur-sm border-gray-200 rounded-2xl">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="p-3 bg-purple-100 rounded-xl">
-                    <Eye className="w-6 h-6 text-purple-600" />
+                  <div className="p-3 bg-pink-100 rounded-xl">
+                    <Eye className="w-6 h-6 text-fuchsia-600" />
                   </div>
                   <div>
                     <div className="text-sm text-gray-600">Interactive Objects</div>
@@ -211,8 +218,8 @@ export default function Room() {
             <Card className="bg-white/80 backdrop-blur-sm border-gray-200 rounded-2xl">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="p-3 bg-yellow-100 rounded-xl">
-                    <Lightbulb className="w-6 h-6 text-yellow-600" />
+                  <div className="p-3 bg-pink-100 rounded-xl">
+                    <Lightbulb className="w-6 h-6 text-fuchsia-600" />
                   </div>
                   <div>
                     <div className="text-sm text-gray-600">Ambient Light</div>
@@ -225,7 +232,7 @@ export default function Room() {
           </div>
 
           {/* Instructions Card */}
-          <Card className="bg-gradient-to-r from-pink-50 to-purple-50 border-pink-200 rounded-2xl">
+          <Card className="bg-gradient-to-r from-pink-50 to-pink-100 border-pink-200 rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
                 <Info className="w-6 h-6 text-pink-500 shrink-0 mt-1" />
@@ -268,37 +275,45 @@ export default function Room() {
                 <div className="p-4 bg-gray-50/50 rounded-xl">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="text-2xl">💻</div>
+                      <div className="p-2 bg-pink-100 rounded-lg">
+                        <Monitor className="w-5 h-5 text-pink-600" />
+                      </div>
                       <span className="font-medium">Computer Setup</span>
                     </div>
-                    <Badge variant="outline" className="border-green-500 text-green-700">Interactive</Badge>
+                    <Badge variant="outline" className="border-pink-500 text-pink-700">Interactive</Badge>
                   </div>
                 </div>
                 <div className="p-4 bg-gray-50/50 rounded-xl">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="text-2xl">🪑</div>
+                      <div className="p-2 bg-pink-100 rounded-lg">
+                        <Armchair className="w-5 h-5 text-fuchsia-600" />
+                      </div>
                       <span className="font-medium">Gaming Chair</span>
                     </div>
-                    <Badge variant="outline" className="border-blue-500 text-blue-700">Static</Badge>
+                    <Badge variant="outline" className="border-pink-500 text-pink-700">Static</Badge>
                   </div>
                 </div>
                 <div className="p-4 bg-gray-50/50 rounded-xl">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="text-2xl">💡</div>
+                      <div className="p-2 bg-pink-100 rounded-lg">
+                        <Lightbulb className="w-5 h-5 text-fuchsia-600" />
+                      </div>
                       <span className="font-medium">Desk Lamp</span>
                     </div>
-                    <Badge variant="outline" className="border-yellow-500 text-yellow-700">Animated</Badge>
+                    <Badge variant="outline" className="border-pink-500 text-pink-700">Animated</Badge>
                   </div>
                 </div>
                 <div className="p-4 bg-gray-50/50 rounded-xl">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="text-2xl">🪴</div>
+                      <div className="p-2 bg-pink-100 rounded-lg">
+                        <Flower className="w-5 h-5 text-pink-600" />
+                      </div>
                       <span className="font-medium">Plant Pot</span>
                     </div>
-                    <Badge variant="outline" className="border-green-500 text-green-700">Decoration</Badge>
+                    <Badge variant="outline" className="border-pink-500 text-pink-700">Decoration</Badge>
                   </div>
                 </div>
               </CardContent>
@@ -314,19 +329,19 @@ export default function Room() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button disabled className="w-full justify-start bg-gray-100 text-gray-500 cursor-not-allowed">
-                  <span className="text-xl mr-3">🎨</span>
+                  <Palette className="w-5 h-5 mr-3" />
                   Change Wall Colors
                 </Button>
                 <Button disabled className="w-full justify-start bg-gray-100 text-gray-500 cursor-not-allowed">
-                  <span className="text-xl mr-3">🪑</span>
+                  <Armchair className="w-5 h-5 mr-3" />
                   Replace Furniture
                 </Button>
                 <Button disabled className="w-full justify-start bg-gray-100 text-gray-500 cursor-not-allowed">
-                  <span className="text-xl mr-3">🖼️</span>
+                  <Image className="w-5 h-5 mr-3" />
                   Add Decorations
                 </Button>
                 <Button disabled className="w-full justify-start bg-gray-100 text-gray-500 cursor-not-allowed">
-                  <span className="text-xl mr-3">💡</span>
+                  <Lightbulb className="w-5 h-5 mr-3" />
                   Adjust Lighting
                 </Button>
               </CardContent>

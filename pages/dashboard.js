@@ -36,9 +36,10 @@ import {
   Settings,
   BarChart3,
   ScrollText,
-  Home,
+  Home as HomeIcon,
   Boxes,
   ExternalLink,
+  PawPrint,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -135,19 +136,21 @@ export default function Dashboard() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 via-purple-50 to-blue-100"
+      className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 via-pink-100 to-pink-200"
       style={{ fontFamily: "'Poppins', 'Inter', 'Helvetica Neue', Arial, sans-serif" }}
     >
       {/* Header */}
       <div className="container mx-auto px-6 py-6">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="text-pink-500 text-3xl font-bold">🐾</div>
+            <div className="p-2 bg-pink-100 rounded-xl">
+              <PawPrint className="w-8 h-8 text-pink-500" />
+            </div>
             <h1 className="text-2xl font-semibold">Pet Pet Dashboard</h1>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/room">
-              <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-full">
+              <Button className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white rounded-full">
                 <Boxes className="w-4 h-4 mr-2" />
                 Visit 3D Room
               </Button>
@@ -172,7 +175,7 @@ export default function Dashboard() {
               value="dashboard"
               className="rounded-xl data-[state=active]:bg-pink-500 data-[state=active]:text-white"
             >
-              <Home className="w-4 h-4 mr-2" />
+              <HomeIcon className="w-4 h-4 mr-2" />
               Dashboard
             </TabsTrigger>
             <TabsTrigger
@@ -227,7 +230,7 @@ export default function Dashboard() {
               <CardContent className="p-6">
                 <div className="flex items-start gap-6">
                   <Avatar className="w-24 h-24 text-5xl">
-                    <AvatarFallback className="bg-gradient-to-br from-pink-200 to-purple-200">
+                    <AvatarFallback className="bg-gradient-to-br from-pink-200 to-pink-300">
                       {selectedPet.avatar}
                     </AvatarFallback>
                   </Avatar>
@@ -243,7 +246,7 @@ export default function Dashboard() {
                           {selectedPet.breed} • {selectedPet.species}
                         </p>
                       </div>
-                      <Badge className="bg-green-100 text-green-700 hover:bg-green-100 px-4 py-1">
+                      <Badge className="bg-pink-100 text-pink-700 hover:bg-pink-100 px-4 py-1">
                         <Activity className="w-3 h-3 mr-1" />
                         {selectedPet.status}
                       </Badge>
@@ -251,7 +254,7 @@ export default function Dashboard() {
                     <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
                       <div className="flex items-center gap-2">
                         {selectedPet.deviceStatus === "connected" ? (
-                          <Wifi className="w-4 h-4 text-green-500" />
+                          <Wifi className="w-4 h-4 text-pink-500" />
                         ) : (
                           <WifiOff className="w-4 h-4 text-gray-400" />
                         )}
@@ -261,7 +264,7 @@ export default function Dashboard() {
                         variant="outline"
                         className={
                           selectedPet.deviceStatus === "connected"
-                            ? "border-green-500 text-green-700"
+                            ? "border-pink-500 text-pink-700"
                             : "border-gray-400 text-gray-600"
                         }
                       >
@@ -274,11 +277,14 @@ export default function Dashboard() {
             </Card>
 
             {/* Featured 3D Room Card */}
-            <Card className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 border-0 rounded-2xl overflow-hidden">
+            <Card className="bg-gradient-to-r from-pink-500 via-pink-600 to-fuchsia-500 border-0 rounded-2xl overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between text-white">
                   <div>
-                    <h3 className="text-2xl font-bold mb-2">🏠 Explore Your Pet's 3D Room</h3>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Boxes className="w-6 h-6" />
+                      <h3 className="text-2xl font-bold">Explore Your Pet's 3D Room</h3>
+                    </div>
                     <p className="text-white/90 mb-4">
                       Step into an interactive 3D environment powered by Spline. View and interact with your pet's cozy space in real-time!
                     </p>
@@ -289,7 +295,9 @@ export default function Dashboard() {
                       </Button>
                     </Link>
                   </div>
-                  <div className="text-8xl">🏠</div>
+                  <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
+                    <HomeIcon className="w-20 h-20 text-white" />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -305,7 +313,7 @@ export default function Dashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="p-6 bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl">
+                  <div className="p-6 bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <div className="p-3 bg-white rounded-xl shadow-sm">
@@ -321,11 +329,11 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 p-3 bg-white/70 rounded-xl">
-                      <MapPin className="w-4 h-4 text-green-500" />
+                      <MapPin className="w-4 h-4 text-pink-500" />
                       <span className="text-sm font-medium">
                         Location Privacy: {currentActivity.location}
                       </span>
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      <CheckCircle2 className="w-4 h-4 text-pink-500" />
                     </div>
                   </div>
                 </CardContent>
@@ -345,19 +353,19 @@ export default function Dashboard() {
                       key={i}
                       className={`p-3 rounded-xl flex items-start gap-3 ${
                         alert.type === "warning"
-                          ? "bg-orange-50 border border-orange-200"
+                          ? "bg-pink-50 border border-pink-200"
                           : alert.type === "info"
-                          ? "bg-blue-50 border border-blue-200"
-                          : "bg-purple-50 border border-purple-200"
+                          ? "bg-pink-50 border border-pink-200"
+                          : "bg-pink-50 border border-pink-200"
                       }`}
                     >
                       <alert.icon
                         className={`w-5 h-5 shrink-0 mt-0.5 ${
                           alert.type === "warning"
-                            ? "text-orange-500"
+                            ? "text-pink-500"
                             : alert.type === "info"
-                            ? "text-blue-500"
-                            : "text-purple-500"
+                            ? "text-pink-500"
+                            : "text-pink-500"
                         }`}
                       />
                       <p className="text-sm font-medium">{alert.message}</p>
@@ -385,26 +393,26 @@ export default function Dashboard() {
                     </div>
                     <p className="text-2xl font-bold text-pink-600">{monthlyStats.running}</p>
                   </div>
-                  <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
+                  <div className="p-4 bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl">
                     <div className="flex items-center gap-2 mb-2">
-                      <Moon className="w-5 h-5 text-purple-600" />
+                      <Moon className="w-5 h-5 text-fuchsia-600" />
                       <span className="text-sm font-medium text-gray-700">Sleeping</span>
                     </div>
-                    <p className="text-2xl font-bold text-purple-600">{monthlyStats.sleeping}</p>
+                    <p className="text-2xl font-bold text-fuchsia-600">{monthlyStats.sleeping}</p>
                   </div>
-                  <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+                  <div className="p-4 bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl">
                     <div className="flex items-center gap-2 mb-2">
-                      <Heart className="w-5 h-5 text-blue-600" />
+                      <Heart className="w-5 h-5 text-fuchsia-600" />
                       <span className="text-sm font-medium text-gray-700">Resting</span>
                     </div>
-                    <p className="text-2xl font-bold text-blue-600">{monthlyStats.resting}</p>
+                    <p className="text-2xl font-bold text-fuchsia-600">{monthlyStats.resting}</p>
                   </div>
-                  <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+                  <div className="p-4 bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl">
                     <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="w-5 h-5 text-green-600" />
+                      <MapPin className="w-5 h-5 text-pink-600" />
                       <span className="text-sm font-medium text-gray-700">Distance</span>
                     </div>
-                    <p className="text-2xl font-bold text-green-600">{monthlyStats.distance}</p>
+                    <p className="text-2xl font-bold text-pink-600">{monthlyStats.distance}</p>
                   </div>
                   <div className="p-4 bg-gray-50 rounded-xl">
                     <p className="text-sm text-gray-600">Pet Interactions</p>
@@ -416,7 +424,7 @@ export default function Dashboard() {
                   </div>
                   <div className="p-4 bg-gray-50 rounded-xl">
                     <p className="text-sm text-gray-600">Medication</p>
-                    <p className="text-2xl font-bold mt-1 text-green-600">
+                    <p className="text-2xl font-bold mt-1 text-pink-600">
                       {monthlyStats.medicationCompliance}
                     </p>
                   </div>
@@ -439,7 +447,7 @@ export default function Dashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl space-y-4">
+                  <div className="p-6 bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="p-3 bg-white rounded-xl shadow-sm">
                         <Stethoscope className="w-8 h-8 text-pink-500" />
@@ -458,7 +466,7 @@ export default function Dashboard() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-600">Attestation Status:</span>
-                        <Badge variant="outline" className="border-orange-400 text-orange-700">
+                        <Badge variant="outline" className="border-pink-400 text-pink-700">
                           {nextVetVisit.status}
                         </Badge>
                       </div>
@@ -489,12 +497,12 @@ export default function Dashboard() {
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-sm font-medium text-gray-600">{event.date}</span>
                             {event.status === "verified" ? (
-                              <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+                              <Badge className="bg-pink-100 text-pink-700 hover:bg-pink-100">
                                 <CheckCircle2 className="w-3 h-3 mr-1" />
                                 Verified
                               </Badge>
                             ) : (
-                              <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100">
+                              <Badge className="bg-pink-100 text-pink-700 hover:bg-pink-100">
                                 <Clock className="w-3 h-3 mr-1" />
                                 Pending
                               </Badge>
