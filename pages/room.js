@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import InstructionsModal from "@/components/InstructionsModal";
 import { 
   Home, 
@@ -21,7 +22,8 @@ import {
   Armchair,
   Flower,
   Palette,
-  Image
+  Image,
+  Pencil
 } from "lucide-react";
 import Link from 'next/link';
 
@@ -49,6 +51,8 @@ export default function Room() {
   const [selectedObject, setSelectedObject] = useState(null);
   const [isPointerOverViewer, setIsPointerOverViewer] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
+  const [roomName, setRoomName] = useState("Pet's 3D Room");
+  const [isEditingName, setIsEditingName] = useState(false);
 
   // Prevent page scroll when interacting inside the 3D viewer and map wheel -> zoom
   useEffect(() => {
@@ -172,6 +176,13 @@ export default function Room() {
     setIsFullscreen(!isFullscreen);
   }
 
+  // Handle room name save
+  function handleSaveName(e) {
+    if (e.key === 'Enter' || e.type === 'blur') {
+      setIsEditingName(false);
+    }
+  }
+
   return (
     <div 
       className="min-h-screen bg-gradient-to-br from-[#FFFBF5] via-[#FFF5F7] to-[#F8F5FF]"
@@ -192,7 +203,24 @@ export default function Room() {
             <div className="p-2 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-xl shadow-sm">
               <Home className="w-8 h-8 text-[#D4A5A5]" />
             </div>
-            <h1 className="text-2xl font-medium text-[#4A4458]">Pet's 3D Room</h1>
+            {isEditingName ? (
+              <Input
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
+                onKeyDown={handleSaveName}
+                onBlur={handleSaveName}
+                autoFocus
+                className="text-2xl font-medium text-[#4A4458] h-10 w-64 border-[#E8E4F0] focus:border-[#FF4081] bg-white/80"
+              />
+            ) : (
+              <div 
+                className="group flex items-center gap-2 cursor-pointer hover:bg-[#F6F3F9] px-3 py-1 rounded-lg transition-colors"
+                onClick={() => setIsEditingName(true)}
+              >
+                <h1 className="text-2xl font-medium text-[#4A4458]">{roomName}</h1>
+                <Pencil className="w-4 h-4 text-[#D4A5A5] opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-3">
           </div>
