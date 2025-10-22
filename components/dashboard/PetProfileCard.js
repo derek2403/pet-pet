@@ -1,13 +1,28 @@
+import { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Activity, Wifi, WifiOff, Shield } from "lucide-react";
+import { Activity, Wifi, WifiOff, Shield, Pencil } from "lucide-react";
 
 /**
  * PetProfileCard Component
  * Displays the selected pet's profile information and device status
  */
-export default function PetProfileCard({ pet }) {
+export default function PetProfileCard({ pet, onPetNameChange }) {
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [localName, setLocalName] = useState(pet.name);
+
+  // Save the pet name when user presses Enter or clicks outside
+  function handleSaveName(e) {
+    if (e.key === 'Enter' || e.type === 'blur') {
+      setIsEditingName(false);
+      if (onPetNameChange) {
+        onPetNameChange(localName);
+      }
+    }
+  }
+
   return (
     <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
       <CardContent className="p-6">
@@ -23,7 +38,24 @@ export default function PetProfileCard({ pet }) {
           <div className="flex-1">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h2 className="text-3xl font-semibold text-[#4A4458]">{pet.name}</h2>
+                {isEditingName ? (
+                  <Input
+                    value={localName}
+                    onChange={(e) => setLocalName(e.target.value)}
+                    onKeyDown={handleSaveName}
+                    onBlur={handleSaveName}
+                    autoFocus
+                    className="text-3xl font-semibold text-[#4A4458] h-12 max-w-xs border-[#E8E4F0] focus:border-[#FF4081] bg-white/80 mb-1"
+                  />
+                ) : (
+                  <div 
+                    className="group flex items-center gap-2 cursor-pointer hover:bg-[#F6F3F9] px-2 py-1 rounded-lg transition-colors -ml-2 mb-1"
+                    onClick={() => setIsEditingName(true)}
+                  >
+                    <h2 className="text-3xl font-semibold text-[#4A4458]">{pet.name}</h2>
+                    <Pencil className="w-4 h-4 text-[#D4A5A5] opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                )}
                 <div className="flex items-center gap-2 mt-1">
                   <p className="text-[#D4A5A5] font-medium">{pet.ens}</p>
                   <Shield className="w-4 h-4 text-[#D4A5A5]" />

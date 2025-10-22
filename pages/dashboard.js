@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import PetSelector from '@/components/dashboard/PetSelector';
@@ -29,6 +30,9 @@ import {
  * Main dashboard component that orchestrates all pet-related information
  */
 export default function Dashboard() {
+  // State for pet name editing
+  const [petName, setPetName] = useState("Buddy");
+
   // Mock data
   const pets = [
     { id: 1, name: "Buddy", ens: "buddy.petpet.eth" },
@@ -36,7 +40,7 @@ export default function Dashboard() {
   ];
 
   const selectedPet = {
-    name: "Buddy",
+    name: petName,
     ens: "buddy.petpet.eth",
     species: "Dog",
     breed: "Golden Retriever",
@@ -168,7 +172,7 @@ export default function Dashboard() {
             <PetSelector pets={pets} />
 
             {/* Pet Profile Card */}
-            <PetProfileCard pet={selectedPet} />
+            <PetProfileCard pet={selectedPet} onPetNameChange={setPetName} />
 
             {/* Featured 3D Room Card */}
             <FeaturedRoomCard />
