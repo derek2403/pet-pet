@@ -27,7 +27,7 @@ export default function ActivityTimelineCard({ events }) {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-[#7C7889]">{event.date}</span>
+                  <span className="text-sm font-medium text-[#5A5A5A]">{event.date}</span>
                   {event.status === "verified" ? (
                     <Badge className="bg-gradient-to-r from-[#FFE4E8] to-[#FFD4E5] text-[#8B7B8B] hover:bg-gradient-to-r border border-pink-100 shadow-sm">
                       <CheckCircle2 className="w-3 h-3 mr-1" />
@@ -42,7 +42,7 @@ export default function ActivityTimelineCard({ events }) {
                 </div>
                 <p className="font-semibold text-[#4A4458]">
                   {event.type}{" "}
-                  <span className="font-normal text-[#7C7889]">({event.details})</span>
+                  <span className="font-normal text-[#5A5A5A]">({event.details})</span>
                 </p>
               </div>
             </div>

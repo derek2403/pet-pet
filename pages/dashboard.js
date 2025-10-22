@@ -134,28 +134,28 @@ export default function Dashboard() {
           <TabsList className="bg-[#FBFAFD] backdrop-blur-sm border border-[#E8E4F0] p-1 rounded-2xl shadow-sm">
             <TabsTrigger
               value="dashboard"
-              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#9E9AA7]"
+              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B]"
             >
               <HomeIcon className="w-4 h-4 mr-2" />
               Dashboard
             </TabsTrigger>
             <TabsTrigger
               value="timeline"
-              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#9E9AA7]"
+              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B]"
             >
               <ScrollText className="w-4 h-4 mr-2" />
               Timeline
             </TabsTrigger>
             <TabsTrigger
               value="insights"
-              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#9E9AA7]"
+              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B]"
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               Insights
             </TabsTrigger>
             <TabsTrigger
               value="settings"
-              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#9E9AA7]"
+              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B]"
             >
               <Settings className="w-4 h-4 mr-2" />
               Settings

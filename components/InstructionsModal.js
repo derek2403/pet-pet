@@ -27,7 +27,7 @@ export default function InstructionsModal({ open, onOpenChange }) {
             <Info className="w-5 h-5 text-[#D4A5A5]" />
             How to interact with the 3D Room
           </DialogTitle>
-          <DialogDescription className="text-[#7C7889]">
+          <DialogDescription className="text-[#5A5A5A]">
             Learn how to navigate and interact with the 3D environment
           </DialogDescription>
         </DialogHeader>
@@ -61,7 +61,7 @@ function InstructionItem({ title, description }) {
       <span className="w-2 h-2 bg-[#D4A5A5] rounded-full mt-1.5 flex-shrink-0"></span>
       <div>
         <p className="font-semibold text-[#4A4458] text-sm">{title}</p>
-        <p className="text-sm text-[#7C7889]">{description}</p>
+        <p className="text-sm text-[#5A5A5A]">{description}</p>
       </div>
     </div>
   );

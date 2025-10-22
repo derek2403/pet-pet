@@ -29,7 +29,7 @@ export default function DashboardHeader() {
 
         {/* Explorer Button */}
         <Link href="/petpet">
-          <Button variant="outline" className="rounded-full bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] text-[#6F6B7D] hover:bg-[#F6F3F9] transition-all">
+          <Button variant="outline" className="rounded-full bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] text-[#6B6B6B] hover:bg-[#F6F3F9] transition-all">
             <ExternalLink className="w-4 h-4 mr-2" />
             Explorer
           </Button>
@@ -37,7 +37,7 @@ export default function DashboardHeader() {
 
         {/* Wallet Address Display */}
         <div className="px-4 py-2 bg-[#FBFAFD] backdrop-blur-sm rounded-full text-sm border border-[#E8E4F0] shadow-sm">
-          <span className="text-[#7C7889]">Wallet:</span>{" "}
+          <span className="text-[#5A5A5A]">Wallet:</span>{" "}
           <span className="font-medium text-[#5A5668]">0x1234...5678</span>
         </div>
       </div>

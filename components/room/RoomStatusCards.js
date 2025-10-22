@@ -16,7 +16,7 @@ export default function RoomStatusCards() {
               <Home className="w-6 h-6 text-[#D4A5A5]" />
             </div>
             <div>
-              <div className="text-sm text-[#7C7889]">Room Status</div>
+              <div className="text-sm text-[#5A5A5A]">Room Status</div>
               <div className="text-2xl font-semibold mt-1 text-[#4A4458]">Cozy & Clean</div>
               <p className="text-xs text-[#B5B1C0] mt-1">Last updated: just now</p>
             </div>
@@ -32,7 +32,7 @@ export default function RoomStatusCards() {
               <Eye className="w-6 h-6 text-[#C5B5D4]" />
             </div>
             <div>
-              <div className="text-sm text-[#7C7889]">Interactive Objects</div>
+              <div className="text-sm text-[#5A5A5A]">Interactive Objects</div>
               <div className="text-2xl font-semibold mt-1 text-[#4A4458]">Click to Explore</div>
               <p className="text-xs text-[#B5B1C0] mt-1">Drag to rotate view</p>
             </div>
@@ -48,7 +48,7 @@ export default function RoomStatusCards() {
               <Lightbulb className="w-6 h-6 text-[#E4B5C5]" />
             </div>
             <div>
-              <div className="text-sm text-[#7C7889]">Ambient Light</div>
+              <div className="text-sm text-[#5A5A5A]">Ambient Light</div>
               <div className="text-2xl font-semibold mt-1 text-[#4A4458]">Warm Glow</div>
               <p className="text-xs text-[#B5B1C0] mt-1">Perfect for relaxation</p>
             </div>

@@ -28,7 +28,7 @@ export default function PetProfileCard({ pet }) {
                   <p className="text-[#D4A5A5] font-medium">{pet.ens}</p>
                   <Shield className="w-4 h-4 text-[#D4A5A5]" />
                 </div>
-                <p className="text-[#7C7889] mt-1">
+                <p className="text-[#5A5A5A] mt-1">
                   {pet.breed} • {pet.species}
                 </p>
               </div>
@@ -53,7 +53,7 @@ export default function PetProfileCard({ pet }) {
                 className={
                   pet.deviceStatus === "connected"
                     ? "border-pink-200 text-[#D4A5A5] bg-pink-50"
-                    : "border-[#E8E4F0] text-[#7C7889]"
+                    : "border-[#E8E4F0] text-[#5A5A5A]"
                 }
               >
                 {pet.deviceStatus}

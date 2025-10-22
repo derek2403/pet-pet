@@ -25,16 +25,16 @@ export default function UpcomingVetCard({ appointment }) {
               <h3 className="text-xl font-semibold text-[#4A4458]">
                 {appointment.date} at {appointment.time}
               </h3>
-              <p className="text-[#7C7889]">{appointment.clinic}</p>
+              <p className="text-[#5A5A5A]">{appointment.clinic}</p>
             </div>
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#7C7889]">Purpose:</span>
+              <span className="text-sm text-[#5A5A5A]">Purpose:</span>
               <span className="font-medium text-[#5A5668]">{appointment.purpose}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#7C7889]">Attestation Status:</span>
+              <span className="text-sm text-[#5A5A5A]">Attestation Status:</span>
               <Badge variant="outline" className="border-pink-200 text-[#D4A5A5] bg-pink-50">
                 {appointment.status}
               </Badge>

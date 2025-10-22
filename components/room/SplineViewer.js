@@ -258,7 +258,7 @@ export default function SplineViewer({ sceneUrl }) {
           {/* Selected Object Overlay */}
           {selectedObject && (
             <div className="absolute top-4 left-4 bg-[#FBFAFD]/95 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-[#E8E4F0]">
-              <p className="text-sm text-[#7C7889]">Selected Object:</p>
+              <p className="text-sm text-[#5A5A5A]">Selected Object:</p>
               <p className="text-lg font-semibold text-[#D4A5A5]">{selectedObject}</p>
             </div>
           )}

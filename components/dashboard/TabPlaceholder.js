@@ -11,7 +11,7 @@ export default function TabPlaceholder({ icon: Icon, title, description }) {
         <div className="text-center py-12">
           <Icon className="w-12 h-12 text-[#D4A5A5] mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-[#4A4458]">{title}</h3>
-          <p className="text-[#7C7889] mt-2">{description}</p>
+          <p className="text-[#5A5A5A] mt-2">{description}</p>
         </div>
       </CardContent>
     </Card>

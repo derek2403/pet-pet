@@ -35,7 +35,7 @@ export default function AlertsCard({ alerts }) {
                   : "text-[#D4A5A5]"
               }`}
             />
-            <p className="text-sm font-medium text-[#6F6B7D]">{alert.message}</p>
+            <p className="text-sm font-medium text-[#6B6B6B]">{alert.message}</p>
           </div>
         ))}
       </CardContent>

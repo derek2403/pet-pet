@@ -13,7 +13,7 @@ export default function MonthlySummaryCard({ stats }) {
           <TrendingUp className="w-5 h-5 text-[#D4A5A5]" />
           Monthly Summary
         </CardTitle>
-        <p className="text-sm text-[#7C7889] mt-1">Last 30 days</p>
+        <p className="text-sm text-[#5A5A5A] mt-1">Last 30 days</p>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -55,21 +55,21 @@ export default function MonthlySummaryCard({ stats }) {
 
           {/* Additional Stats */}
           <div className="p-4 bg-[#F6F3F9] rounded-xl border border-[#E8E4F0]">
-            <p className="text-sm text-[#7C7889]">Pet Interactions</p>
+            <p className="text-sm text-[#5A5A5A]">Pet Interactions</p>
             <p className="text-2xl font-semibold mt-1 text-[#5A5668]">{stats.interactions}</p>
           </div>
           <div className="p-4 bg-[#F6F3F9] rounded-xl border border-[#E8E4F0]">
-            <p className="text-sm text-[#7C7889]">Meals Consumed</p>
+            <p className="text-sm text-[#5A5A5A]">Meals Consumed</p>
             <p className="text-2xl font-semibold mt-1 text-[#5A5668]">{stats.meals}</p>
           </div>
           <div className="p-4 bg-[#F6F3F9] rounded-xl border border-[#E8E4F0]">
-            <p className="text-sm text-[#7C7889]">Medication</p>
+            <p className="text-sm text-[#5A5A5A]">Medication</p>
             <p className="text-2xl font-semibold mt-1 text-[#D4A5A5]">
               {stats.medicationCompliance}
             </p>
           </div>
           <div className="p-4 bg-[#F6F3F9] rounded-xl border border-[#E8E4F0]">
-            <p className="text-sm text-[#7C7889]">Vet Visits</p>
+            <p className="text-sm text-[#5A5A5A]">Vet Visits</p>
             <p className="text-2xl font-semibold mt-1 text-[#5A5668]">{stats.vetVisits}</p>
           </div>
         </div>

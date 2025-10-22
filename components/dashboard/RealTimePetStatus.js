@@ -23,7 +23,7 @@ export default function RealTimePetStatus({ currentActivity }) {
               </div>
               <div>
                 <h3 className="text-2xl font-semibold text-[#4A4458]">{currentActivity.type}</h3>
-                <p className="text-[#9E9AA7] flex items-center gap-2 mt-1">
+                <p className="text-[#6B6B6B] flex items-center gap-2 mt-1">
                   <Clock className="w-4 h-4" />
                   Since: {currentActivity.duration}
                 </p>
@@ -32,7 +32,7 @@ export default function RealTimePetStatus({ currentActivity }) {
           </div>
           <div className="flex items-center gap-2 p-3 bg-white/70 rounded-xl border border-pink-50">
             <MapPin className="w-4 h-4 text-[#D4A5A5]" />
-            <span className="text-sm font-medium text-[#6F6B7D]">
+            <span className="text-sm font-medium text-[#6B6B6B]">
               Location Privacy: {currentActivity.location}
             </span>
             <CheckCircle2 className="w-4 h-4 text-[#D4A5A5]" />
