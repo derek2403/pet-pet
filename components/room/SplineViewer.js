@@ -19,8 +19,8 @@ const Spline = dynamic(() => import('@splinetool/react-spline'), {
   loading: () => (
     <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#FFF5F7] to-[#F8F5FF]">
       <div className="text-center">
-        <Loader2 className="w-12 h-12 text-[#D4A5A5] animate-spin mx-auto mb-4" />
-        <p className="text-lg font-medium text-[#5A5668]">Loading your Pet's Room...</p>
+        <Loader2 className="w-12 h-12 text-[#FF2D95] animate-spin mx-auto mb-4" />
+        <p className="text-lg font-bold text-[#4A4458]">Loading your Pet's Room...</p>
       </div>
     </div>
   ),
@@ -176,11 +176,15 @@ export default function SplineViewer({ sceneUrl }) {
   }
 
   return (
-    <Card className={`bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl overflow-hidden shadow-sm ${isFullscreen ? 'fixed inset-4 z-50' : ''}`}>
-      <CardHeader className="pb-3">
+    <Card className={`bg-white/60 backdrop-blur-md border-[#E8E4F0]/50 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 duration-500 group ${isFullscreen ? 'fixed inset-4 z-50' : ''}`}>
+      <div className="absolute inset-0 bg-gradient-to-br from-[#FFE4E8]/10 via-transparent to-[#F8F5FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      
+      <CardHeader className="pb-3 relative">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-[#4A4458] font-medium">
-            <Camera className="w-5 h-5 text-[#D4A5A5]" />
+          <CardTitle className="flex items-center gap-2 text-[#4A4458] font-semibold">
+            <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
+              <Camera className="w-4 h-4 text-[#FF2D95]" />
+            </div>
             Mini Room - Interactive 3D View
           </CardTitle>
           <div className="flex items-center gap-2">
@@ -194,7 +198,7 @@ export default function SplineViewer({ sceneUrl }) {
               variant="outline"
               size="sm"
               onClick={() => setIsSoundOn(!isSoundOn)}
-              className="rounded-full border-[#E8E4F0] text-[#8B7B8B] hover:bg-[#F6F3F9]"
+              className="rounded-full border-[#E8E4F0]/50 text-[#4A4458] hover:bg-white hover:border-[#FF2D95] hover:shadow-md transition-all shadow-sm font-semibold"
             >
               {isSoundOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </Button>
@@ -203,7 +207,7 @@ export default function SplineViewer({ sceneUrl }) {
               variant="outline"
               size="sm"
               onClick={handleResetView}
-              className="rounded-full border-[#E8E4F0] text-[#8B7B8B] hover:bg-[#F6F3F9]"
+              className="rounded-full border-[#E8E4F0]/50 text-[#4A4458] hover:bg-white hover:border-[#FF2D95] hover:shadow-md transition-all shadow-sm font-semibold"
               disabled={!isLoaded}
             >
               <RotateCcw className="w-4 h-4" />
@@ -213,7 +217,7 @@ export default function SplineViewer({ sceneUrl }) {
               variant="outline"
               size="sm"
               onClick={toggleFullscreen}
-              className="rounded-full border-[#E8E4F0] text-[#8B7B8B] hover:bg-[#F6F3F9]"
+              className="rounded-full border-[#E8E4F0]/50 text-[#4A4458] hover:bg-white hover:border-[#FF2D95] hover:shadow-md transition-all shadow-sm font-semibold"
             >
               {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </Button>
@@ -244,7 +248,7 @@ export default function SplineViewer({ sceneUrl }) {
         >
           <Suspense fallback={
             <div className="absolute inset-0 flex items-center justify-center">
-              <Loader2 className="w-12 h-12 text-[#D4A5A5] animate-spin" />
+              <Loader2 className="w-12 h-12 text-[#FF2D95] animate-spin" />
             </div>
           }>
             <Spline
@@ -257,18 +261,18 @@ export default function SplineViewer({ sceneUrl }) {
           
           {/* Selected Object Overlay */}
           {selectedObject && (
-            <div className="absolute top-4 left-4 bg-[#FBFAFD]/95 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-[#E8E4F0]">
-              <p className="text-sm text-[#5A5A5A]">Selected Object:</p>
-              <p className="text-lg font-semibold text-[#D4A5A5]">{selectedObject}</p>
+            <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md rounded-xl p-4 shadow-lg border border-[#E8E4F0]/50">
+              <p className="text-sm font-semibold text-[#6B6B6B]">Selected Object:</p>
+              <p className="text-lg font-bold text-[#FF2D95]">{selectedObject}</p>
             </div>
           )}
 
           {/* Loading Status Badge */}
           {!isLoaded && (
-            <div className="absolute bottom-4 right-4 bg-[#FBFAFD]/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-[#E8E4F0]">
+            <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-md rounded-full px-5 py-2.5 shadow-lg border border-[#E8E4F0]/50">
               <div className="flex items-center gap-2">
-                <Loader2 className="w-4 h-4 text-[#D4A5A5] animate-spin" />
-                <span className="text-sm font-medium text-[#5A5668]">Loading scene...</span>
+                <Loader2 className="w-4 h-4 text-[#FF2D95] animate-spin" />
+                <span className="text-sm font-bold text-[#4A4458]">Loading scene...</span>
               </div>
             </div>
           )}

@@ -15,14 +15,23 @@ export default function Room() {
 
   return (
     <div 
-      className="min-h-screen bg-gradient-to-br from-[#FFFBF5] via-[#FFF5F7] to-[#F8F5FF]"
+      className="min-h-screen bg-gradient-to-br from-[#FFFBF5] via-[#FFF5F7] to-[#F8F5FF] relative overflow-hidden"
       style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}
     >
+      {/* Subtle decorative background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-[#FFE4E8]/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#F8F5FF]/30 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-[#FFF5F7]/20 rounded-full blur-3xl" />
+      </div>
+
       {/* Header with editable room title */}
-      <RoomHeader roomName={roomName} onRoomNameChange={setRoomName} />
+      <div className="relative z-10">
+        <RoomHeader roomName={roomName} onRoomNameChange={setRoomName} />
+      </div>
 
       {/* Main Content Container */}
-      <div className="container mx-auto px-6 pb-6">
+      <div className="container mx-auto px-6 pb-6 relative z-10">
         <div className="space-y-6">
           {/* 3D Spline Viewer */}
           <SplineViewer sceneUrl={sceneUrl} />
