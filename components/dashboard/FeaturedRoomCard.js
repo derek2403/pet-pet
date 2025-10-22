@@ -11,7 +11,7 @@ export default function FeaturedRoomCard() {
   return (
     <Card className="relative bg-gradient-to-r from-[#FFF9E6] via-[#FFE4E8] via-[#F5E8FF] to-[#E8F0FF] border-0 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:scale-[1.01] transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700 group">
       {/* Animated gradient overlay */}
-      <div className="absolute inset-0 bg-[#FF2D95]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+      <div className="absolute inset-0 bg-[#FF2D95]/5 opacity-0 groxup-hover:opacity-100 transition-opacity duration-700" />
       
       {/* Decorative elements */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl" />
@@ -24,15 +24,15 @@ export default function FeaturedRoomCard() {
               <div className="p-2 bg-white/60 rounded-xl shadow-sm">
                 <Boxes className="w-6 h-6 text-[#FF2D95]" />
               </div>
-              <h3 className="text-2xl font-bold text-[#2C2C2C] tracking-tight">Explore Your Pet's 3D Room</h3>
+              <h3 className="text-2xl font-bold text-[#2C2C2C] tracking-tight">Explore Your Pet's Room</h3>
             </div>
             <p className="text-[#6B6B6B] mb-6 leading-relaxed max-w-lg">
-              Step into an interactive 3D environment powered by Spline. View and interact with your pet's cozy space in real-time with immersive visualization.
+              View and interact with your pet's cozy space in real-time.
             </p>
             <Link href="/room">
               <Button className="bg-[#FF2D95] hover:bg-[#E6298A] hover:shadow-xl transition-all duration-300 text-white font-medium rounded-full px-6 py-2.5 shadow-lg">
                 <Boxes className="w-4 h-4 mr-2" />
-                Enter 3D Room
+                Enter Room
               </Button>
             </Link>
           </div>

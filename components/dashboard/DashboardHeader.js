@@ -29,7 +29,7 @@ export default function DashboardHeader() {
         <Link href="/room">
           <Button className="bg-[#FF2D95] hover:bg-[#E6298A] hover:shadow-xl hover:scale-105 transition-all duration-300 text-white font-semibold rounded-full shadow-lg px-6">
             <Boxes className="w-4 h-4 mr-2" />
-            Visit 3D Room
+            Visit Room
           </Button>
         </Link>
 
