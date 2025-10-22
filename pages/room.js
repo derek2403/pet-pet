@@ -195,10 +195,6 @@ export default function Room() {
             <h1 className="text-2xl font-medium text-[#4A4458]">Pet's 3D Room</h1>
           </div>
           <div className="flex items-center gap-3">
-            <Badge className="bg-[#FF4081] text-white hover:bg-[#F50057] px-4 py-2 shadow-sm">
-              <Box className="w-3 h-3 mr-1" />
-              Interactive
-            </Badge>
           </div>
         </div>
 
@@ -214,6 +210,10 @@ export default function Room() {
                 </CardTitle>
                 <div className="flex items-center gap-2">
                   {/* Controls */}
+                  <InstructionsModal 
+                    open={showInstructions} 
+                    onOpenChange={setShowInstructions} 
+                  />
                   <Button
                     variant="outline"
                     size="sm"
@@ -239,10 +239,6 @@ export default function Room() {
                   >
                     {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                   </Button>
-                  <InstructionsModal 
-                    open={showInstructions} 
-                    onOpenChange={setShowInstructions} 
-                  />
                 </div>
               </div>
             </CardHeader>
