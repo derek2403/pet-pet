@@ -358,19 +358,19 @@ export default function Room() {
                   <ul className="space-y-2 text-sm text-[#5A5668]">
                     <li className="flex items-center gap-2">
                       <span className="w-2 h-2 bg-[#D4A5A5] rounded-full"></span>
-                      <span><strong>Left Click + Drag:</strong> Rotate the camera around the room</span>
+                      <span><strong>Left Click + Drag:</strong> Rotate the camera</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="w-2 h-2 bg-[#D4A5A5] rounded-full"></span>
-                      <span><strong>Scroll:</strong> Zoom in and out to see details</span>
+                      <span><strong>Two‑finger Scroll / Mouse Wheel:</strong> Zoom in and out</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="w-2 h-2 bg-[#D4A5A5] rounded-full"></span>
-                      <span><strong>Click Objects:</strong> Select interactive elements in the room</span>
+                      <span><strong>Click Objects:</strong> Select interactive elements</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="w-2 h-2 bg-[#D4A5A5] rounded-full"></span>
-                      <span><strong>Right Click + Drag:</strong> Pan the camera view</span>
+                      <span><strong>Panning:</strong> Disabled for smoother navigation</span>
                     </li>
                   </ul>
                 </div>
