@@ -16,22 +16,33 @@ export default function InstructionsModal({ open, onOpenChange }) {
         <Button
           variant="outline"
           size="sm"
-          className="rounded-full border-[#E8E4F0] text-[#8B7B8B] hover:bg-[#F6F3F9]"
+          className="rounded-full border-[#E8E4F0]/50 text-[#4A4458] hover:bg-white hover:border-[#FF2D95] hover:shadow-md transition-all shadow-sm font-semibold"
         >
           <Info className="w-4 h-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-[#FBFAFD] border-[#E8E4F0]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-[#4A4458]">
-            <Info className="w-5 h-5 text-[#D4A5A5]" />
+      <DialogContent className="sm:max-w-md bg-white/95 backdrop-blur-md border-[#E8E4F0]/50 shadow-2xl overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFE4E8]/30 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#F8F5FF]/30 rounded-full blur-3xl" />
+        </div>
+        
+        <DialogHeader className="relative">
+          <DialogTitle className="flex items-center gap-3 text-[#4A4458] text-xl font-bold">
+            <div className="relative">
+              <div className="absolute inset-0 bg-[#FF2D95]/20 rounded-xl blur-lg" />
+              <div className="relative p-2 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-xl shadow-md">
+                <Info className="w-5 h-5 text-[#FF2D95]" />
+              </div>
+            </div>
             How to interact with the 3D Room
           </DialogTitle>
-          <DialogDescription className="text-[#5A5A5A]">
+          <DialogDescription className="text-[#6B6B6B] font-medium mt-2">
             Learn how to navigate and interact with the 3D environment
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-3 py-4">
+        <div className="space-y-3 py-4 relative">
           <InstructionItem
             title="Left Click + Drag"
             description="Rotate the camera"
@@ -57,11 +68,19 @@ export default function InstructionsModal({ open, onOpenChange }) {
 // Helper component for each instruction item
 function InstructionItem({ title, description }) {
   return (
-    <div className="flex items-start gap-3 p-3 rounded-xl bg-gradient-to-r from-[#FFF5F7] to-[#F8F5FF] border border-pink-100">
-      <span className="w-2 h-2 bg-[#D4A5A5] rounded-full mt-1.5 flex-shrink-0"></span>
-      <div>
-        <p className="font-semibold text-[#4A4458] text-sm">{title}</p>
-        <p className="text-sm text-[#5A5A5A]">{description}</p>
+    <div className="group flex items-start gap-4 p-4 rounded-xl bg-gradient-to-r from-[#FFF5F7] to-[#F8F5FF] border border-pink-100/50 hover:shadow-md hover:scale-[1.02] transition-all duration-200 relative overflow-hidden">
+      {/* Subtle hover effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#FFE4E8]/10 to-[#F8F5FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      
+      {/* Bullet point with enhanced styling */}
+      <div className="relative">
+        <div className="w-2 h-2 bg-[#FF2D95] rounded-full mt-2 flex-shrink-0 shadow-sm" />
+        <div className="absolute inset-0 bg-[#FF2D95]/30 rounded-full blur-sm" />
+      </div>
+      
+      <div className="relative flex-1">
+        <p className="font-bold text-[#4A4458] text-sm mb-0.5">{title}</p>
+        <p className="text-sm text-[#6B6B6B] font-medium">{description}</p>
       </div>
     </div>
   );
