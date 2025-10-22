@@ -162,8 +162,8 @@ export default function Dashboard() {
               </Button>
             </Link>
             <div className="px-4 py-2 bg-[#FBFAFD] backdrop-blur-sm rounded-full text-sm border border-[#E8E4F0] shadow-sm">
-              <span className="text-[#9E9AA7]">Wallet:</span>{" "}
-              <span className="font-medium text-[#6F6B7D]">0x1234...5678</span>
+              <span className="text-[#7C7889]">Wallet:</span>{" "}
+              <span className="font-medium text-[#5A5668]">0x1234...5678</span>
             </div>
           </div>
         </div>
@@ -242,7 +242,7 @@ export default function Dashboard() {
                           <p className="text-[#D4A5A5] font-medium">{selectedPet.ens}</p>
                           <Shield className="w-4 h-4 text-[#D4A5A5]" />
                         </div>
-                        <p className="text-[#9E9AA7] mt-1">
+                        <p className="text-[#7C7889] mt-1">
                           {selectedPet.breed} • {selectedPet.species}
                         </p>
                       </div>
@@ -258,14 +258,14 @@ export default function Dashboard() {
                         ) : (
                           <WifiOff className="w-4 h-4 text-[#B5B1C0]" />
                         )}
-                        <span className="text-sm font-medium text-[#6F6B7D]">{selectedPet.deviceId}</span>
+                        <span className="text-sm font-medium text-[#5A5668]">{selectedPet.deviceId}</span>
                       </div>
                       <Badge
                         variant="outline"
                         className={
                           selectedPet.deviceStatus === "connected"
                             ? "border-pink-200 text-[#D4A5A5] bg-pink-50"
-                            : "border-[#E8E4F0] text-[#9E9AA7]"
+                            : "border-[#E8E4F0] text-[#7C7889]"
                         }
                       >
                         {selectedPet.deviceStatus}
@@ -382,55 +382,55 @@ export default function Dashboard() {
                   <TrendingUp className="w-5 h-5 text-[#D4A5A5]" />
                   Monthly Summary
                 </CardTitle>
-                <p className="text-sm text-[#9E9AA7] mt-1">Last 30 days</p>
+                <p className="text-sm text-[#7C7889] mt-1">Last 30 days</p>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div className="p-4 bg-gradient-to-br from-[#FFF5F7] to-[#FFE4E8] rounded-xl border border-pink-50">
                     <div className="flex items-center gap-2 mb-2">
                       <Footprints className="w-5 h-5 text-[#D4A5A5]" />
-                      <span className="text-sm font-medium text-[#6F6B7D]">Running</span>
+                      <span className="text-sm font-medium text-[#5A5668]">Running</span>
                     </div>
                     <p className="text-2xl font-semibold text-[#D4A5A5]">{monthlyStats.running}</p>
                   </div>
                   <div className="p-4 bg-gradient-to-br from-[#F8F5FF] to-[#F0E8FF] rounded-xl border border-purple-50">
                     <div className="flex items-center gap-2 mb-2">
                       <Moon className="w-5 h-5 text-[#C5B5D4]" />
-                      <span className="text-sm font-medium text-[#6F6B7D]">Sleeping</span>
+                      <span className="text-sm font-medium text-[#5A5668]">Sleeping</span>
                     </div>
                     <p className="text-2xl font-semibold text-[#C5B5D4]">{monthlyStats.sleeping}</p>
                   </div>
                   <div className="p-4 bg-gradient-to-br from-[#FFF5F7] to-[#FFEEF5] rounded-xl border border-pink-50">
                     <div className="flex items-center gap-2 mb-2">
                       <Heart className="w-5 h-5 text-[#E4B5C5]" />
-                      <span className="text-sm font-medium text-[#6F6B7D]">Resting</span>
+                      <span className="text-sm font-medium text-[#5A5668]">Resting</span>
                     </div>
                     <p className="text-2xl font-semibold text-[#E4B5C5]">{monthlyStats.resting}</p>
                   </div>
                   <div className="p-4 bg-gradient-to-br from-[#FFF5F7] to-[#FFE4E8] rounded-xl border border-pink-50">
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin className="w-5 h-5 text-[#D4A5A5]" />
-                      <span className="text-sm font-medium text-[#6F6B7D]">Distance</span>
+                      <span className="text-sm font-medium text-[#5A5668]">Distance</span>
                     </div>
                     <p className="text-2xl font-semibold text-[#D4A5A5]">{monthlyStats.distance}</p>
                   </div>
                   <div className="p-4 bg-[#F6F3F9] rounded-xl border border-[#E8E4F0]">
-                    <p className="text-sm text-[#9E9AA7]">Pet Interactions</p>
-                    <p className="text-2xl font-semibold mt-1 text-[#6F6B7D]">{monthlyStats.interactions}</p>
+                    <p className="text-sm text-[#7C7889]">Pet Interactions</p>
+                    <p className="text-2xl font-semibold mt-1 text-[#5A5668]">{monthlyStats.interactions}</p>
                   </div>
                   <div className="p-4 bg-[#F6F3F9] rounded-xl border border-[#E8E4F0]">
-                    <p className="text-sm text-[#9E9AA7]">Meals Consumed</p>
-                    <p className="text-2xl font-semibold mt-1 text-[#6F6B7D]">{monthlyStats.meals}</p>
+                    <p className="text-sm text-[#7C7889]">Meals Consumed</p>
+                    <p className="text-2xl font-semibold mt-1 text-[#5A5668]">{monthlyStats.meals}</p>
                   </div>
                   <div className="p-4 bg-[#F6F3F9] rounded-xl border border-[#E8E4F0]">
-                    <p className="text-sm text-[#9E9AA7]">Medication</p>
+                    <p className="text-sm text-[#7C7889]">Medication</p>
                     <p className="text-2xl font-semibold mt-1 text-[#D4A5A5]">
                       {monthlyStats.medicationCompliance}
                     </p>
                   </div>
                   <div className="p-4 bg-[#F6F3F9] rounded-xl border border-[#E8E4F0]">
-                    <p className="text-sm text-[#9E9AA7]">Vet Visits</p>
-                    <p className="text-2xl font-semibold mt-1 text-[#6F6B7D]">{monthlyStats.vetVisits}</p>
+                    <p className="text-sm text-[#7C7889]">Vet Visits</p>
+                    <p className="text-2xl font-semibold mt-1 text-[#5A5668]">{monthlyStats.vetVisits}</p>
                   </div>
                 </div>
               </CardContent>
@@ -456,16 +456,16 @@ export default function Dashboard() {
                         <h3 className="text-xl font-semibold text-[#4A4458]">
                           {nextVetVisit.date} at {nextVetVisit.time}
                         </h3>
-                        <p className="text-[#9E9AA7]">{nextVetVisit.clinic}</p>
+                        <p className="text-[#7C7889]">{nextVetVisit.clinic}</p>
                       </div>
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-[#9E9AA7]">Purpose:</span>
-                        <span className="font-medium text-[#6F6B7D]">{nextVetVisit.purpose}</span>
+                        <span className="text-sm text-[#7C7889]">Purpose:</span>
+                        <span className="font-medium text-[#5A5668]">{nextVetVisit.purpose}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-[#9E9AA7]">Attestation Status:</span>
+                        <span className="text-sm text-[#7C7889]">Attestation Status:</span>
                         <Badge variant="outline" className="border-pink-200 text-[#D4A5A5] bg-pink-50">
                           {nextVetVisit.status}
                         </Badge>
@@ -495,7 +495,7 @@ export default function Dashboard() {
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-[#9E9AA7]">{event.date}</span>
+                            <span className="text-sm font-medium text-[#7C7889]">{event.date}</span>
                             {event.status === "verified" ? (
                               <Badge className="bg-gradient-to-r from-[#FFE4E8] to-[#FFD4E5] text-[#8B7B8B] hover:bg-gradient-to-r border border-pink-100 shadow-sm">
                                 <CheckCircle2 className="w-3 h-3 mr-1" />
@@ -510,7 +510,7 @@ export default function Dashboard() {
                           </div>
                           <p className="font-semibold text-[#4A4458]">
                             {event.type}{" "}
-                            <span className="font-normal text-[#9E9AA7]">({event.details})</span>
+                            <span className="font-normal text-[#7C7889]">({event.details})</span>
                           </p>
                         </div>
                       </div>
@@ -532,8 +532,8 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="p-6 bg-[#F6F3F9] rounded-xl border border-[#E8E4F0]">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="font-medium text-[#6F6B7D]">Profile Visibility</span>
-                      <Eye className="w-5 h-5 text-[#9E9AA7]" />
+                      <span className="font-medium text-[#5A5668]">Profile Visibility</span>
+                      <Eye className="w-5 h-5 text-[#7C7889]" />
                     </div>
                     <Select defaultValue="private">
                       <SelectTrigger className="bg-white border-[#E8E4F0] text-[#6F6B7D]">
@@ -548,8 +548,8 @@ export default function Dashboard() {
                   </div>
                   <div className="p-6 bg-[#F6F3F9] rounded-xl border border-[#E8E4F0]">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="font-medium text-[#6F6B7D]">Proof Visibility</span>
-                      <EyeOff className="w-5 h-5 text-[#9E9AA7]" />
+                      <span className="font-medium text-[#5A5668]">Proof Visibility</span>
+                      <EyeOff className="w-5 h-5 text-[#7C7889]" />
                     </div>
                     <Select defaultValue="hide">
                       <SelectTrigger className="bg-white border-[#E8E4F0] text-[#6F6B7D]">
@@ -563,8 +563,8 @@ export default function Dashboard() {
                   </div>
                   <div className="p-6 bg-[#F6F3F9] rounded-xl border border-[#E8E4F0]">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="font-medium text-[#6F6B7D]">Share Dashboard</span>
-                      <Users className="w-5 h-5 text-[#9E9AA7]" />
+                      <span className="font-medium text-[#5A5668]">Share Dashboard</span>
+                      <Users className="w-5 h-5 text-[#7C7889]" />
                     </div>
                     <Button disabled className="w-full bg-[#E8E4F0] text-[#B5B1C0] cursor-not-allowed">
                       Disabled (Demo)
@@ -582,7 +582,7 @@ export default function Dashboard() {
                 <div className="text-center py-12">
                   <ScrollText className="w-12 h-12 text-[#D4A5A5] mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-[#4A4458]">Timeline View</h3>
-                  <p className="text-[#9E9AA7] mt-2">
+                  <p className="text-[#7C7889] mt-2">
                     Chronological feed of all pet events will be displayed here
                   </p>
                 </div>
@@ -597,7 +597,7 @@ export default function Dashboard() {
                 <div className="text-center py-12">
                   <BarChart3 className="w-12 h-12 text-[#D4A5A5] mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-[#4A4458]">Insights & Analytics</h3>
-                  <p className="text-[#9E9AA7] mt-2">
+                  <p className="text-[#7C7889] mt-2">
                     Charts and trends for pet health and activity will be displayed here
                   </p>
                 </div>
@@ -612,7 +612,7 @@ export default function Dashboard() {
                 <div className="text-center py-12">
                   <Settings className="w-12 h-12 text-[#D4A5A5] mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-[#4A4458]">Settings</h3>
-                  <p className="text-[#9E9AA7] mt-2">
+                  <p className="text-[#7C7889] mt-2">
                     Manage pet information, devices, and privacy settings here
                   </p>
                 </div>

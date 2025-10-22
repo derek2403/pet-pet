@@ -32,7 +32,7 @@ const Spline = dynamic(() => import('@splinetool/react-spline'), {
     <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#FFF5F7] to-[#F8F5FF]">
       <div className="text-center">
         <Loader2 className="w-12 h-12 text-[#D4A5A5] animate-spin mx-auto mb-4" />
-        <p className="text-lg font-medium text-[#6F6B7D]">Loading your Pet's Room...</p>
+        <p className="text-lg font-medium text-[#5A5668]">Loading your Pet's Room...</p>
       </div>
     </div>
   ),
@@ -83,7 +83,7 @@ export default function Room() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Link href="/dashboard">
-              <Button variant="outline" className="rounded-full bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] text-[#6F6B7D] hover:bg-[#F6F3F9]">
+              <Button variant="outline" className="rounded-full bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] text-[#5A5668] hover:bg-[#F6F3F9]">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Dashboard
               </Button>
@@ -162,7 +162,7 @@ export default function Room() {
                 {/* Overlay Info */}
                 {selectedObject && (
                   <div className="absolute top-4 left-4 bg-[#FBFAFD]/95 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-[#E8E4F0]">
-                    <p className="text-sm text-[#9E9AA7]">Selected Object:</p>
+                    <p className="text-sm text-[#7C7889]">Selected Object:</p>
                     <p className="text-lg font-semibold text-[#D4A5A5]">{selectedObject}</p>
                   </div>
                 )}
@@ -172,7 +172,7 @@ export default function Room() {
                   <div className="absolute bottom-4 right-4 bg-[#FBFAFD]/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-[#E8E4F0]">
                     <div className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 text-[#D4A5A5] animate-spin" />
-                      <span className="text-sm font-medium text-[#6F6B7D]">Loading scene...</span>
+                      <span className="text-sm font-medium text-[#5A5668]">Loading scene...</span>
                     </div>
                   </div>
                 )}
@@ -190,7 +190,7 @@ export default function Room() {
                     <Home className="w-6 h-6 text-[#D4A5A5]" />
                   </div>
                   <div>
-                    <div className="text-sm text-[#9E9AA7]">Room Status</div>
+                    <div className="text-sm text-[#7C7889]">Room Status</div>
                     <div className="text-2xl font-semibold mt-1 text-[#4A4458]">Cozy & Clean</div>
                     <p className="text-xs text-[#B5B1C0] mt-1">Last updated: just now</p>
                   </div>
@@ -206,7 +206,7 @@ export default function Room() {
                     <Eye className="w-6 h-6 text-[#C5B5D4]" />
                   </div>
                   <div>
-                    <div className="text-sm text-[#9E9AA7]">Interactive Objects</div>
+                    <div className="text-sm text-[#7C7889]">Interactive Objects</div>
                     <div className="text-2xl font-semibold mt-1 text-[#4A4458]">Click to Explore</div>
                     <p className="text-xs text-[#B5B1C0] mt-1">Drag to rotate view</p>
                   </div>
@@ -222,7 +222,7 @@ export default function Room() {
                     <Lightbulb className="w-6 h-6 text-[#E4B5C5]" />
                   </div>
                   <div>
-                    <div className="text-sm text-[#9E9AA7]">Ambient Light</div>
+                    <div className="text-sm text-[#7C7889]">Ambient Light</div>
                     <div className="text-2xl font-semibold mt-1 text-[#4A4458]">Warm Glow</div>
                     <p className="text-xs text-[#B5B1C0] mt-1">Perfect for relaxation</p>
                   </div>
@@ -238,7 +238,7 @@ export default function Room() {
                 <Info className="w-6 h-6 text-[#D4A5A5] shrink-0 mt-1" />
                 <div>
                   <h3 className="text-lg font-semibold mb-2 text-[#4A4458]">How to interact with the 3D Room</h3>
-                  <ul className="space-y-2 text-sm text-[#6F6B7D]">
+                  <ul className="space-y-2 text-sm text-[#5A5668]">
                     <li className="flex items-center gap-2">
                       <span className="w-2 h-2 bg-[#D4A5A5] rounded-full"></span>
                       <span><strong>Left Click + Drag:</strong> Rotate the camera around the room</span>
@@ -278,7 +278,7 @@ export default function Room() {
                       <div className="p-2 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
                         <Monitor className="w-5 h-5 text-[#D4A5A5]" />
                       </div>
-                      <span className="font-medium text-[#6F6B7D]">Computer Setup</span>
+                      <span className="font-medium text-[#5A5668]">Computer Setup</span>
                     </div>
                     <Badge variant="outline" className="border-pink-200 text-[#D4A5A5] bg-pink-50">Interactive</Badge>
                   </div>
@@ -289,7 +289,7 @@ export default function Room() {
                       <div className="p-2 bg-gradient-to-br from-[#F8F5FF] to-[#F0E8FF] rounded-lg shadow-sm">
                         <Armchair className="w-5 h-5 text-[#C5B5D4]" />
                       </div>
-                      <span className="font-medium text-[#6F6B7D]">Gaming Chair</span>
+                      <span className="font-medium text-[#5A5668]">Gaming Chair</span>
                     </div>
                     <Badge variant="outline" className="border-purple-200 text-[#C5B5D4] bg-purple-50">Static</Badge>
                   </div>
@@ -300,7 +300,7 @@ export default function Room() {
                       <div className="p-2 bg-gradient-to-br from-[#FFF5F7] to-[#FFEEF5] rounded-lg shadow-sm">
                         <Lightbulb className="w-5 h-5 text-[#E4B5C5]" />
                       </div>
-                      <span className="font-medium text-[#6F6B7D]">Desk Lamp</span>
+                      <span className="font-medium text-[#5A5668]">Desk Lamp</span>
                     </div>
                     <Badge variant="outline" className="border-pink-200 text-[#E4B5C5] bg-pink-50">Animated</Badge>
                   </div>
@@ -311,7 +311,7 @@ export default function Room() {
                       <div className="p-2 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
                         <Flower className="w-5 h-5 text-[#D4A5A5]" />
                       </div>
-                      <span className="font-medium text-[#6F6B7D]">Plant Pot</span>
+                      <span className="font-medium text-[#5A5668]">Plant Pot</span>
                     </div>
                     <Badge variant="outline" className="border-pink-200 text-[#D4A5A5] bg-pink-50">Decoration</Badge>
                   </div>
