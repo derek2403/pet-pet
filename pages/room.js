@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import InstructionsModal from "@/components/InstructionsModal";
 import { 
   Home, 
   Maximize2, 
@@ -12,7 +13,6 @@ import {
   Lightbulb,
   Volume2,
   VolumeX,
-  Info,
   Loader2,
   ArrowLeft,
   Eye,
@@ -48,6 +48,7 @@ export default function Room() {
   const [isSoundOn, setIsSoundOn] = useState(false);
   const [selectedObject, setSelectedObject] = useState(null);
   const [isPointerOverViewer, setIsPointerOverViewer] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   // Prevent page scroll when interacting inside the 3D viewer and map wheel -> zoom
   useEffect(() => {
@@ -238,6 +239,10 @@ export default function Room() {
                   >
                     {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                   </Button>
+                  <InstructionsModal 
+                    open={showInstructions} 
+                    onOpenChange={setShowInstructions} 
+                  />
                 </div>
               </div>
             </CardHeader>
@@ -347,36 +352,6 @@ export default function Room() {
               </CardContent>
             </Card>
           </div>
-
-          {/* Instructions Card */}
-          <Card className="bg-gradient-to-r from-[#FFF5F7] to-[#F8F5FF] border-pink-100 rounded-2xl shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <Info className="w-6 h-6 text-[#D4A5A5] shrink-0 mt-1" />
-                <div>
-                  <h3 className="text-lg font-semibold mb-2 text-[#4A4458]">How to interact with the 3D Room</h3>
-                  <ul className="space-y-2 text-sm text-[#5A5668]">
-                    <li className="flex items-center gap-2">
-                      <span className="w-2 h-2 bg-[#D4A5A5] rounded-full"></span>
-                      <span><strong>Left Click + Drag:</strong> Rotate the camera</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-2 h-2 bg-[#D4A5A5] rounded-full"></span>
-                      <span><strong>Two‑finger Scroll / Mouse Wheel:</strong> Zoom in and out</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-2 h-2 bg-[#D4A5A5] rounded-full"></span>
-                      <span><strong>Click Objects:</strong> Select interactive elements</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-2 h-2 bg-[#D4A5A5] rounded-full"></span>
-                      <span><strong>Panning:</strong> Disabled for smoother navigation</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Room Details */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
