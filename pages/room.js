@@ -188,7 +188,7 @@ export default function Room() {
               </Button>
             </Link>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-3">
             <div className="p-2 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-xl shadow-sm">
               <Home className="w-8 h-8 text-[#D4A5A5]" />
             </div>
