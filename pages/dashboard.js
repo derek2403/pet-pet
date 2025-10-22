@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import PetSelector from '@/components/dashboard/PetSelector';
@@ -32,6 +33,17 @@ import {
 export default function Dashboard() {
   // State for pet name editing
   const [petName, setPetName] = useState("Buddy");
+  
+  // Track active tab for animations
+  const [activeTab, setActiveTab] = useState("dashboard");
+  
+  // Tab order for direction-based animations
+  const tabOrder = ["dashboard", "timeline", "insights", "settings"];
+  const getTabDirection = (newTab) => {
+    const currentIndex = tabOrder.indexOf(activeTab);
+    const newIndex = tabOrder.indexOf(newTab);
+    return newIndex > currentIndex ? 1 : -1;
+  };
 
   // Mock data
   const pets = [
@@ -134,32 +146,36 @@ export default function Dashboard() {
         <DashboardHeader />
 
         {/* Main Content with Tabs */}
-        <Tabs defaultValue="dashboard" className="space-y-6">
+        <Tabs 
+          value={activeTab} 
+          onValueChange={setActiveTab} 
+          className="space-y-6"
+        >
           <TabsList className="bg-[#FBFAFD] backdrop-blur-sm border border-[#E8E4F0] p-1 rounded-2xl shadow-sm">
             <TabsTrigger
               value="dashboard"
-              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B]"
+              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B] transition-colors duration-200"
             >
               <HomeIcon className="w-4 h-4 mr-2" />
               Dashboard
             </TabsTrigger>
             <TabsTrigger
               value="timeline"
-              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B]"
+              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B] transition-colors duration-200"
             >
               <ScrollText className="w-4 h-4 mr-2" />
               Timeline
             </TabsTrigger>
             <TabsTrigger
               value="insights"
-              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B]"
+              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B] transition-colors duration-200"
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               Insights
             </TabsTrigger>
             <TabsTrigger
               value="settings"
-              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B]"
+              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B] transition-colors duration-200"
             >
               <Settings className="w-4 h-4 mr-2" />
               Settings
@@ -167,7 +183,16 @@ export default function Dashboard() {
           </TabsList>
 
           {/* Dashboard Tab Content */}
-          <TabsContent value="dashboard" className="space-y-6">
+          <AnimatePresence mode="wait">
+            {activeTab === "dashboard" && (
+              <TabsContent value="dashboard" className="space-y-6" forceMount>
+                <motion.div
+                  key="dashboard"
+                  initial={{ x: getTabDirection("dashboard") * 50, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="space-y-6"
+                >
             {/* Pet Selector */}
             <PetSelector pets={pets} />
 
@@ -194,34 +219,70 @@ export default function Dashboard() {
 
             {/* Privacy & Sharing Controls */}
             <PrivacyControlsCard />
-          </TabsContent>
+                </motion.div>
+              </TabsContent>
+            )}
+          </AnimatePresence>
 
           {/* Timeline Tab Content */}
-          <TabsContent value="timeline" className="space-y-6">
-            <TabPlaceholder 
-              icon={ScrollText}
-              title="Timeline View"
-              description="Chronological feed of all pet events will be displayed here"
-            />
-          </TabsContent>
+          <AnimatePresence mode="wait">
+            {activeTab === "timeline" && (
+              <TabsContent value="timeline" className="space-y-6" forceMount>
+                <motion.div
+                  key="timeline"
+                  initial={{ x: getTabDirection("timeline") * 50, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                >
+                  <TabPlaceholder 
+                    icon={ScrollText}
+                    title="Timeline View"
+                    description="Chronological feed of all pet events will be displayed here"
+                  />
+                </motion.div>
+              </TabsContent>
+            )}
+          </AnimatePresence>
 
           {/* Insights Tab Content */}
-          <TabsContent value="insights" className="space-y-6">
-            <TabPlaceholder 
-              icon={BarChart3}
-              title="Insights & Analytics"
-              description="Charts and trends for pet health and activity will be displayed here"
-            />
-          </TabsContent>
+          <AnimatePresence mode="wait">
+            {activeTab === "insights" && (
+              <TabsContent value="insights" className="space-y-6" forceMount>
+                <motion.div
+                  key="insights"
+                  initial={{ x: getTabDirection("insights") * 50, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                >
+                  <TabPlaceholder 
+                    icon={BarChart3}
+                    title="Insights & Analytics"
+                    description="Charts and trends for pet health and activity will be displayed here"
+                  />
+                </motion.div>
+              </TabsContent>
+            )}
+          </AnimatePresence>
 
           {/* Settings Tab Content */}
-          <TabsContent value="settings" className="space-y-6">
-            <TabPlaceholder 
-              icon={Settings}
-              title="Settings"
-              description="Manage pet information, devices, and privacy settings here"
-            />
-          </TabsContent>
+          <AnimatePresence mode="wait">
+            {activeTab === "settings" && (
+              <TabsContent value="settings" className="space-y-6" forceMount>
+                <motion.div
+                  key="settings"
+                  initial={{ x: getTabDirection("settings") * 50, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                >
+                  <TabPlaceholder 
+                    icon={Settings}
+                    title="Settings"
+                    description="Manage pet information, devices, and privacy settings here"
+                  />
+                </motion.div>
+              </TabsContent>
+            )}
+          </AnimatePresence>
         </Tabs>
       </div>
     </div>
