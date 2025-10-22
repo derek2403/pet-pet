@@ -1,4 +1,4 @@
-import { Suspense, useRef, useState } from 'react';
+import { Suspense, useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,10 +40,54 @@ const Spline = dynamic(() => import('@splinetool/react-spline'), {
 
 export default function Room() {
   const splineRef = useRef();
+  const viewerRef = useRef(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSoundOn, setIsSoundOn] = useState(false);
   const [selectedObject, setSelectedObject] = useState(null);
+  const [isPointerOverViewer, setIsPointerOverViewer] = useState(false);
+
+  // Prevent page scroll when interacting inside the 3D viewer
+  useEffect(() => {
+    const el = viewerRef.current;
+    if (!el) return;
+    const handleWheel = (e) => {
+      // Allow Spline to handle zoom but prevent page scroll
+      e.preventDefault();
+    };
+    const handleTouchMove = (e) => {
+      // Prevent touch scroll chaining to the page on mobile
+      if (e.touches && e.touches.length > 0) {
+        e.preventDefault();
+      }
+    };
+    el.addEventListener('wheel', handleWheel, { passive: false, capture: true });
+    el.addEventListener('touchmove', handleTouchMove, { passive: false, capture: true });
+    return () => {
+      el.removeEventListener('wheel', handleWheel, { capture: true });
+      el.removeEventListener('touchmove', handleTouchMove, { capture: true });
+    };
+  }, []);
+
+  // Global safeguard: if pointer is over the viewer, prevent page scroll
+  useEffect(() => {
+    const handleWindowWheel = (e) => {
+      if (isPointerOverViewer) {
+        e.preventDefault();
+      }
+    };
+    const handleWindowTouchMove = (e) => {
+      if (isPointerOverViewer) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('wheel', handleWindowWheel, { passive: false, capture: true });
+    window.addEventListener('touchmove', handleWindowTouchMove, { passive: false, capture: true });
+    return () => {
+      window.removeEventListener('wheel', handleWindowWheel, { capture: true });
+      window.removeEventListener('touchmove', handleWindowTouchMove, { capture: true });
+    };
+  }, [isPointerOverViewer]);
 
   // Handle Spline scene load
   function onLoad(splineApp) {
@@ -145,7 +189,19 @@ export default function Room() {
             </CardHeader>
             <CardContent className="p-0">
               {/* Spline 3D Scene Container */}
-              <div className={`relative bg-gradient-to-br from-[#FFF5F7] via-[#F8F5FF] to-[#F5E8FF] ${isFullscreen ? 'h-[calc(100vh-200px)]' : 'h-[600px]'}`}>
+              <div 
+                ref={viewerRef}
+                className={`relative overscroll-none touch-none bg-gradient-to-br from-[#FFF5F7] via-[#F8F5FF] to-[#F5E8FF] ${isFullscreen ? 'h-[calc(100vh-200px)]' : 'h-[600px]'}`}
+                onWheel={(e) => {
+                  // Prevent page scroll when scrolling inside the 3D room
+                  e.stopPropagation();
+                }}
+                onMouseEnter={() => setIsPointerOverViewer(true)}
+                onMouseLeave={() => setIsPointerOverViewer(false)}
+                onTouchStart={() => setIsPointerOverViewer(true)}
+                onTouchEnd={() => setIsPointerOverViewer(false)}
+                onTouchCancel={() => setIsPointerOverViewer(false)}
+              >
                 <Suspense fallback={
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Loader2 className="w-12 h-12 text-[#D4A5A5] animate-spin" />
