@@ -181,12 +181,19 @@ export default function SplineViewer({ sceneUrl }) {
       
       <CardHeader className="pb-3 relative">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-[#4A4458] font-semibold">
-            <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
-              <Camera className="w-4 h-4 text-[#FF2D95]" />
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="absolute inset-0 bg-[#FF2D95]/20 rounded-xl blur-lg" />
+              <div className="relative p-2 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-xl shadow-md">
+                <Camera className="w-6 h-6 text-[#FF2D95]" />
+              </div>
             </div>
-            Mini Room - Interactive 3D View
-          </CardTitle>
+            <div>
+              <div className="text-sm font-semibold text-[#6B6B6B]">Room Status</div>
+              <div className="text-2xl font-bold text-[#4A4458]">Cozy & Clean</div>
+              <p className="text-xs text-[#B5B1C0] font-medium">Last updated: just now</p>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
             {/* Instructions Modal */}
             <InstructionsModal 

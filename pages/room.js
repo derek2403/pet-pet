@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import RoomHeader from '@/components/room/RoomHeader';
 import SplineViewer from '@/components/room/SplineViewer';
-import RoomStatusCards from '@/components/room/RoomStatusCards';
 import RoomObjectsList from '@/components/room/RoomObjectsList';
 import CustomizationOptions from '@/components/room/CustomizationOptions';
 
@@ -10,7 +9,7 @@ import CustomizationOptions from '@/components/room/CustomizationOptions';
  * Main page component that orchestrates the 3D room view and related UI
  */
 export default function Room() {
-  const [roomName, setRoomName] = useState("Pet's 3D Room");
+  const [roomName, setRoomName] = useState("Pet's Room");
   const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode";
 
   return (
@@ -33,19 +32,16 @@ export default function Room() {
       {/* Main Content Container */}
       <div className="container mx-auto px-6 pb-6 relative z-10">
         <div className="space-y-6">
-          {/* 3D Spline Viewer */}
+          {/* 3D Spline Viewer with Room Status */}
           <SplineViewer sceneUrl={sceneUrl} />
 
-          {/* Status Cards (Room Status, Interactive Objects, Ambient Light) */}
-          <RoomStatusCards />
-
           {/* Room Details Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
             {/* Room Objects List */}
-            <RoomObjectsList />
+            <RoomObjectsList key="room-objects-card" />
 
             {/* Customization Options */}
-            <CustomizationOptions />
+            <CustomizationOptions key="customization-card" />
           </div>
         </div>
       </div>
