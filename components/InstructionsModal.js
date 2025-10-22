@@ -38,9 +38,6 @@ export default function InstructionsModal({ open, onOpenChange }) {
             </div>
             How to interact with the 3D Room
           </DialogTitle>
-          <DialogDescription className="text-[#6B6B6B] font-medium mt-2">
-            Learn how to navigate and interact with the 3D environment
-          </DialogDescription>
         </DialogHeader>
         <div className="space-y-3 py-4 relative">
           <InstructionItem

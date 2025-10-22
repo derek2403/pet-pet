@@ -30,7 +30,7 @@ export default function CustomizationOptions() {
             <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
               <Lightbulb className="w-4 h-4 text-[#FF2D95]" />
             </div>
-            Customization (Coming Soon)
+            Customization
           </div>
           <div className="p-1 rounded-lg hover:bg-white/60 transition-colors">
             {isExpanded ? (
@@ -43,6 +43,7 @@ export default function CustomizationOptions() {
       </CardHeader>
       {isExpanded && (
         <CardContent className="space-y-3 relative animate-in fade-in slide-in-from-top-2 duration-300">
+          {/* Background features - visible but grayed out */}
           {options.map((option, index) => (
             <Button 
               key={index}
@@ -53,6 +54,14 @@ export default function CustomizationOptions() {
               {option.text}
             </Button>
           ))}
+          
+          {/* Coming Soon Overlay */}
+          <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm rounded-b-2xl">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-[#FF2D95] mb-2">Coming Soon</div>
+              <p className="text-sm text-[#6B6B6B] font-medium">Exciting customization features on the way!</p>
+            </div>
+          </div>
         </CardContent>
       )}
     </Card>
