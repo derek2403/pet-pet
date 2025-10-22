@@ -49,7 +49,7 @@ export default function PetProfileCard({ pet, onPetNameChange }) {
                   />
                 ) : (
                   <div 
-                    className="group flex items-center gap-2 cursor-pointer hover:bg-[#F6F3F9] px-2 py-1 rounded-lg transition-colors -ml-2 mb-1"
+                    className="group inline-flex items-center gap-2 cursor-pointer hover:bg-[#F6F3F9] px-2 py-1 rounded-lg transition-colors -ml-2 mb-1"
                     onClick={() => setIsEditingName(true)}
                   >
                     <h2 className="text-3xl font-semibold text-[#4A4458]">{pet.name}</h2>
