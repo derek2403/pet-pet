@@ -65,7 +65,7 @@ export default function InstructionsModal({ open, onOpenChange }) {
 // Helper component for each instruction item
 function InstructionItem({ title, description }) {
   return (
-    <div className="group flex items-start gap-4 p-4 rounded-xl bg-gradient-to-r from-[#FFF5F7] to-[#F8F5FF] border border-pink-100/50 hover:shadow-md hover:scale-[1.02] transition-all duration-200 relative overflow-hidden">
+    <div className="group flex items-start gap-4 p-4 rounded-xl bg-gradient-to-r from-[#FFF5F7] to-[#F8F5FF] border-2 border-[#FFE4E8]/60 hover:border-[#FF2D95]/40 hover:shadow-lg hover:scale-[1.02] transition-all duration-200 relative overflow-hidden">
       {/* Subtle hover effect */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#FFE4E8]/10 to-[#F8F5FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       
@@ -76,8 +76,8 @@ function InstructionItem({ title, description }) {
       </div>
       
       <div className="relative flex-1">
-        <p className="font-bold text-[#4A4458] text-sm mb-0.5">{title}</p>
-        <p className="text-sm text-[#6B6B6B] font-medium">{description}</p>
+        <p className="font-semibold text-[#4A4458] text-base mb-1">{title}</p>
+        <p className="text-sm text-[#6B6B6B]">{description}</p>
       </div>
     </div>
   );

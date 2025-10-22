@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import InstructionsModal from "@/components/InstructionsModal";
 import { 
-  Camera,
+  CircleCheck,
   Maximize2, 
   Minimize2, 
   RotateCcw, 
@@ -185,7 +185,7 @@ export default function SplineViewer({ sceneUrl }) {
             <div className="relative">
               <div className="absolute inset-0 bg-[#FF2D95]/20 rounded-xl blur-lg" />
               <div className="relative p-2 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-xl shadow-md">
-                <Camera className="w-6 h-6 text-[#FF2D95]" />
+                <CircleCheck className="w-6 h-6 text-[#FF2D95]" />
               </div>
             </div>
             <div>
