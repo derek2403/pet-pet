@@ -195,7 +195,7 @@ export default function Room() {
             <h1 className="text-2xl font-medium text-[#4A4458]">Pet's 3D Room</h1>
           </div>
           <div className="flex items-center gap-3">
-            <Badge className="bg-gradient-to-r from-[#FFE4E8] to-[#FFD4E5] text-[#8B7B8B] hover:bg-gradient-to-r border border-pink-100 px-4 py-2 shadow-sm">
+            <Badge className="bg-[#FF4081] text-white hover:bg-[#F50057] px-4 py-2 shadow-sm">
               <Box className="w-3 h-3 mr-1" />
               Interactive
             </Badge>

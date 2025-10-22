@@ -150,7 +150,7 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-3">
             <Link href="/room">
-              <Button className="bg-gradient-to-r from-[#FFE4E8] to-[#FFD4E5] hover:shadow-lg hover:shadow-pink-200/50 transition-all text-[#8B7B8B] font-medium rounded-full border border-pink-100">
+              <Button className="bg-[#FF4081] hover:bg-[#F50057] hover:shadow-lg hover:scale-105 transition-all duration-300 text-white font-medium rounded-full">
                 <Boxes className="w-4 h-4 mr-2" />
                 Visit 3D Room
               </Button>
@@ -173,28 +173,28 @@ export default function Dashboard() {
           <TabsList className="bg-[#FBFAFD] backdrop-blur-sm border border-[#E8E4F0] p-1 rounded-2xl shadow-sm">
             <TabsTrigger
               value="dashboard"
-              className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#FFE4E8] data-[state=active]:to-[#FFD4E5] data-[state=active]:text-[#8B7B8B] data-[state=active]:shadow-sm text-[#9E9AA7]"
+              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#9E9AA7]"
             >
               <HomeIcon className="w-4 h-4 mr-2" />
               Dashboard
             </TabsTrigger>
             <TabsTrigger
               value="timeline"
-              className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#FFE4E8] data-[state=active]:to-[#FFD4E5] data-[state=active]:text-[#8B7B8B] data-[state=active]:shadow-sm text-[#9E9AA7]"
+              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#9E9AA7]"
             >
               <ScrollText className="w-4 h-4 mr-2" />
               Timeline
             </TabsTrigger>
             <TabsTrigger
               value="insights"
-              className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#FFE4E8] data-[state=active]:to-[#FFD4E5] data-[state=active]:text-[#8B7B8B] data-[state=active]:shadow-sm text-[#9E9AA7]"
+              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#9E9AA7]"
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               Insights
             </TabsTrigger>
             <TabsTrigger
               value="settings"
-              className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#FFE4E8] data-[state=active]:to-[#FFD4E5] data-[state=active]:text-[#8B7B8B] data-[state=active]:shadow-sm text-[#9E9AA7]"
+              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#9E9AA7]"
             >
               <Settings className="w-4 h-4 mr-2" />
               Settings
@@ -218,7 +218,7 @@ export default function Dashboard() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button className="bg-gradient-to-r from-[#FFE4E8] to-[#FFD4E5] hover:shadow-lg hover:shadow-pink-200/50 transition-all text-[#8B7B8B] font-medium rounded-2xl border border-pink-100">
+                <Button className="bg-[#FF4081] hover:bg-[#F50057] hover:shadow-lg hover:scale-105 transition-all duration-300 text-white font-medium rounded-2xl">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Pet
                 </Button>
@@ -226,7 +226,7 @@ export default function Dashboard() {
             </div>
 
             {/* Pet Profile Card */}
-            <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm">
+            <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
               <CardContent className="p-6">
                 <div className="flex items-start gap-6">
                   <Avatar className="w-24 h-24 text-5xl">
@@ -277,7 +277,7 @@ export default function Dashboard() {
             </Card>
 
             {/* Featured 3D Room Card */}
-            <Card className="bg-gradient-to-r from-[#FFE4E8] via-[#FFD4E5] to-[#F5E8FF] border border-pink-100 rounded-2xl overflow-hidden shadow-md">
+            <Card className="bg-gradient-to-r from-[#FFE4E8] via-[#FFD4E5] to-[#F5E8FF] border border-pink-100 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 duration-700">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -289,13 +289,13 @@ export default function Dashboard() {
                       Step into an interactive 3D environment powered by Spline. View and interact with your pet's cozy space in real-time!
                     </p>
                     <Link href="/room">
-                      <Button className="bg-[#FBFAFD] text-[#8B7B8B] hover:shadow-lg hover:shadow-pink-200/50 transition-all rounded-full border border-pink-100">
+                      <Button className="bg-[#FF4081] hover:bg-[#F50057] hover:shadow-lg transition-all text-white font-medium rounded-full">
                         <Boxes className="w-4 h-4 mr-2" />
                         Enter 3D Room
                       </Button>
                     </Link>
                   </div>
-                  <div className="p-4 bg-white/50 rounded-2xl backdrop-blur-sm shadow-sm">
+                  <div className="p-4 bg-white/50 rounded-2xl backdrop-blur-sm shadow-sm hover:rotate-6 transition-transform duration-300">
                     <HomeIcon className="w-20 h-20 text-[#D4A5A5]" />
                   </div>
                 </div>
@@ -305,7 +305,7 @@ export default function Dashboard() {
             {/* Real-Time Pet Status & Alerts Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Real-Time Pet Status */}
-              <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl lg:col-span-2 shadow-sm">
+              <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl lg:col-span-2 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-[#4A4458] font-medium">
                     <Activity className="w-5 h-5 text-[#D4A5A5]" />
@@ -316,8 +316,8 @@ export default function Dashboard() {
                   <div className="p-6 bg-gradient-to-br from-[#FFF5F7] to-[#F8F5FF] rounded-2xl border border-pink-50 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="p-3 bg-white rounded-xl shadow-sm">
-                          <Footprints className="w-8 h-8 text-[#D4A5A5] animate-pulse" />
+                        <div className="p-3 bg-white rounded-xl shadow-sm animate-bounce">
+                          <Footprints className="w-8 h-8 text-[#D4A5A5]" />
                         </div>
                         <div>
                           <h3 className="text-2xl font-semibold text-[#4A4458]">{currentActivity.type}</h3>
@@ -340,7 +340,7 @@ export default function Dashboard() {
               </Card>
 
               {/* Alerts & Notifications */}
-              <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm">
+              <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm animate-in fade-in slide-in-from-right-4 duration-500">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-[#4A4458] font-medium">
                     <Bell className="w-5 h-5 text-[#D4A5A5]" />
@@ -351,7 +351,7 @@ export default function Dashboard() {
                   {alerts.map((alert, i) => (
                     <div
                       key={i}
-                      className={`p-3 rounded-xl flex items-start gap-3 ${
+                      className={`p-3 rounded-xl flex items-start gap-3 hover:scale-[1.02] transition-transform duration-200 ${
                         alert.type === "warning"
                           ? "bg-[#FFF5F7] border border-pink-100"
                           : alert.type === "info"
@@ -376,7 +376,7 @@ export default function Dashboard() {
             </div>
 
             {/* Monthly Summary */}
-            <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm">
+            <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-[#4A4458] font-medium">
                   <TrendingUp className="w-5 h-5 text-[#D4A5A5]" />
@@ -386,28 +386,28 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <div className="p-4 bg-gradient-to-br from-[#FFF5F7] to-[#FFE4E8] rounded-xl border border-pink-50">
+                  <div className="p-4 bg-gradient-to-br from-[#FFF5F7] to-[#FFE4E8] rounded-xl border border-pink-50 hover:scale-105 hover:shadow-md transition-all duration-300 cursor-pointer">
                     <div className="flex items-center gap-2 mb-2">
                       <Footprints className="w-5 h-5 text-[#D4A5A5]" />
                       <span className="text-sm font-medium text-[#5A5668]">Running</span>
                     </div>
                     <p className="text-2xl font-semibold text-[#D4A5A5]">{monthlyStats.running}</p>
                   </div>
-                  <div className="p-4 bg-gradient-to-br from-[#F8F5FF] to-[#F0E8FF] rounded-xl border border-purple-50">
+                  <div className="p-4 bg-gradient-to-br from-[#F8F5FF] to-[#F0E8FF] rounded-xl border border-purple-50 hover:scale-105 hover:shadow-md transition-all duration-300 cursor-pointer">
                     <div className="flex items-center gap-2 mb-2">
                       <Moon className="w-5 h-5 text-[#C5B5D4]" />
                       <span className="text-sm font-medium text-[#5A5668]">Sleeping</span>
                     </div>
                     <p className="text-2xl font-semibold text-[#C5B5D4]">{monthlyStats.sleeping}</p>
                   </div>
-                  <div className="p-4 bg-gradient-to-br from-[#FFF5F7] to-[#FFEEF5] rounded-xl border border-pink-50">
+                  <div className="p-4 bg-gradient-to-br from-[#FFF5F7] to-[#FFEEF5] rounded-xl border border-pink-50 hover:scale-105 hover:shadow-md transition-all duration-300 cursor-pointer">
                     <div className="flex items-center gap-2 mb-2">
                       <Heart className="w-5 h-5 text-[#E4B5C5]" />
                       <span className="text-sm font-medium text-[#5A5668]">Resting</span>
                     </div>
                     <p className="text-2xl font-semibold text-[#E4B5C5]">{monthlyStats.resting}</p>
                   </div>
-                  <div className="p-4 bg-gradient-to-br from-[#FFF5F7] to-[#FFE4E8] rounded-xl border border-pink-50">
+                  <div className="p-4 bg-gradient-to-br from-[#FFF5F7] to-[#FFE4E8] rounded-xl border border-pink-50 hover:scale-105 hover:shadow-md transition-all duration-300 cursor-pointer">
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin className="w-5 h-5 text-[#D4A5A5]" />
                       <span className="text-sm font-medium text-[#5A5668]">Distance</span>
@@ -439,7 +439,7 @@ export default function Dashboard() {
             {/* Upcoming Vet Appointment & Activity Timeline */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Upcoming Vet Appointment */}
-              <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm">
+              <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 animate-in fade-in slide-in-from-left-4 duration-700">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-[#4A4458] font-medium">
                     <Calendar className="w-5 h-5 text-[#D4A5A5]" />
@@ -476,7 +476,7 @@ export default function Dashboard() {
               </Card>
 
               {/* Activity Timeline */}
-              <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm">
+              <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 animate-in fade-in slide-in-from-right-4 duration-700">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-[#4A4458] font-medium">
                     <ScrollText className="w-5 h-5 text-[#D4A5A5]" />
@@ -487,7 +487,7 @@ export default function Dashboard() {
                   {recentEvents.map((event, i) => (
                     <div
                       key={i}
-                      className="p-4 bg-[#F6F3F9]/50 rounded-xl hover:bg-[#F6F3F9] transition-colors border border-[#E8E4F0]/50"
+                      className="p-4 bg-[#F6F3F9]/50 rounded-xl hover:bg-[#F6F3F9] hover:scale-[1.02] transition-all duration-200 border border-[#E8E4F0]/50 cursor-pointer"
                     >
                       <div className="flex items-start gap-3">
                         <div className="p-2 bg-white rounded-lg shadow-sm">
@@ -521,7 +521,7 @@ export default function Dashboard() {
             </div>
 
             {/* Privacy & Sharing Controls */}
-            <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm">
+            <Card className="bg-[#FBFAFD] backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-1000">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-[#4A4458] font-medium">
                   <Shield className="w-5 h-5 text-[#D4A5A5]" />
