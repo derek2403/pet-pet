@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -36,6 +36,9 @@ export default function Dashboard() {
   
   // Track active tab for animations
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [pillStyle, setPillStyle] = useState({ left: 0, width: 0 });
+  const tabRefs = useRef({});
+  const tabsListRef = useRef(null);
   
   // Tab order for direction-based animations
   const tabOrder = ["dashboard", "timeline", "insights", "settings"];
@@ -44,6 +47,41 @@ export default function Dashboard() {
     const newIndex = tabOrder.indexOf(newTab);
     return newIndex > currentIndex ? 1 : -1;
   };
+
+  // Move pill immediately on pointer down to reduce perceived white flash
+  const movePillToTab = (tabKey) => {
+    const target = tabRefs.current[tabKey];
+    const tabsList = tabsListRef.current;
+    if (!target || !tabsList) return;
+    const tabsListRect = tabsList.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    setPillStyle({
+      left: targetRect.left - tabsListRect.left,
+      width: targetRect.width,
+    });
+  };
+
+  // Update pill position when active tab changes
+  useEffect(() => {
+    const updatePillPosition = () => {
+      const activeTabElement = tabRefs.current[activeTab];
+      const tabsList = tabsListRef.current;
+      
+      if (activeTabElement && tabsList) {
+        const tabsListRect = tabsList.getBoundingClientRect();
+        const activeTabRect = activeTabElement.getBoundingClientRect();
+        
+        setPillStyle({
+          left: activeTabRect.left - tabsListRect.left,
+          width: activeTabRect.width,
+        });
+      }
+    };
+
+    updatePillPosition();
+    window.addEventListener('resize', updatePillPosition);
+    return () => window.removeEventListener('resize', updatePillPosition);
+  }, [activeTab]);
 
   // Mock data
   const pets = [
@@ -151,31 +189,55 @@ export default function Dashboard() {
           onValueChange={setActiveTab} 
           className="space-y-6"
         >
-          <TabsList className="bg-[#FBFAFD] backdrop-blur-sm border border-[#E8E4F0] p-1 rounded-2xl shadow-sm">
+          <TabsList ref={tabsListRef} className="relative bg-[#FBFAFD] backdrop-blur-sm border border-[#E8E4F0] p-1 rounded-2xl shadow-sm overflow-hidden">
+            {/* Sliding Pill Background */}
+            <div
+              className="absolute rounded-xl bg-[#FF4081] shadow-sm transition-all duration-300 ease-out"
+              style={{
+                left: `${pillStyle.left}px`,
+                width: `${pillStyle.width}px`,
+                height: 'calc(100% - 8px)',
+                top: '4px',
+                zIndex: 0,
+              }}
+            />
+            
             <TabsTrigger
+              ref={(el) => (tabRefs.current.dashboard = el)}
               value="dashboard"
-              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B] transition-colors duration-200"
+              onMouseDown={(e) => { e.preventDefault(); movePillToTab('dashboard'); setActiveTab('dashboard'); }}
+              onTouchStart={() => { movePillToTab('dashboard'); setActiveTab('dashboard'); }}
+              className="relative z-10 rounded-xl shadow-none active:shadow-none focus:shadow-none data-[state=active]:shadow-none data-[state=active]:text-white data-[state=active]:bg-transparent hover:bg-transparent active:bg-transparent text-[#6B6B6B] transition-colors duration-200 outline-none focus:outline-none focus:ring-0 ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
             >
               <HomeIcon className="w-4 h-4 mr-2" />
               Dashboard
             </TabsTrigger>
             <TabsTrigger
+              ref={(el) => (tabRefs.current.timeline = el)}
               value="timeline"
-              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B] transition-colors duration-200"
+              onMouseDown={(e) => { e.preventDefault(); movePillToTab('timeline'); setActiveTab('timeline'); }}
+              onTouchStart={() => { movePillToTab('timeline'); setActiveTab('timeline'); }}
+              className="relative z-10 rounded-xl shadow-none active:shadow-none focus:shadow-none data-[state=active]:shadow-none data-[state=active]:text-white data-[state=active]:bg-transparent hover:bg-transparent active:bg-transparent text-[#6B6B6B] transition-colors duration-200 outline-none focus:outline-none focus:ring-0 ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
             >
               <ScrollText className="w-4 h-4 mr-2" />
               Timeline
             </TabsTrigger>
             <TabsTrigger
+              ref={(el) => (tabRefs.current.insights = el)}
               value="insights"
-              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B] transition-colors duration-200"
+              onMouseDown={(e) => { e.preventDefault(); movePillToTab('insights'); setActiveTab('insights'); }}
+              onTouchStart={() => { movePillToTab('insights'); setActiveTab('insights'); }}
+              className="relative z-10 rounded-xl shadow-none active:shadow-none focus:shadow-none data-[state=active]:shadow-none data-[state=active]:text-white data-[state=active]:bg-transparent hover:bg-transparent active:bg-transparent text-[#6B6B6B] transition-colors duration-200 outline-none focus:outline-none focus:ring-0 ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               Insights
             </TabsTrigger>
             <TabsTrigger
+              ref={(el) => (tabRefs.current.settings = el)}
               value="settings"
-              className="rounded-xl data-[state=active]:bg-[#FF4081] data-[state=active]:text-white data-[state=active]:shadow-sm text-[#6B6B6B] transition-colors duration-200"
+              onMouseDown={(e) => { e.preventDefault(); movePillToTab('settings'); setActiveTab('settings'); }}
+              onTouchStart={() => { movePillToTab('settings'); setActiveTab('settings'); }}
+              className="relative z-10 rounded-xl shadow-none active:shadow-none focus:shadow-none data-[state=active]:shadow-none data-[state=active]:text-white data-[state=active]:bg-transparent hover:bg-transparent active:bg-transparent text-[#6B6B6B] transition-colors duration-200 outline-none focus:outline-none focus:ring-0 ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
             >
               <Settings className="w-4 h-4 mr-2" />
               Settings

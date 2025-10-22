@@ -18,7 +18,7 @@ export default function PetSelector({ pets }) {
       <div className="flex items-center gap-4">
         {/* Pet Dropdown */}
         <Select defaultValue="1">
-          <SelectTrigger className="w-[280px] bg-white border-[#E8E4F0] rounded-2xl shadow-sm text-[#4A4458] font-medium hover:bg-[#F6F3F9] hover:border-[#D4A5A5] transition-all">
+          <SelectTrigger className="w-[280px] bg-[#FBFAFD]/80 backdrop-blur-sm border-[#E8E4F0] rounded-2xl shadow-sm text-[#4A4458] font-medium hover:bg-[#F6F3F9] hover:border-[#D4A5A5] transition-all">
             <SelectValue placeholder="Select a pet" />
           </SelectTrigger>
           <SelectContent className="bg-[#FBFAFD] border-[#E8E4F0] rounded-xl shadow-lg">
