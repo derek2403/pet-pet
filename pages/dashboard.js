@@ -78,9 +78,19 @@ export default function Dashboard() {
       }
     };
 
-    updatePillPosition();
+    // Use requestAnimationFrame to ensure DOM is fully laid out
+    requestAnimationFrame(() => {
+      updatePillPosition();
+    });
+    
+    // Add a small timeout as fallback for initial render
+    const timeout = setTimeout(updatePillPosition, 100);
+    
     window.addEventListener('resize', updatePillPosition);
-    return () => window.removeEventListener('resize', updatePillPosition);
+    return () => {
+      window.removeEventListener('resize', updatePillPosition);
+      clearTimeout(timeout);
+    };
   }, [activeTab]);
 
   // Mock data
