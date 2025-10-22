@@ -41,19 +41,47 @@ const Spline = dynamic(() => import('@splinetool/react-spline'), {
 export default function Room() {
   const splineRef = useRef();
   const viewerRef = useRef(null);
+  const controlsRef = useRef(null);
+  const zoomRef = useRef(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSoundOn, setIsSoundOn] = useState(false);
   const [selectedObject, setSelectedObject] = useState(null);
   const [isPointerOverViewer, setIsPointerOverViewer] = useState(false);
 
-  // Prevent page scroll when interacting inside the 3D viewer
+  // Prevent page scroll when interacting inside the 3D viewer and map wheel -> zoom
   useEffect(() => {
     const el = viewerRef.current;
     if (!el) return;
     const handleWheel = (e) => {
-      // Allow Spline to handle zoom but prevent page scroll
+      // Convert wheel into camera zoom and block page scroll
       e.preventDefault();
+      if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+      e.stopPropagation();
+      const delta = e.deltaY; // positive = zoom out, negative = zoom in
+      // Prefer OrbitControls dolly for perspective cameras
+      const controls = controlsRef.current;
+      if (controls && typeof controls.dollyIn === 'function' && typeof controls.dollyOut === 'function') {
+        const zoomSpeed = typeof controls.zoomSpeed === 'number' ? controls.zoomSpeed : 1;
+        const scale = Math.pow(0.95, zoomSpeed);
+        if (delta < 0) {
+          controls.dollyIn(scale);
+        } else if (delta > 0) {
+          controls.dollyOut(scale);
+        }
+        if (typeof controls.update === 'function') controls.update();
+        return;
+      }
+      // Fallback: adjust Spline zoom for orthographic cameras
+      const sensitivity = 0.0015; // tweak for feel
+      let next = zoomRef.current - delta * sensitivity;
+      next = Math.min(5, Math.max(0.2, next));
+      zoomRef.current = next;
+      try {
+        if (splineRef.current && typeof splineRef.current.setZoom === 'function') {
+          splineRef.current.setZoom(next);
+        }
+      } catch (_) {}
     };
     const handleTouchMove = (e) => {
       // Prevent touch scroll chaining to the page on mobile
@@ -94,6 +122,32 @@ export default function Room() {
     splineRef.current = splineApp;
     setIsLoaded(true);
     console.log('Spline scene loaded successfully');
+    try {
+      if (typeof splineApp.setZoom === 'function') {
+        splineApp.setZoom(zoomRef.current);
+      }
+    } catch (_) {}
+    // Ensure scroll zooms the camera and panning is disabled
+    try {
+      const controls =
+        splineApp?._camera?.controls ||
+        splineApp?.controls ||
+        splineApp?._controls ||
+        splineApp?._runtime?.controls ||
+        splineApp?._runtime?._camera?.controls;
+      if (controls) {
+        if (typeof controls.enablePan !== 'undefined') controls.enablePan = false;
+        if (typeof controls.enableRotate !== 'undefined') controls.enableRotate = true;
+        if (typeof controls.enableZoom !== 'undefined') controls.enableZoom = true;
+        if (typeof controls.screenSpacePanning !== 'undefined') controls.screenSpacePanning = false;
+        if (controls.mouseButtons) {
+          if ('RIGHT' in controls.mouseButtons) controls.mouseButtons.RIGHT = -1;
+          if ('MIDDLE' in controls.mouseButtons) controls.mouseButtons.MIDDLE = -1;
+        }
+      }
+    } catch (_) {
+      // Non-fatal; wheel/touch listeners already prevent page scroll
+    }
   }
 
   // Reset camera view
@@ -196,6 +250,13 @@ export default function Room() {
                   // Prevent page scroll when scrolling inside the 3D room
                   e.stopPropagation();
                 }}
+                onMouseDown={(e) => {
+                  // Only allow left click; block right/middle which pan
+                  if (e.button !== 0) {
+                    e.preventDefault();
+                  }
+                }}
+                onContextMenu={(e) => e.preventDefault()}
                 onMouseEnter={() => setIsPointerOverViewer(true)}
                 onMouseLeave={() => setIsPointerOverViewer(false)}
                 onTouchStart={() => setIsPointerOverViewer(true)}
