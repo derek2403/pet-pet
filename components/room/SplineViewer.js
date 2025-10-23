@@ -38,12 +38,14 @@ export default function SplineViewer({ sceneUrl }) {
   const allObjectsRef = useRef([]);
   // Holds the object we will emit events on (set after first user click on dog)
   const dogEventTargetRef = useRef(null);
+  const walkTimeoutRef = useRef(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSoundOn, setIsSoundOn] = useState(false);
   const [selectedObject, setSelectedObject] = useState(null);
   const [isPointerOverViewer, setIsPointerOverViewer] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
+  const isWalkingRef = useRef(false); // Track if dog is currently walking or in cooldown
 
   // Prevent page scroll when interacting inside the 3D viewer and map wheel to zoom
   useEffect(() => {
@@ -133,7 +135,7 @@ export default function SplineViewer({ sceneUrl }) {
       }
     } catch (_) {}
     
-    // Find and control the dog (Shibainu) animations
+    // Find and control the dog animations
     try {
       // Get all objects and find the dog
       const allObjects = splineApp.getAllObjects ? splineApp.getAllObjects() : [];
@@ -147,32 +149,35 @@ export default function SplineViewer({ sceneUrl }) {
         );
       }
       
-      // Try multiple possible names for the dog
-      let shibainu = splineApp.findObjectByName('Shibainu') ||
-                     splineApp.findObjectByName('shibainu') ||
-                     splineApp.findObjectByName('Shibainu_AnimalArmature') ||
-                     allObjects.find(obj => 
-                       obj.name && obj.name.toLowerCase().includes('shibainu')
-                     );
+      // Try multiple possible names for the dog mesh (click target that has animation clips)
+      let shibainu =
+        splineApp.findObjectByName('Shibainu') ||
+        splineApp.findObjectByName('shibainu') ||
+        splineApp.findObjectByName('Shibalnu') ||
+        allObjects.find(obj => obj.name && obj.name.toLowerCase().includes('shiba'));
+
+      // Try to also grab the armature in case events are wired there
+      const armature =
+        splineApp.findObjectByName('AnimalArmature') ||
+        allObjects.find(obj => obj.name && obj.name.toLowerCase().includes('animalarmature'));
       
-      if (shibainu) {
-        console.log('Found dog object:', shibainu.name || 'unnamed');
+      if (shibainu || armature) {
+        console.log('Found dog objects:', {
+          mesh: shibainu && (shibainu.name || 'unnamed'),
+          armature: armature && (armature.name || 'unnamed')
+        });
         console.log('SplineApp methods:', Object.keys(splineApp).filter(k => typeof splineApp[k] === 'function'));
-        console.log('Shibainu properties:', Object.keys(shibainu));
-        
-        // Stop all animations initially to prevent twitching
-        if (splineApp.stopAnimation) {
-          splineApp.stopAnimation();
+        if (shibainu) console.log('Shiba properties:', Object.keys(shibainu));
+
+        // Prefer emitting events on the mesh (where clips are attached); fallback to armature
+        dogEventTargetRef.current = shibainu || armature || null;
+        if (dogEventTargetRef.current) {
+          console.log('Event target set to:', dogEventTargetRef.current.name);
         }
-        
-        // Start with idle animation
-        setTimeout(() => {
-          playIdleAnimation(splineApp, shibainu);
-        }, 100);
         
         // Set up animation cycling: idle for 5 sec, walk for 3 sec, repeat
         setInterval(() => {
-          cycleAnimations(splineApp, shibainu);
+          cycleAnimations(splineApp, shibainu || armature);
         }, 8000); // Cycle every 8 seconds
       } else {
         console.log('Dog not found. First 10 object names:', 
@@ -208,81 +213,86 @@ export default function SplineViewer({ sceneUrl }) {
     }
   }
 
-  // Play idle animation for the dog
-  function playIdleAnimation(splineApp, shibainu) {
+  // Emit helper that targets the calibrated dog object and falls back to name-based emit
+  function emitDogEvent(splineApp, eventName) {
+    const target = dogEventTargetRef.current;
+    const name = target?.name;
+    let emitted = false;
     try {
-      // The Start event will automatically play idle animation
-      console.log('Idle animation should be playing from Start event');
-    } catch (error) {
-      console.error('Error with idle animation:', error);
+      if (target && typeof target.emitEvent === 'function') {
+        target.emitEvent(eventName);
+        emitted = true;
+        console.log(`🎯 emitEvent(${eventName}) on`, name);
+      }
+    } catch (e) {
+      console.warn(`emitEvent(${eventName}) on object failed:`, e?.message);
     }
+    if (!emitted && typeof splineApp.emitEvent === 'function' && name) {
+      try {
+        splineApp.emitEvent(eventName, name);
+        emitted = true;
+        console.log(`🎯 splineApp.emitEvent(${eventName}, ${name})`);
+      } catch (e) {
+        console.warn(`splineApp.emitEvent(${eventName}) failed:`, e?.message);
+      }
+    }
+    return emitted;
   }
+
+  // No-op fallback removed to avoid any extra motion after arrival
 
   // Cycle through different animations and move the dog around
   function cycleAnimations(splineApp, shibainu) {
+    // Check if dog is already walking or in cooldown
+    if (isWalkingRef.current) {
+      console.log('⏸️ Skipping cycle - dog is walking or in cooldown');
+      return;
+    }
+    
     const shouldWalk = Math.random() > 0.5; // 50% chance to walk
     
     try {
       if (shouldWalk) {
         console.log('Starting walk cycle');
+        isWalkingRef.current = true; // Set walking flag
         
-        // Method 1: Trigger mouseDown event on the object directly (OFFICIAL WAY)
-        // This triggers the Mouse Press event you set up in Spline editor
-        // Prefer the exact object coming from a real click if we have it
-        const dogEventTarget = dogEventTargetRef.current || shibainu;
-        if (dogEventTarget && typeof dogEventTarget.emitEvent === 'function') {
-          try {
-            dogEventTarget.emitEvent('mouseDown');
-            console.log('✅ Triggered walk via shibainu.emitEvent("mouseDown")');
-          } catch (e) {
-            console.log('❌ shibainu.emitEvent failed:', e.message);
-          }
-        }
+        // Reset to a known idle then emit mouseDown (guards against stuck state)
+        emitDogEvent(splineApp, 'mouseUp');
+        requestAnimationFrame(() => emitDogEvent(splineApp, 'mouseDown'));
 
-        // Method 1b: belt-and-suspenders — also emit on any likely child with walk action
-        try {
-          const candidates = (allObjectsRef.current || []).filter(o => {
-            const n = String(o.name || '').toLowerCase();
-            return n.includes('shiba') || n.includes('shibal') || n.includes('animalarmature');
-          });
-          candidates.forEach(o => {
-            if (o && typeof o.emitEvent === 'function') {
-              o.emitEvent('mouseDown');
-            }
-          });
-        } catch (_) {}
-        
-        // Method 2: Alternative way - emit event with object name
-        if (typeof splineApp.emitEvent === 'function') {
-          try {
-            splineApp.emitEvent('mouseDown', (dogEventTargetRef.current && dogEventTargetRef.current.name) || shibainu.name);
-            console.log('✅ Triggered walk via splineApp.emitEvent("mouseDown", name)');
-          } catch (e) {
-            console.log('❌ splineApp.emitEvent failed:', e.message);
-          }
-        }
+        // Safety: ensure walk can't run forever if mouseUp is missed
+        if (walkTimeoutRef.current) clearTimeout(walkTimeoutRef.current);
+        walkTimeoutRef.current = setTimeout(() => {
+          console.warn('⏱️ Walk safety timeout hit, forcing Idle');
+          emitDogEvent(splineApp, 'mouseUp');
+          forceIdleFallback(splineApp);
+        }, 3500);
         
         // Move the dog to a new position and emit mouseUp exactly when movement ends
         moveDogToRandomPosition(shibainu, () => {
-          try {
-            const dogEventTarget2 = dogEventTargetRef.current || shibainu;
-            if (dogEventTarget2 && typeof dogEventTarget2.emitEvent === 'function') {
-              dogEventTarget2.emitEvent('mouseUp');
-              console.log('🔚 Sent mouseUp to end walk');
-            } else if (typeof splineApp.emitEvent === 'function') {
-              splineApp.emitEvent('mouseUp', (dogEventTargetRef.current && dogEventTargetRef.current.name) || shibainu.name);
-            }
-            // Also send mouseUp to candidate children
-            const candidates = (allObjectsRef.current || []).filter(o => {
-              const n = String(o.name || '').toLowerCase();
-              return n.includes('shiba') || n.includes('shibal') || n.includes('animalarmature');
-            });
-            candidates.forEach(o => {
-              if (o && typeof o.emitEvent === 'function') {
-                o.emitEvent('mouseUp');
+          // Small delay to ensure movement completes before triggering idle
+          setTimeout(() => {
+            try {
+              // Clear safety timeout and send single, authoritative mouseUp
+              if (walkTimeoutRef.current) {
+                clearTimeout(walkTimeoutRef.current);
+                walkTimeoutRef.current = null;
               }
-            });
-          } catch (e) {}
+              emitDogEvent(splineApp, 'mouseUp');
+
+              // Wait 5 seconds before allowing next walk (cooldown period)
+              console.log('⏰ Starting 5-second cooldown before next walk...');
+              setTimeout(() => {
+                isWalkingRef.current = false;
+                console.log('✅ Cooldown complete - dog can walk again');
+              }, 5000); // 5 second cooldown
+              
+            } catch (e) {
+              console.error('Error sending mouseUp:', e);
+              // Reset flag even on error
+              setTimeout(() => { isWalkingRef.current = false; }, 5000);
+            }
+          }, 50); // 50ms delay
         });
       } else {
         // Stay idle (Start event keeps idle animation running)
@@ -293,22 +303,33 @@ export default function SplineViewer({ sceneUrl }) {
     }
   }
 
+  // ensureIdleState removed; idle is controlled via Spline events
+
   // Move the dog to a random position in the room
   function moveDogToRandomPosition(shibainu, onComplete) {
     if (!shibainu) return;
     
     try {
-      // Define different spots in the room (smaller movements for testing)
-      const positions = [
-        { x: -100, y: 0, z: 50 },    // Near the plant
-        { x: 50, y: 0, z: 100 },     // Near the desk  
-        { x: 0, y: 0, z: 0 },        // Center of room
-        { x: 100, y: 0, z: 50 },     // Near the lamp
-        { x: -50, y: 0, z: 100 },    // Near the computer
-      ];
+      // Room boundaries based on your coordinates
+      // Corner 1: (22, -65, 56), Corner 2: (22, -65, 190)
+      // Corner 3: (155, -65, 190), Corner 4: (155, -65, 56)
+      const roomBounds = {
+        xMin: 22,
+        xMax: 155,
+        y: -65,  // Floor level
+        zMin: 56,
+        zMax: 190
+      };
       
-      // Pick a random position
-      const newPos = positions[Math.floor(Math.random() * positions.length)];
+      // Add padding to keep dog away from walls
+      const padding = 15;
+      
+      // Generate random position within safe boundaries
+      const newPos = {
+        x: roomBounds.xMin + padding + Math.random() * (roomBounds.xMax - roomBounds.xMin - padding * 2),
+        y: roomBounds.y,
+        z: roomBounds.zMin + padding + Math.random() * (roomBounds.zMax - roomBounds.zMin - padding * 2)
+      };
       
       // Get current position
       const startPos = { 
@@ -354,8 +375,18 @@ export default function SplineViewer({ sceneUrl }) {
         if (progress < 1) {
           requestAnimationFrame(animate);
         } else {
-          console.log('Movement complete!');
-          if (typeof onComplete === 'function') onComplete();
+          // Snap to the exact target to avoid residual drift
+          if (shibainu.position) {
+            shibainu.position.x = newPos.x;
+            shibainu.position.z = newPos.z;
+          }
+          console.log('✅ Movement complete! Calling onComplete callback...');
+          if (typeof onComplete === 'function') {
+            onComplete();
+            console.log('✅ onComplete callback executed');
+          } else {
+            console.warn('⚠️ No onComplete callback provided');
+          }
         }
       }
       
