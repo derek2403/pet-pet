@@ -10,7 +10,8 @@ import CustomizationOptions from '@/components/room/CustomizationOptions';
  */
 export default function Room() {
   const [roomName, setRoomName] = useState("Pet's Room");
-  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode";
+  // Cache-busting parameter forces browser to fetch updated scene with dog
+  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=2";
 
   return (
     <div 
