@@ -39,6 +39,8 @@ export default function SplineViewer({ sceneUrl }) {
   // Holds the object we will emit events on (set after first user click on dog)
   const dogEventTargetRef = useRef(null);
   const walkTimeoutRef = useRef(null);
+  const cycleIntervalRef = useRef(null);
+  const isMountedRef = useRef(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSoundOn, setIsSoundOn] = useState(false);
@@ -49,6 +51,7 @@ export default function SplineViewer({ sceneUrl }) {
 
   // Prevent page scroll when interacting inside the 3D viewer and map wheel to zoom
   useEffect(() => {
+    isMountedRef.current = true;
     const el = viewerRef.current;
     if (!el) return;
 
@@ -122,6 +125,21 @@ export default function SplineViewer({ sceneUrl }) {
     };
   }, [isPointerOverViewer]);
 
+  // Global cleanup on unmount – stop timers/intervals
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      if (cycleIntervalRef.current) {
+        clearInterval(cycleIntervalRef.current);
+        cycleIntervalRef.current = null;
+      }
+      if (walkTimeoutRef.current) {
+        clearTimeout(walkTimeoutRef.current);
+        walkTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
   // Handle Spline scene load
   function onLoad(splineApp) {
     splineRef.current = splineApp;
@@ -176,9 +194,12 @@ export default function SplineViewer({ sceneUrl }) {
         }
         
         // Set up animation cycling: idle for 5 sec, walk for 3 sec, repeat
-        setInterval(() => {
+        if (cycleIntervalRef.current) clearInterval(cycleIntervalRef.current);
+        cycleIntervalRef.current = setInterval(() => {
+          // Skip if component unmounted
+          if (!isMountedRef.current) return;
           cycleAnimations(splineApp, shibainu || armature);
-        }, 8000); // Cycle every 8 seconds
+        }, 3000); // Cycle every 3 seconds
       } else {
         console.log('Dog not found. First 10 object names:', 
           allObjects.slice(0, 10).map(obj => obj.name || 'unnamed')
@@ -265,7 +286,6 @@ export default function SplineViewer({ sceneUrl }) {
         walkTimeoutRef.current = setTimeout(() => {
           console.warn('⏱️ Walk safety timeout hit, forcing Idle');
           emitDogEvent(splineApp, 'mouseUp');
-          forceIdleFallback(splineApp);
         }, 3500);
         
         // Move the dog to a new position and emit mouseUp exactly when movement ends
@@ -280,12 +300,12 @@ export default function SplineViewer({ sceneUrl }) {
               }
               emitDogEvent(splineApp, 'mouseUp');
 
-              // Wait 5 seconds before allowing next walk (cooldown period)
-              console.log('⏰ Starting 5-second cooldown before next walk...');
+              // Wait 2 seconds before allowing next walk (cooldown period)
+              console.log('⏰ Starting 2-second cooldown before next walk...');
               setTimeout(() => {
                 isWalkingRef.current = false;
                 console.log('✅ Cooldown complete - dog can walk again');
-              }, 5000); // 5 second cooldown
+              }, 2000); // 2 second cooldown
               
             } catch (e) {
               console.error('Error sending mouseUp:', e);
@@ -372,6 +392,9 @@ export default function SplineViewer({ sceneUrl }) {
           console.log('Dog position update:', {x: shibainu.position.x, z: shibainu.position.z});
         }
         
+        if (!isMountedRef.current) {
+          return; // stop animating if unmounted
+        }
         if (progress < 1) {
           requestAnimationFrame(animate);
         } else {
