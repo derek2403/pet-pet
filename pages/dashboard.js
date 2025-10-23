@@ -287,17 +287,8 @@ export default function Dashboard() {
               <AlertsCard alerts={alerts} />
             </div>
 
-            {/* Monthly Summary */}
-            <MonthlySummaryCard stats={monthlyStats} />
-
-            {/* Upcoming Vet Appointment & Activity Timeline */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <UpcomingVetCard appointment={nextVetVisit} />
-              <ActivityTimelineCard events={recentEvents} />
-            </div>
-
-            {/* Privacy & Sharing Controls */}
-            <PrivacyControlsCard />
+            {/* Upcoming Vet Appointment */}
+            <UpcomingVetCard appointment={nextVetVisit} />
                 </motion.div>
               </TabsContent>
             )}
@@ -312,12 +303,10 @@ export default function Dashboard() {
                   initial={{ x: getTabDirection("timeline") * 50, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="space-y-6"
                 >
-                  <TabPlaceholder 
-                    icon={ScrollText}
-                    title="Timeline View"
-                    description="Chronological feed of all pet events will be displayed here"
-                  />
+                  {/* Activity Timeline */}
+                  <ActivityTimelineCard events={recentEvents} />
                 </motion.div>
               </TabsContent>
             )}
@@ -332,10 +321,14 @@ export default function Dashboard() {
                   initial={{ x: getTabDirection("insights") * 50, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="space-y-6"
                 >
+                  {/* Monthly Summary & Analytics */}
+                  <MonthlySummaryCard stats={monthlyStats} />
+                  
                   <TabPlaceholder 
                     icon={BarChart3}
-                    title="Insights & Analytics"
+                    title="Additional Analytics"
                     description="Charts and trends for pet health and activity will be displayed here"
                   />
                 </motion.div>
@@ -352,11 +345,15 @@ export default function Dashboard() {
                   initial={{ x: getTabDirection("settings") * 50, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="space-y-6"
                 >
+                  {/* Privacy & Sharing Controls */}
+                  <PrivacyControlsCard />
+                  
                   <TabPlaceholder 
                     icon={Settings}
-                    title="Settings"
-                    description="Manage pet information, devices, and privacy settings here"
+                    title="Additional Settings"
+                    description="Manage pet information, devices, and other settings here"
                   />
                 </motion.div>
               </TabsContent>
