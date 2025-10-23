@@ -134,3 +134,38 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  @keyframes first {
+    0% { transform: translate(-10%, -10%) scale(1); }
+    50% { transform: translate(10%, 10%) scale(1.1); }
+    100% { transform: translate(-10%, -10%) scale(1); }
+  }
+  @keyframes second {
+    0% { transform: translate(20%, -20%) scale(1.1); }
+    50% { transform: translate(-20%, 20%) scale(0.9); }
+    100% { transform: translate(20%, -20%) scale(1.1); }
+  }
+  @keyframes third {
+    0% { transform: translate(-15%, 20%) scale(0.9); }
+    50% { transform: translate(15%, -10%) scale(1.05); }
+    100% { transform: translate(-15%, 20%) scale(0.9); }
+  }
+  @keyframes fourth {
+    0% { transform: translate(0%, 0%) scale(1); }
+    33% { transform: translate(10%, -10%) scale(1.05); }
+    66% { transform: translate(-10%, 10%) scale(0.95); }
+    100% { transform: translate(0%, 0%) scale(1); }
+  }
+  @keyframes fifth {
+    0% { transform: translate(5%, -5%) scale(1.05); }
+    50% { transform: translate(-5%, 5%) scale(0.95); }
+    100% { transform: translate(5%, -5%) scale(1.05); }
+  }
+
+  .animate-first { animation: first 18s ease-in-out infinite; }
+  .animate-second { animation: second 22s ease-in-out infinite; }
+  .animate-third { animation: third 26s ease-in-out infinite; }
+  .animate-fourth { animation: fourth 30s ease-in-out infinite; }
+  .animate-fifth { animation: fifth 34s ease-in-out infinite; }
+}

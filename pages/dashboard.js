@@ -12,6 +12,7 @@ import UpcomingVetCard from '@/components/dashboard/UpcomingVetCard';
 import ActivityTimelineCard from '@/components/dashboard/ActivityTimelineCard';
 import PrivacyControlsCard from '@/components/dashboard/PrivacyControlsCard';
 import TabPlaceholder from '@/components/dashboard/TabPlaceholder';
+import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
 import {
   AlertCircle,
   Pill,
@@ -185,19 +186,25 @@ export default function Dashboard() {
   ];
 
   return (
-    <div
-      className="min-h-screen bg-gradient-to-br from-[#FFFBF5] via-[#FFF5F7] to-[#F8F5FF] relative overflow-hidden"
-      style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}
-    >
-      {/* Subtle decorative background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-[#FFE4E8]/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#F8F5FF]/30 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-[#FFF5F7]/20 rounded-full blur-3xl" />
-      </div>
-
-      {/* Header with navigation and wallet */}
-      <div className="container mx-auto px-6 py-6 relative z-10">
+    <>
+      <BackgroundGradientAnimation
+        gradientBackgroundStart="#FFF7FB" /* warm pink tint */
+        gradientBackgroundEnd="#EEF2FF" /* cool lavender tint */
+        firstColor="rgb(255, 183, 197)" /* soft rose blob */
+        secondColor="199, 210, 254" /* periwinkle */
+        thirdColor="190, 242, 234" /* mint/teal */
+        fourthColor="254, 215, 170" /* peach */
+        fifthColor="221, 214, 254" /* soft purple */
+        pointerColor="255, 236, 244" /* very light pink pointer */
+        size="120%"
+        blendingValue="normal"
+        interactive={true}
+        containerClassName="fixed inset-0 z-0 pointer-events-none"
+      />
+      {/* Content wrapper above background */}
+      <div className="relative z-10">
+        {/* Header with navigation and wallet */}
+        <div className="container mx-auto px-6 py-6" style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}>
         <DashboardHeader />
 
         {/* Main Content with Tabs */}
@@ -360,8 +367,9 @@ export default function Dashboard() {
             )}
           </AnimatePresence>
         </Tabs>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
