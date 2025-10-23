@@ -76,6 +76,16 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --animate-aurora: aurora 10s linear infinite;
+
+  @keyframes aurora {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 200% 50%;
+    }
+  }
 }
 
 /* Light mode only - dark mode media query disabled */

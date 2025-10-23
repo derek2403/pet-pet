@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { AuroraText } from "@/components/ui/aurora-text";
 import Link from 'next/link';
 import { PawPrint, Boxes, ExternalLink } from "lucide-react";
 
@@ -18,7 +19,14 @@ export default function DashboardHeader() {
           </div>
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-[#4A4458] tracking-tight">PetPet Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            <AuroraText 
+              colors={["#FF2D95", "#FF6B9D", "#C084FC", "#60A5FA", "#FF2D95"]}
+              speed={1.2}
+            >
+              PetPet Dashboard
+            </AuroraText>
+          </h1>
           <p className="text-sm text-[#6B6B6B] font-medium mt-0.5">Your pet's on-chain activity hub</p>
         </div>
       </div>
