@@ -4,6 +4,8 @@ import SplineViewer from '@/components/room/SplineViewer';
 import RoomObjectsList from '@/components/room/RoomObjectsList';
 import CustomizationOptions from '@/components/room/CustomizationOptions';
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
+import { Button } from "@/components/ui/button";
+import { UtensilsCrossed, Gamepad2, Footprints, Heart } from "lucide-react";
 
 /**
  * Room Page
@@ -45,6 +47,65 @@ export default function Room() {
           <div className="space-y-6">
             {/* 3D Spline Viewer with Room Status */}
             <SplineViewer sceneUrl={sceneUrl} maxStepDistance={40} />
+
+            {/* Pet Action Buttons */}
+            <div className="grid grid-cols-4 gap-4">
+              {/* Feed Button */}
+              <Button
+                onClick={() => console.log('Feed action')}
+                className="w-full h-auto py-6 px-6 bg-white/60 backdrop-blur-md border border-[#E8E4F0]/50 hover:bg-white hover:border-[#F85BB4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-[#F85BB4]/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative p-3 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                    <UtensilsCrossed className="w-6 h-6 text-[#F85BB4]" />
+                  </div>
+                </div>
+                <div className="text-sm font-bold text-[#4A4458]">Feed</div>
+              </Button>
+
+              {/* Play Button */}
+              <Button
+                onClick={() => console.log('Play action')}
+                className="w-full h-auto py-6 px-6 bg-white/60 backdrop-blur-md border border-[#E8E4F0]/50 hover:bg-white hover:border-[#F85BB4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-[#F85BB4]/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative p-3 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                    <Gamepad2 className="w-6 h-6 text-[#F85BB4]" />
+                  </div>
+                </div>
+                <div className="text-sm font-bold text-[#4A4458]">Play</div>
+              </Button>
+
+              {/* Walk Button */}
+              <Button
+                onClick={() => console.log('Walk action')}
+                className="w-full h-auto py-6 px-6 bg-white/60 backdrop-blur-md border border-[#E8E4F0]/50 hover:bg-white hover:border-[#F85BB4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-[#F85BB4]/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative p-3 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                    <Footprints className="w-6 h-6 text-[#F85BB4]" />
+                  </div>
+                </div>
+                <div className="text-sm font-bold text-[#4A4458]">Walk</div>
+              </Button>
+
+              {/* Pet Button */}
+              <Button
+                onClick={() => console.log('Pet action')}
+                className="w-full h-auto py-6 px-6 bg-white/60 backdrop-blur-md border border-[#E8E4F0]/50 hover:bg-white hover:border-[#F85BB4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-[#F85BB4]/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative p-3 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                    <Heart className="w-6 h-6 text-[#F85BB4]" />
+                  </div>
+                </div>
+                <div className="text-sm font-bold text-[#4A4458]">Pet</div>
+              </Button>
+            </div>
 
             {/* Room Details Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
