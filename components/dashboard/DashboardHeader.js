@@ -11,18 +11,18 @@ export default function DashboardHeader() {
   return (
     <div className="flex items-center justify-between mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
       {/* Dashboard Title with enhanced styling */}
-      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4">
         <div className="relative">
-          <div className="absolute inset-0 bg-[#FF2D95]/20 rounded-2xl blur-lg" />
-          <div className="relative p-3 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-2xl shadow-lg">
+          <div className="absolute inset-0 bg-[#FF2D95]/12 rounded-2xl blur-md" />
+          <div className="relative p-3 bg-gradient-to-br from-[#FFE4E8]/70 to-[#FFD4E5]/70 rounded-2xl shadow-md">
             <PawPrint className="w-8 h-8 text-[#FF2D95]" />
           </div>
         </div>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
             <AuroraText 
-              colors={["#FF2D95", "#FF6B9D", "#C084FC", "#60A5FA", "#FF2D95"]}
-              speed={2}
+              colors={["#FF2D95", "#FF6B9D", "#FFB6C1", "#FF69B4", "#FF1493", "#FF2D95"]}
+              speed={7}
             >
               PetPet
             </AuroraText>

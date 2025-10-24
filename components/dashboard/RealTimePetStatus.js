@@ -27,8 +27,8 @@ export default function RealTimePetStatus({ currentActivity }) {
           <div className="flex items-center justify-between mb-5 relative">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="absolute inset-0 bg-[#FF2D95]/20 rounded-2xl blur-lg" />
-                <div className="relative p-4 bg-white rounded-2xl shadow-md">
+                <div className="absolute inset-0 bg-[#FF2D95]/12 rounded-2xl blur-md" />
+                <div className="relative p-4 bg-white rounded-2xl shadow-sm">
                   <Footprints className="w-8 h-8 text-[#FF2D95] animate-pulse" />
                 </div>
               </div>

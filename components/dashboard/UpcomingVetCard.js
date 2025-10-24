@@ -27,8 +27,8 @@ export default function UpcomingVetCard({ appointment }) {
           
           <div className="flex items-center gap-4 relative">
             <div className="relative">
-              <div className="absolute inset-0 bg-[#FF2D95]/20 rounded-2xl blur-lg" />
-              <div className="relative p-3 bg-white rounded-xl shadow-md">
+              <div className="absolute inset-0 bg-[#FF2D95]/12 rounded-2xl blur-md" />
+              <div className="relative p-3 bg-white rounded-xl shadow-sm">
                 <Stethoscope className="w-7 h-7 text-[#FF2D95]" />
               </div>
             </div>
