@@ -639,12 +639,9 @@ export default function SplineViewer({
           
           {/* Selected Object Overlay */}
           {selectedObject && (
-            <div className="absolute bottom-4 right-4 z-50 bg-white/95 backdrop-blur-md rounded-xl p-4 shadow-lg border border-[#E8E4F0]/50 min-w-[180px] pointer-events-none">
-              <p className="text-sm font-semibold text-[#6B6B6B]">Dog Status:</p>
-              <div className="flex items-center gap-2">
-                <p className="text-2xl font-bold text-[#F85BB4]">{selectedObject}</p>
-                <Smile className="w-6 h-6 text-[#F85BB4]" />
-              </div>
+            <div className="absolute bottom-4 right-4 z-50 bg-white/95 backdrop-blur-md rounded-xl p-6 shadow-lg border border-[#E8E4F0]/50 min-w-[200px] pointer-events-none">
+              <p className="text-sm font-semibold text-[#6B6B6B] mb-2">Dog Status:</p>
+              <p className="text-3xl font-bold text-[#F85BB4]">{selectedObject}</p>
             </div>
           )}
 
