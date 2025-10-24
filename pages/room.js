@@ -12,7 +12,7 @@ import { UtensilsCrossed, Gamepad2, Footprints, Heart } from "lucide-react";
  * Main page component that orchestrates the 3D room view and related UI
  */
 export default function Room() {
-  const [roomName, setRoomName] = useState("Pet's Room");
+  const [roomName, setRoomName] = useState("Shibaba's Room");
   // State for showing popup notification
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
