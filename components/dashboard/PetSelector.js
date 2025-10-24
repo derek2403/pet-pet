@@ -35,7 +35,7 @@ export default function PetSelector({ pets }) {
         </Select>
 
         {/* Add Pet Button with solid pink */}
-        <Button className="bg-[#FF2D95] hover:bg-[#E6298A] hover:shadow-xl hover:scale-105 transition-all duration-300 text-white font-semibold rounded-2xl shadow-lg px-6">
+        <Button className="bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 transition-all duration-300 text-white font-semibold rounded-2xl shadow-lg px-6">
           <Plus className="w-4 h-4 mr-2" />
           Add Pet
         </Button>

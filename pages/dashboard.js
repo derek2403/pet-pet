@@ -216,7 +216,7 @@ export default function Dashboard() {
           <TabsList ref={tabsListRef} className="relative bg-white/80 backdrop-blur-md border border-[#E8E4F0]/50 p-1.5 rounded-2xl shadow-lg overflow-hidden">
             {/* Sliding Pill Background with solid pink */}
             <div
-              className="absolute rounded-xl bg-[#FF2D95] shadow-md transition-all duration-300 ease-out"
+              className="absolute rounded-xl bg-[#F85BB4] shadow-md transition-all duration-300 ease-out"
               style={{
                 left: `${pillStyle.left}px`,
                 width: `${pillStyle.width}px`,

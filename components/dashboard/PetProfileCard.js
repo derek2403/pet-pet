@@ -70,7 +70,7 @@ export default function PetProfileCard({ pet, onPetNameChange }) {
                   {pet.breed} • {pet.species}
                 </p>
               </div>
-              <Badge className="bg-gradient-to-r from-[#FF2D95] to-[#FF4081] text-white font-semibold hover:shadow-lg border-none px-4 py-2 shadow-md transition-all duration-200 hover:scale-105">
+              <Badge className="bg-[#F85BB4] text-white font-semibold hover:shadow-lg border-none px-4 py-2 shadow-md transition-all duration-200 hover:scale-105">
                 <Activity className="w-4 h-4 mr-1.5 animate-pulse" />
                 {pet.status}
               </Badge>
