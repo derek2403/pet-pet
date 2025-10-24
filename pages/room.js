@@ -74,8 +74,8 @@ export default function Room() {
                 onClick={() => console.log('Feed action')}
                 className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
               >
-                <UtensilsCrossed className="w-7 h-7 text-white" />
-                <div className="text-sm font-bold text-white">Feed</div>
+                <UtensilsCrossed className="w-10 h-10 text-white" />
+                <div className="text-base font-bold text-white">Feed</div>
               </Button>
 
               {/* Play Button */}
@@ -83,8 +83,8 @@ export default function Room() {
                 onClick={() => console.log('Play action')}
                 className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
               >
-                <Gamepad2 className="w-7 h-7 text-white" />
-                <div className="text-sm font-bold text-white">Play</div>
+                <Gamepad2 className="w-10 h-10 text-white" />
+                <div className="text-base font-bold text-white">Play</div>
               </Button>
 
               {/* Walk Button */}
@@ -92,8 +92,8 @@ export default function Room() {
                 onClick={() => console.log('Walk action')}
                 className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
               >
-                <Footprints className="w-7 h-7 text-white" />
-                <div className="text-sm font-bold text-white">Walk</div>
+                <Footprints className="w-10 h-10 text-white" />
+                <div className="text-base font-bold text-white">Walk</div>
               </Button>
 
               {/* Pet Button */}
@@ -104,8 +104,8 @@ export default function Room() {
                 }}
                 className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
               >
-                <Heart className="w-7 h-7 text-white" />
-                <div className="text-sm font-bold text-white">Pet</div>
+                <Heart className="w-10 h-10 text-white" />
+                <div className="text-base font-bold text-white">Pet</div>
               </Button>
             </div>
 
