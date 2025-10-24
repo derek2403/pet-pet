@@ -18,7 +18,7 @@ export default function Room() {
   const [notificationMessage, setNotificationMessage] = useState('');
   
   // Cache-busting parameter forces browser to fetch updated scene with dog
-  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=27";
+  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=28";
 
   // Helper function to show popup notification with auto-fade
   const showPopupNotification = (message) => {
@@ -72,7 +72,7 @@ export default function Room() {
               {/* Feed Button */}
               <Button
                 onClick={() => console.log('Feed action')}
-                className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
+                className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
               >
                 <UtensilsCrossed className="w-10 h-10 text-white" />
                 <div className="text-base font-bold text-white">Feed</div>
@@ -81,7 +81,7 @@ export default function Room() {
               {/* Play Button */}
               <Button
                 onClick={() => console.log('Play action')}
-                className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
+                className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
               >
                 <Gamepad2 className="w-10 h-10 text-white" />
                 <div className="text-base font-bold text-white">Play</div>
@@ -90,7 +90,7 @@ export default function Room() {
               {/* Walk Button */}
               <Button
                 onClick={() => console.log('Walk action')}
-                className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
+                className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
               >
                 <Footprints className="w-10 h-10 text-white" />
                 <div className="text-base font-bold text-white">Walk</div>
@@ -102,7 +102,7 @@ export default function Room() {
                   console.log('Pet action');
                   showPopupNotification('Pet affection increased!');
                 }}
-                className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
+                className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
               >
                 <Heart className="w-10 h-10 text-white" />
                 <div className="text-base font-bold text-white">Pet</div>
