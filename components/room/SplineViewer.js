@@ -304,6 +304,27 @@ export default function SplineViewer({ sceneUrl, maxStepDistance = 8 }) {
             }
             emitDogEvent(splineApp, 'mouseUp');
 
+            // Briefly lock the final transform to suppress any residual blend/slip
+            const holdMs = 150;
+            const finalX = shibainu?.position?.x;
+            const finalZ = shibainu?.position?.z;
+            const finalRotY = shibainu?.rotation?.y;
+            const holdUntil = performance.now() + holdMs;
+            const lockFinalPose = (ts) => {
+              if (!isMountedRef.current) return;
+              if (ts < holdUntil) {
+                if (shibainu?.position) {
+                  shibainu.position.x = finalX;
+                  shibainu.position.z = finalZ;
+                }
+                if (shibainu?.rotation) {
+                  shibainu.rotation.y = finalRotY;
+                }
+                requestAnimationFrame(lockFinalPose);
+              }
+            };
+            requestAnimationFrame(lockFinalPose);
+
             // Wait 2 seconds before allowing next walk (cooldown period)
             console.log('⏰ Starting 2-second cooldown before next walk...');
             setTimeout(() => {
