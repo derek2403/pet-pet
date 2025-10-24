@@ -36,7 +36,8 @@ export default function SplineViewer({
   sceneUrl, 
   maxStepDistance = 8, 
   showNotification = false, 
-  notificationMessage = '' 
+  notificationMessage = '',
+  onFeedReady = null // Callback to pass the feed function to parent
 }) {
   const splineRef = useRef();
   const viewerRef = useRef(null);
@@ -55,6 +56,8 @@ export default function SplineViewer({
   const [isPointerOverViewer, setIsPointerOverViewer] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const isWalkingRef = useRef(false); // Track if dog is currently walking or in cooldown
+  const isFeedingRef = useRef(false); // Track if dog is currently feeding
+  const feedQueuedRef = useRef(false); // Track if feed action is queued
 
   // Prevent page scroll when interacting inside the 3D viewer and map wheel to zoom
   useEffect(() => {
@@ -152,6 +155,11 @@ export default function SplineViewer({
     splineRef.current = splineApp;
     setIsLoaded(true);
     console.log('Spline scene loaded successfully');
+    
+    // Pass the feed function to parent component
+    if (typeof onFeedReady === 'function') {
+      onFeedReady(handleFeedDog);
+    }
     
     // Set initial zoom
     try {
@@ -291,9 +299,9 @@ export default function SplineViewer({
 
   // Cycle through different animations and move the dog around
   function cycleAnimations(splineApp, shibainu) {
-    // Check if dog is already walking or in cooldown
-    if (isWalkingRef.current) {
-      console.log('⏸️ Skipping cycle - dog is walking or in cooldown');
+    // Check if dog is already walking, feeding, or in cooldown
+    if (isWalkingRef.current || isFeedingRef.current) {
+      console.log('⏸️ Skipping cycle - dog is busy (walking, feeding, or in cooldown)');
       return;
     }
     
@@ -358,6 +366,16 @@ export default function SplineViewer({
             setTimeout(() => {
               isWalkingRef.current = false;
               console.log('✅ Cooldown complete - dog can walk again');
+              
+              // Check if feed action is queued
+              if (feedQueuedRef.current) {
+                console.log('📋 Executing queued feed action...');
+                feedQueuedRef.current = false;
+                // Execute feed after a brief moment
+                setTimeout(() => {
+                  handleFeedDog();
+                }, 100);
+              }
             }, 1000); // 1 second cooldown
             
           } catch (e) {
@@ -555,6 +573,234 @@ export default function SplineViewer({
       console.log('Starting dog movement from', startPos, 'to', newPos);
     } catch (error) {
       console.error('Error moving dog:', error);
+    }
+  }
+
+  // Move dog to bowl and trigger eating animation
+  function handleFeedDog() {
+    // If dog is already feeding, ignore the request
+    if (isFeedingRef.current) {
+      console.log('⏸️ Dog is already eating, ignoring feed request');
+      return;
+    }
+
+    // If dog is walking, queue the feed action
+    if (isWalkingRef.current) {
+      if (!feedQueuedRef.current) {
+        feedQueuedRef.current = true;
+        console.log('📋 Feed action queued - will execute after walking completes');
+      } else {
+        console.log('📋 Feed already queued');
+      }
+      return;
+    }
+
+    const splineApp = splineRef.current;
+    if (!splineApp) {
+      console.error('Spline app not loaded');
+      return;
+    }
+
+    // Find the dog object
+    const allObjects = allObjectsRef.current;
+    let shibainu =
+      splineApp.findObjectByName('Shibainu') ||
+      splineApp.findObjectByName('shibainu') ||
+      splineApp.findObjectByName('Shibalnu') ||
+      allObjects.find(obj => obj.name && obj.name.toLowerCase().includes('shiba'));
+
+    if (!shibainu) {
+      console.error('Dog not found');
+      return;
+    }
+
+    // Set feeding flag to prevent other animations
+    isFeedingRef.current = true;
+    console.log('🍖 Starting feed sequence...');
+
+    // Stop current animation and go to idle
+    emitDogEvent(splineApp, 'mouseUp');
+
+    // Bowl location coordinates
+    const bowlLocation = {
+      x: 125,
+      y: -65, // Use floor level from room bounds
+      z: 115
+    };
+
+    // Get current position
+    const startPos = {
+      x: shibainu.position?.x || 0,
+      y: shibainu.position?.y || 0,
+      z: shibainu.position?.z || 0
+    };
+
+    console.log('🐕 Dog moving from', startPos, 'to bowl at', bowlLocation);
+
+    // Calculate rotation to face the bowl
+    const dx = bowlLocation.x - startPos.x;
+    const dz = bowlLocation.z - startPos.z;
+    const targetRotation = Math.atan2(dx, dz);
+
+    // Helper to normalize angles
+    const normalizeAngle = (a) => {
+      let ang = a;
+      while (ang > Math.PI) ang -= Math.PI * 2;
+      while (ang < -Math.PI) ang += Math.PI * 2;
+      return ang;
+    };
+
+    // Phase 1: Rotate to face the bowl
+    const currentY = shibainu?.rotation?.y || 0;
+    let remainingTurn = normalizeAngle(targetRotation - currentY);
+    const needTurn = Math.abs(remainingTurn) > 0.03;
+    const maxTurnSpeed = 7.5; // rad/sec
+    let lastTurnTs = performance.now();
+
+    function rotateTowardsBowl(nowTs) {
+      if (!isMountedRef.current) return;
+      const dt = Math.min(0.05, Math.max(0, (nowTs - lastTurnTs) / 1000));
+      lastTurnTs = nowTs;
+      if (shibainu?.rotation) {
+        const step = Math.sign(remainingTurn) * Math.min(Math.abs(remainingTurn), maxTurnSpeed * dt);
+        shibainu.rotation.y += step;
+        remainingTurn -= step;
+      }
+      if (Math.abs(remainingTurn) <= 0.01) {
+        if (shibainu?.rotation) shibainu.rotation.y = targetRotation;
+        // Start walking to bowl
+        emitDogEvent(splineApp, 'mouseDown');
+        requestAnimationFrame(walkToBowl);
+        return;
+      }
+      requestAnimationFrame(rotateTowardsBowl);
+    }
+
+    // Phase 2: Walk to the bowl
+    const unitsPerSecond = 18;
+    let lastWalkTs = performance.now();
+
+    function walkToBowl(nowTs) {
+      if (!isMountedRef.current) return;
+
+      const dt = Math.min(0.05, Math.max(0, (nowTs - lastWalkTs) / 1000));
+      lastWalkTs = nowTs;
+
+      if (shibainu.position) {
+        const rx = bowlLocation.x - shibainu.position.x;
+        const rz = bowlLocation.z - shibainu.position.z;
+        const remaining = Math.hypot(rx, rz);
+
+        const stepDist = unitsPerSecond * dt;
+        if (remaining <= stepDist + 0.5) {
+          // Arrived at bowl
+          shibainu.position.x = bowlLocation.x;
+          shibainu.position.z = bowlLocation.z;
+          if (shibainu.rotation) {
+            shibainu.rotation.y = targetRotation;
+          }
+          console.log('✅ Arrived at bowl!');
+
+          // Stop walking animation
+          emitDogEvent(splineApp, 'mouseUp');
+
+          // Wait a moment, then trigger eating animation
+          setTimeout(() => {
+            console.log('🍖 Starting eating animation...');
+            triggerEatingAnimation();
+          }, 300);
+          return;
+        }
+
+        // Continue walking
+        const ux = remaining > 0 ? rx / remaining : 0;
+        const uz = remaining > 0 ? rz / remaining : 0;
+        shibainu.position.x += ux * stepDist;
+        shibainu.position.z += uz * stepDist;
+
+        if (shibainu.rotation) {
+          shibainu.rotation.y = targetRotation;
+        }
+      }
+
+      requestAnimationFrame(walkToBowl);
+    }
+
+    // Phase 3: Trigger eating animation by simulating "=" key press
+    function triggerEatingAnimation() {
+      console.log('🍖 Triggering eating animation with "=" key press...');
+      
+      // Spline listens to keyboard events on the window/document/canvas
+      // We need to dispatch both keydown and keyup events to simulate a real key press
+      
+      try {
+        // Get the canvas element where Spline is rendered
+        const canvas = document.querySelector('canvas');
+        const targets = [canvas, window, document];
+        
+        // Dispatch keydown event on all targets
+        targets.forEach(target => {
+          if (target) {
+            const keyDownEvent = new KeyboardEvent('keydown', {
+              key: '=',
+              code: 'Equal',
+              keyCode: 187,
+              which: 187,
+              charCode: 61,
+              bubbles: true,
+              cancelable: true,
+              composed: true
+            });
+            target.dispatchEvent(keyDownEvent);
+          }
+        });
+        
+        console.log('🎯 Dispatched "=" keydown event');
+        
+        // Dispatch keyup event after a short delay to complete the key press
+        setTimeout(() => {
+          targets.forEach(target => {
+            if (target) {
+              const keyUpEvent = new KeyboardEvent('keyup', {
+                key: '=',
+                code: 'Equal',
+                keyCode: 187,
+                which: 187,
+                charCode: 61,
+                bubbles: true,
+                cancelable: true,
+                composed: true
+              });
+              target.dispatchEvent(keyUpEvent);
+            }
+          });
+          console.log('🎯 Dispatched "=" keyup event');
+        }, 100);
+        
+      } catch (e) {
+        console.error('❌ Failed to trigger eating animation:', e.message);
+      }
+
+      // Wait for eating animation to complete (assume 3 seconds)
+      setTimeout(() => {
+        console.log('🍖 Eating animation complete, returning to idle...');
+        // Return to idle
+        emitDogEvent(splineApp, 'mouseUp');
+        
+        // Reset feeding flag after a short cooldown
+        setTimeout(() => {
+          isFeedingRef.current = false;
+          console.log('✅ Feed sequence complete, dog can move again');
+        }, 1000);
+      }, 3000); // 3 seconds for eating animation
+    }
+
+    // Start the sequence
+    if (needTurn) {
+      requestAnimationFrame(rotateTowardsBowl);
+    } else {
+      emitDogEvent(splineApp, 'mouseDown');
+      requestAnimationFrame(walkToBowl);
     }
   }
 

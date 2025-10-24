@@ -16,9 +16,11 @@ export default function Room() {
   // State for showing popup notification
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
+  // State to store the feed function from SplineViewer
+  const [feedDogFunction, setFeedDogFunction] = useState(null);
   
   // Cache-busting parameter forces browser to fetch updated scene with dog
-  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=31";
+  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=32";
 
   // Helper function to show popup notification with auto-fade
   const showPopupNotification = (message) => {
@@ -65,13 +67,22 @@ export default function Room() {
               maxStepDistance={36} 
               showNotification={showNotification}
               notificationMessage={notificationMessage}
+              onFeedReady={(feedFunc) => setFeedDogFunction(() => feedFunc)}
             />
 
             {/* Pet Action Buttons */}
             <div className="grid grid-cols-4 gap-4">
               {/* Feed Button */}
               <Button
-                onClick={() => console.log('Feed action')}
+                onClick={() => {
+                  console.log('Feed action triggered');
+                  // Call the feed function if it's ready
+                  if (feedDogFunction) {
+                    feedDogFunction();
+                  } else {
+                    console.log('Feed function not ready yet');
+                  }
+                }}
                 className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
               >
                 <UtensilsCrossed className="w-10 h-10 text-white" />
