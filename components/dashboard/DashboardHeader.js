@@ -21,7 +21,7 @@ export default function DashboardHeader() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
             <AuroraText 
-              colors={["#FF2D95", "#FF6B9D", "#FFB6C1", "#FF69B4", "#FF1493", "#FF2D95"]}
+              colors={["#F85BB4", "#E14CA4", "#FF7CC7", "#FF9AD9", "#FFBDE7", "#F85BB4"]}
               speed={7}
             >
               PetPet
