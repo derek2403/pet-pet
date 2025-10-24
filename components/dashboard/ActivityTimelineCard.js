@@ -15,7 +15,7 @@ export default function ActivityTimelineCard({ events }) {
       <CardHeader className="relative">
         <CardTitle className="flex items-center gap-2 text-[#4A4458] font-semibold">
           <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
-            <ScrollText className="w-4 h-4 text-[#FF2D95]" />
+            <ScrollText className="w-4 h-4 text-[#F85BB4]" />
           </div>
           Recent Activity Timeline
         </CardTitle>
@@ -32,14 +32,14 @@ export default function ActivityTimelineCard({ events }) {
             <div className="flex items-start gap-3 relative">
               <div className="relative">
                 <div className="p-2.5 bg-white rounded-lg shadow-sm border border-[#E8E4F0]/30">
-                  <event.icon className="w-4 h-4 text-[#FF2D95]" />
+                  <event.icon className="w-4 h-4 text-[#F85BB4]" />
                 </div>
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-[#6B6B6B] uppercase tracking-wide">{event.date}</span>
                   {event.status === "verified" ? (
-                    <Badge className="bg-gradient-to-r from-[#FFE4E8] to-[#FFD4E5] text-[#FF2D95] hover:shadow-md border border-pink-100 shadow-sm font-semibold">
+                  <Badge className="bg-gradient-to-r from-[#FFE4E8] to-[#FFD4E5] text-[#F85BB4] hover:shadow-md border border-pink-100 shadow-sm font-semibold">
                       <CheckCircle2 className="w-3 h-3 mr-1" />
                       Verified
                     </Badge>

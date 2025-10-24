@@ -22,7 +22,7 @@ export default function FeaturedRoomCard() {
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2 bg-white/60 rounded-xl shadow-sm">
-                <Boxes className="w-6 h-6 text-[#FF2D95]" />
+                <Boxes className="w-6 h-6 text-[#F85BB4]" />
               </div>
               <h3 className="text-2xl font-bold text-[#2C2C2C] tracking-tight">Explore Your Pet's Room</h3>
             </div>

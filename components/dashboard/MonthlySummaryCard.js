@@ -16,7 +16,7 @@ export default function MonthlySummaryCard({ stats }) {
           <div>
             <CardTitle className="flex items-center gap-2 text-[#4A4458] font-semibold">
               <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
-                <TrendingUp className="w-4 h-4 text-[#FF2D95]" />
+                <TrendingUp className="w-4 h-4 text-[#F85BB4]" />
               </div>
               Monthly Summary
             </CardTitle>
@@ -32,11 +32,11 @@ export default function MonthlySummaryCard({ stats }) {
             <div className="relative">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-1.5 bg-white/60 rounded-lg shadow-sm">
-                  <Footprints className="w-4 h-4 text-[#FF2D95]" />
+                  <Footprints className="w-4 h-4 text-[#F85BB4]" />
                 </div>
                 <span className="text-xs font-semibold text-[#5A5668] uppercase tracking-wide">Running</span>
               </div>
-              <p className="text-3xl font-bold text-[#FF2D95]">{stats.running}</p>
+              <p className="text-3xl font-bold text-[#F85BB4]">{stats.running}</p>
             </div>
           </div>
 
@@ -74,11 +74,11 @@ export default function MonthlySummaryCard({ stats }) {
             <div className="relative">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-1.5 bg-white/60 rounded-lg shadow-sm">
-                  <MapPin className="w-4 h-4 text-[#FF2D95]" />
+                  <MapPin className="w-4 h-4 text-[#F85BB4]" />
                 </div>
                 <span className="text-xs font-semibold text-[#5A5668] uppercase tracking-wide">Distance</span>
               </div>
-              <p className="text-3xl font-bold text-[#FF2D95]">{stats.distance}</p>
+              <p className="text-3xl font-bold text-[#F85BB4]">{stats.distance}</p>
             </div>
           </div>
 
@@ -93,7 +93,7 @@ export default function MonthlySummaryCard({ stats }) {
           </div>
           <div className="p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-[#E8E4F0]/50 hover:shadow-md hover:scale-[1.02] transition-all duration-200 shadow-sm">
             <p className="text-xs text-[#6B6B6B] font-semibold uppercase tracking-wide mb-2">Medication</p>
-            <p className="text-2xl font-bold text-[#FF2D95]">
+            <p className="text-2xl font-bold text-[#F85BB4]">
               {stats.medicationCompliance}
             </p>
           </div>

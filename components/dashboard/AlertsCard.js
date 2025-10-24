@@ -15,9 +15,9 @@ export default function AlertsCard({ alerts }) {
         <CardTitle className="flex items-center gap-2 text-[#4A4458] font-semibold">
           <div className="relative">
             <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
-              <Bell className="w-4 h-4 text-[#FF2D95]" />
+              <Bell className="w-4 h-4 text-[#F85BB4]" />
             </div>
-            <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#FF2D95] rounded-full animate-pulse" />
+            <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#F85BB4] rounded-full animate-pulse" />
           </div>
           Alerts & Notifications
         </CardTitle>

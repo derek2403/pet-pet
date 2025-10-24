@@ -22,7 +22,7 @@ export default function PrivacyControlsCard() {
       <CardHeader className="relative">
         <CardTitle className="flex items-center gap-2 text-[#4A4458] font-semibold">
           <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
-            <Shield className="w-4 h-4 text-[#FF2D95]" />
+            <Shield className="w-4 h-4 text-[#F85BB4]" />
           </div>
           Privacy & Sharing Controls
         </CardTitle>
@@ -37,7 +37,7 @@ export default function PrivacyControlsCard() {
               <div className="flex items-center justify-between mb-4">
                 <span className="font-semibold text-[#4A4458]">Profile Visibility</span>
                 <div className="p-2 bg-white/60 rounded-lg shadow-sm">
-                  <Eye className="w-4 h-4 text-[#FF2D95]" />
+                  <Eye className="w-4 h-4 text-[#F85BB4]" />
                 </div>
               </div>
               <Select defaultValue="private">

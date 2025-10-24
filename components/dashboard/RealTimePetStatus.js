@@ -14,7 +14,7 @@ export default function RealTimePetStatus({ currentActivity }) {
       <CardHeader className="relative">
         <CardTitle className="flex items-center gap-2 text-[#4A4458] font-semibold">
           <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
-            <Activity className="w-4 h-4 text-[#FF2D95]" />
+            <Activity className="w-4 h-4 text-[#F85BB4]" />
           </div>
           Real-Time Pet Status
         </CardTitle>
@@ -27,9 +27,9 @@ export default function RealTimePetStatus({ currentActivity }) {
           <div className="flex items-center justify-between mb-5 relative">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="absolute inset-0 bg-[#FF2D95]/12 rounded-2xl blur-md" />
+                <div className="absolute inset-0 bg-[#F85BB4]/12 rounded-2xl blur-md" />
                 <div className="relative p-4 bg-white rounded-2xl shadow-sm">
-                  <Footprints className="w-8 h-8 text-[#FF2D95] animate-pulse" />
+                  <Footprints className="w-8 h-8 text-[#F85BB4] animate-pulse" />
                 </div>
               </div>
               <div>
@@ -45,7 +45,7 @@ export default function RealTimePetStatus({ currentActivity }) {
           {/* ZKP Privacy indicator - aligned with blockchain theme */}
           <div className="flex items-center gap-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-pink-100/50 shadow-sm">
             <div className="p-2 bg-gradient-to-br from-[#FFE4E8] to-[#F8F5FF] rounded-lg">
-              <MapPin className="w-4 h-4 text-[#FF2D95]" />
+              <MapPin className="w-4 h-4 text-[#F85BB4]" />
             </div>
             <div className="flex-1">
               <span className="text-sm font-semibold text-[#4A4458] block">Zero-Knowledge Location Privacy</span>

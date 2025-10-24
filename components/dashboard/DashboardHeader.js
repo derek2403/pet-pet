@@ -15,7 +15,7 @@ export default function DashboardHeader() {
         <div className="relative">
           <div className="absolute inset-0 bg-[#FF2D95]/12 rounded-2xl blur-md" />
           <div className="relative p-3 bg-gradient-to-br from-[#FFE4E8]/70 to-[#FFD4E5]/70 rounded-2xl shadow-md">
-            <PawPrint className="w-8 h-8 text-[#FF2D95]" />
+            <PawPrint className="w-8 h-8 text-[#F85BB4]" />
           </div>
         </div>
         <div>

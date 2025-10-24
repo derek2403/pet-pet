@@ -15,7 +15,7 @@ export default function UpcomingVetCard({ appointment }) {
       <CardHeader className="relative">
         <CardTitle className="flex items-center gap-2 text-[#4A4458] font-semibold">
           <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
-            <Calendar className="w-4 h-4 text-[#FF2D95]" />
+            <Calendar className="w-4 h-4 text-[#F85BB4]" />
           </div>
           Upcoming Vet Appointment
         </CardTitle>
@@ -27,9 +27,9 @@ export default function UpcomingVetCard({ appointment }) {
           
           <div className="flex items-center gap-4 relative">
             <div className="relative">
-              <div className="absolute inset-0 bg-[#FF2D95]/12 rounded-2xl blur-md" />
+              <div className="absolute inset-0 bg-[#F85BB4]/12 rounded-2xl blur-md" />
               <div className="relative p-3 bg-white rounded-xl shadow-sm">
-                <Stethoscope className="w-7 h-7 text-[#FF2D95]" />
+                <Stethoscope className="w-7 h-7 text-[#F85BB4]" />
               </div>
             </div>
             <div>
