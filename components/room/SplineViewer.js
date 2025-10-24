@@ -191,6 +191,11 @@ export default function SplineViewer({ sceneUrl, maxStepDistance = 8 }) {
         dogEventTargetRef.current = shibainu || armature || null;
         if (dogEventTargetRef.current) {
           console.log('Event target set to:', dogEventTargetRef.current.name);
+          // Show selected object badge by default on load (bottom-right)
+          try {
+            const defaultName = dogEventTargetRef.current.name || 'Shibainu';
+            setSelectedObject(defaultName);
+          } catch (_) {}
         }
         
         // Set up animation cycling: idle for 5 sec, walk for 3 sec, repeat
