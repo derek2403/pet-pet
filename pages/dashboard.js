@@ -108,7 +108,7 @@ export default function Dashboard() {
     status: "Active",
     deviceId: "Device #7892",
     deviceStatus: "connected",
-    avatar: "🐕",
+    avatar: "/shiba.jpg",
   };
 
   const currentActivity = {

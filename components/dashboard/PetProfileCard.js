@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import Image from 'next/image';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Activity, Wifi, WifiOff, Shield, Pencil } from "lucide-react";
 
 /**
@@ -32,10 +33,14 @@ export default function PetProfileCard({ pet, onPetNameChange }) {
         <div className="flex items-start gap-6">
           {/* Pet Avatar with enhanced styling */}
           <div className="relative">
-            <div className="absolute inset-0 bg-[#FF2D95]/20 rounded-full blur-xl" />
+            <div className="absolute inset-0 bg-[#F85BB4]/20 rounded-full blur-xl" />
             <Avatar className="w-24 h-24 text-5xl relative ring-4 ring-white/50 shadow-lg">
+              {/* Render image if avatar is a URL, otherwise render emoji */}
+              {pet.avatar.startsWith('/') || pet.avatar.startsWith('http') ? (
+                <AvatarImage src={pet.avatar} alt={pet.name} className="object-cover" />
+              ) : null}
               <AvatarFallback className="bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5]">
-                {pet.avatar}
+                {pet.avatar.startsWith('/') || pet.avatar.startsWith('http') ? pet.name.charAt(0) : pet.avatar}
               </AvatarFallback>
             </Avatar>
           </div>

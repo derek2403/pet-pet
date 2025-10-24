@@ -12,7 +12,7 @@ import { BackgroundGradientAnimation } from "@/components/ui/background-gradient
 export default function Room() {
   const [roomName, setRoomName] = useState("Pet's Room");
   // Cache-busting parameter forces browser to fetch updated scene with dog
-  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=22";
+  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=24";
 
   return (
     <>
@@ -44,7 +44,7 @@ export default function Room() {
         <div className="container mx-auto px-6 pb-6 relative z-10">
           <div className="space-y-6">
             {/* 3D Spline Viewer with Room Status */}
-            <SplineViewer sceneUrl={sceneUrl} />
+            <SplineViewer sceneUrl={sceneUrl} maxStepDistance={40} />
 
             {/* Room Details Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">

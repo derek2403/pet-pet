@@ -30,7 +30,7 @@ const Spline = dynamic(() => import('@splinetool/react-spline'), {
  * SplineViewer Component
  * Displays the interactive 3D Spline scene with controls
  */
-export default function SplineViewer({ sceneUrl }) {
+export default function SplineViewer({ sceneUrl, maxStepDistance = 8 }) {
   const splineRef = useRef();
   const viewerRef = useRef(null);
   const controlsRef = useRef(null);
@@ -281,38 +281,41 @@ export default function SplineViewer({ sceneUrl }) {
         emitDogEvent(splineApp, 'mouseUp');
         requestAnimationFrame(() => emitDogEvent(splineApp, 'mouseDown'));
 
-        // Safety: ensure walk can't run forever if mouseUp is missed
+        // Safety: ensure walk can't run forever if mouseUp is missed.
+        // Compute a generous timeout based on max step distance and walk speed
         if (walkTimeoutRef.current) clearTimeout(walkTimeoutRef.current);
+        const safetyUnitsPerSecond = 8; // keep in sync with movement speed below
+        const maxDurationMs = Math.min(
+          20000,
+          Math.ceil((Math.max(1, maxStepDistance) / safetyUnitsPerSecond) * 1000) + 2500
+        );
         walkTimeoutRef.current = setTimeout(() => {
           console.warn('⏱️ Walk safety timeout hit, forcing Idle');
           emitDogEvent(splineApp, 'mouseUp');
-        }, 3500);
+        }, maxDurationMs);
         
-        // Move the dog to a new position and emit mouseUp exactly when movement ends
+        // Move the dog to a new position and emit mouseUp immediately on arrival
         moveDogToRandomPosition(shibainu, () => {
-          // Small delay to ensure movement completes before triggering idle
-          setTimeout(() => {
-            try {
-              // Clear safety timeout and send single, authoritative mouseUp
-              if (walkTimeoutRef.current) {
-                clearTimeout(walkTimeoutRef.current);
-                walkTimeoutRef.current = null;
-              }
-              emitDogEvent(splineApp, 'mouseUp');
-
-              // Wait 2 seconds before allowing next walk (cooldown period)
-              console.log('⏰ Starting 2-second cooldown before next walk...');
-              setTimeout(() => {
-                isWalkingRef.current = false;
-                console.log('✅ Cooldown complete - dog can walk again');
-              }, 2000); // 2 second cooldown
-              
-            } catch (e) {
-              console.error('Error sending mouseUp:', e);
-              // Reset flag even on error
-              setTimeout(() => { isWalkingRef.current = false; }, 5000);
+          try {
+            // Clear safety timeout and send single, authoritative mouseUp
+            if (walkTimeoutRef.current) {
+              clearTimeout(walkTimeoutRef.current);
+              walkTimeoutRef.current = null;
             }
-          }, 50); // 50ms delay
+            emitDogEvent(splineApp, 'mouseUp');
+
+            // Wait 2 seconds before allowing next walk (cooldown period)
+            console.log('⏰ Starting 2-second cooldown before next walk...');
+            setTimeout(() => {
+              isWalkingRef.current = false;
+              console.log('✅ Cooldown complete - dog can walk again');
+            }, 2000); // 2 second cooldown
+            
+          } catch (e) {
+            console.error('Error sending mouseUp:', e);
+            // Reset flag even on error
+            setTimeout(() => { isWalkingRef.current = false; }, 5000);
+          }
         });
       } else {
         // Stay idle (Start event keeps idle animation running)
@@ -343,77 +346,123 @@ export default function SplineViewer({ sceneUrl }) {
       
       // Add padding to keep dog away from walls
       const padding = 15;
-      
-      // Generate random position within safe boundaries
-      const newPos = {
-        x: roomBounds.xMin + padding + Math.random() * (roomBounds.xMax - roomBounds.xMin - padding * 2),
-        y: roomBounds.y,
-        z: roomBounds.zMin + padding + Math.random() * (roomBounds.zMax - roomBounds.zMin - padding * 2)
-      };
-      
+
       // Get current position
       const startPos = { 
         x: shibainu.position?.x || 0, 
         y: shibainu.position?.y || 0, 
         z: shibainu.position?.z || 0 
       };
+
+      // Always try to move the full max distance (or as much as allowed by bounds)
+      const stepMax = typeof maxStepDistance === 'number' && maxStepDistance > 0 ? maxStepDistance : 12;
+
+      // Clamp within padded room bounds so we never walk through walls
+      const xMin = roomBounds.xMin + padding;
+      const xMax = roomBounds.xMax - padding;
+      const zMin = roomBounds.zMin + padding;
+      const zMax = roomBounds.zMax - padding;
+
+      // Pick a direction that allows the longest move; prefer one that fits stepMax
+      let chosenAngle = Math.random() * Math.PI * 2;
+      let bestAllowed = 0;
+      let bestAngle = chosenAngle;
+      for (let i = 0; i < 16; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dirX = Math.sin(angle);
+        const dirZ = Math.cos(angle);
+        const tX = dirX > 0 ? (xMax - startPos.x) / dirX : dirX < 0 ? (xMin - startPos.x) / dirX : Infinity;
+        const tZ = dirZ > 0 ? (zMax - startPos.z) / dirZ : dirZ < 0 ? (zMin - startPos.z) / dirZ : Infinity;
+        const allowed = Math.max(0, Math.min(tX, tZ));
+        if (allowed >= stepMax) {
+          chosenAngle = angle;
+          bestAllowed = allowed;
+          bestAngle = angle;
+          break;
+        }
+        if (allowed > bestAllowed) {
+          bestAllowed = allowed;
+          bestAngle = angle;
+        }
+      }
+      // Use best angle found
+      const dirX = Math.sin(bestAngle);
+      const dirZ = Math.cos(bestAngle);
+      const tX = dirX > 0 ? (xMax - startPos.x) / dirX : dirX < 0 ? (xMin - startPos.x) / dirX : Infinity;
+      const tZ = dirZ > 0 ? (zMax - startPos.z) / dirZ : dirZ < 0 ? (zMin - startPos.z) / dirZ : Infinity;
+      const allowed = Math.max(0, Math.min(tX, tZ));
+      const step = Math.max(0, Math.min(stepMax, allowed));
+
+      // Final target using chosen direction and exact step length (as large as allowed)
+      const proposed = {
+        x: startPos.x + dirX * step,
+        z: startPos.z + dirZ * step
+      };
+      const newPos = {
+        x: Math.min(xMax, Math.max(xMin, proposed.x)),
+        y: roomBounds.y,
+        z: Math.min(zMax, Math.max(zMin, proposed.z))
+      };
       
       console.log('Dog current position:', startPos);
       console.log('Dog target position:', newPos);
-      
-      // Smoothly move the dog over 3 seconds
-      const duration = 3000; // 3 seconds
-      const startTime = Date.now();
       
       // Calculate rotation to face the direction of movement
       const dx = newPos.x - startPos.x;
       const dz = newPos.z - startPos.z;
       const targetRotation = Math.atan2(dx, dz);
-      
-      function animate() {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        // Ease-in-out for smooth movement
-        const eased = progress < 0.5 
-          ? 2 * progress * progress 
-          : 1 - Math.pow(-2 * progress + 2, 2) / 2;
-        
+
+      // Constant-speed movement with overshoot clamp so we land exactly on target
+      const unitsPerSecond = 18; // slightly slower to better match foot animation
+      let lastTs = performance.now();
+
+      function animate(nowTs) {
+        if (!isMountedRef.current) return; // stop if unmounted
+
+        const dt = Math.min(0.05, Math.max(0, (nowTs - lastTs) / 1000)); // clamp dt to avoid huge jumps
+        lastTs = nowTs;
+
         // Update position if the object has position property
         if (shibainu.position) {
-          shibainu.position.x = startPos.x + (newPos.x - startPos.x) * eased;
-          shibainu.position.z = startPos.z + (newPos.z - startPos.z) * eased;
-          
+          const rx = newPos.x - shibainu.position.x;
+          const rz = newPos.z - shibainu.position.z;
+          const remaining = Math.hypot(rx, rz);
+
+          const stepDist = unitsPerSecond * dt;
+          if (remaining <= stepDist + 0.001) {
+            // Snap to final target and finish
+            shibainu.position.x = newPos.x;
+            shibainu.position.z = newPos.z;
+            if (shibainu.rotation) {
+              shibainu.rotation.y = targetRotation;
+            }
+            console.log('✅ Movement complete! Calling onComplete callback...');
+            if (typeof onComplete === 'function') {
+              onComplete();
+              console.log('✅ onComplete callback executed');
+            } else {
+              console.warn('⚠️ No onComplete callback provided');
+            }
+            return;
+          }
+
+          const ux = remaining > 0 ? rx / remaining : 0;
+          const uz = remaining > 0 ? rz / remaining : 0;
+          shibainu.position.x += ux * stepDist;
+          shibainu.position.z += uz * stepDist;
+
           // Update rotation to face movement direction
           if (shibainu.rotation) {
             shibainu.rotation.y = targetRotation;
           }
-          
+
           console.log('Dog position update:', {x: shibainu.position.x, z: shibainu.position.z});
         }
-        
-        if (!isMountedRef.current) {
-          return; // stop animating if unmounted
-        }
-        if (progress < 1) {
-          requestAnimationFrame(animate);
-        } else {
-          // Snap to the exact target to avoid residual drift
-          if (shibainu.position) {
-            shibainu.position.x = newPos.x;
-            shibainu.position.z = newPos.z;
-          }
-          console.log('✅ Movement complete! Calling onComplete callback...');
-          if (typeof onComplete === 'function') {
-            onComplete();
-            console.log('✅ onComplete callback executed');
-          } else {
-            console.warn('⚠️ No onComplete callback provided');
-          }
-        }
+
+        requestAnimationFrame(animate);
       }
-      
-      animate();
+
+      requestAnimationFrame(animate);
       console.log('Starting dog movement from', startPos, 'to', newPos);
     } catch (error) {
       console.error('Error moving dog:', error);
