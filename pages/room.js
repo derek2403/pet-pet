@@ -13,8 +13,22 @@ import { UtensilsCrossed, Gamepad2, Footprints, Heart } from "lucide-react";
  */
 export default function Room() {
   const [roomName, setRoomName] = useState("Pet's Room");
+  // State for showing popup notification
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+  
   // Cache-busting parameter forces browser to fetch updated scene with dog
-  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=24";
+  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=25";
+
+  // Helper function to show popup notification with auto-fade
+  const showPopupNotification = (message) => {
+    setNotificationMessage(message);
+    setShowNotification(true);
+    // Auto-hide after 2 seconds
+    setTimeout(() => {
+      setShowNotification(false);
+    }, 2000);
+  };
 
   return (
     <>
@@ -46,7 +60,12 @@ export default function Room() {
         <div className="container mx-auto px-6 pb-6 relative z-10">
           <div className="space-y-6">
             {/* 3D Spline Viewer with Room Status */}
-            <SplineViewer sceneUrl={sceneUrl} maxStepDistance={40} />
+            <SplineViewer 
+              sceneUrl={sceneUrl} 
+              maxStepDistance={40} 
+              showNotification={showNotification}
+              notificationMessage={notificationMessage}
+            />
 
             {/* Pet Action Buttons */}
             <div className="grid grid-cols-4 gap-4">
@@ -94,7 +113,10 @@ export default function Room() {
 
               {/* Pet Button */}
               <Button
-                onClick={() => console.log('Pet action')}
+                onClick={() => {
+                  console.log('Pet action');
+                  showPopupNotification('Pet affection increased!');
+                }}
                 className="w-full h-auto py-6 px-6 bg-white/60 backdrop-blur-md border border-[#E8E4F0]/50 hover:bg-white hover:border-[#F85BB4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3"
               >
                 <div className="relative">

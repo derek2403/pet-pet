@@ -11,7 +11,8 @@ import {
   Volume2,
   VolumeX,
   Loader2,
-  Smile
+  Smile,
+  Heart
 } from "lucide-react";
 
 // Dynamically import Spline component for better performance
@@ -31,7 +32,12 @@ const Spline = dynamic(() => import('@splinetool/react-spline'), {
  * SplineViewer Component
  * Displays the interactive 3D Spline scene with controls
  */
-export default function SplineViewer({ sceneUrl, maxStepDistance = 8 }) {
+export default function SplineViewer({ 
+  sceneUrl, 
+  maxStepDistance = 8, 
+  showNotification = false, 
+  notificationMessage = '' 
+}) {
   const splineRef = useRef();
   const viewerRef = useRef(null);
   const controlsRef = useRef(null);
@@ -632,6 +638,23 @@ export default function SplineViewer({ sceneUrl, maxStepDistance = 8 }) {
               <div className="flex items-center gap-2">
                 <Loader2 className="w-4 h-4 text-[#F85BB4] animate-spin" />
                 <span className="text-sm font-bold text-[#4A4458]">Loading scene...</span>
+              </div>
+            </div>
+          )}
+
+          {/* Popup Notification - Top Left */}
+          {showNotification && notificationMessage && (
+            <div 
+              className="absolute top-4 left-4 bg-white/95 backdrop-blur-md rounded-xl px-5 py-3 shadow-lg border border-[#F85BB4]/30 z-50 pointer-events-none animate-in fade-in slide-in-from-top-2 duration-300"
+              style={{
+                animation: 'fadeInOut 2s ease-in-out forwards'
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg">
+                  <Heart className="w-5 h-5 text-[#F85BB4]" />
+                </div>
+                <span className="text-sm font-bold text-[#4A4458]">{notificationMessage}</span>
               </div>
             </div>
           )}

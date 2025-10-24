@@ -172,6 +172,26 @@ body {
     50% { transform: translate(-5%, 5%) scale(0.95); }
     100% { transform: translate(5%, -5%) scale(1.05); }
   }
+  
+  /* Fade in and fade out animation for notifications */
+  @keyframes fadeInOut {
+    0% { 
+      opacity: 0; 
+      transform: translateY(-10px);
+    }
+    10% { 
+      opacity: 1; 
+      transform: translateY(0);
+    }
+    90% { 
+      opacity: 1; 
+      transform: translateY(0);
+    }
+    100% { 
+      opacity: 0; 
+      transform: translateY(-10px);
+    }
+  }
 
   .animate-first { animation: first 18s ease-in-out infinite; }
   .animate-second { animation: second 22s ease-in-out infinite; }
