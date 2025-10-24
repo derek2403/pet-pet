@@ -28,15 +28,15 @@ export default function CustomizationOptions() {
         <CardTitle className="flex items-center justify-between text-[#4A4458] font-semibold">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
-              <Lightbulb className="w-4 h-4 text-[#FF2D95]" />
+              <Lightbulb className="w-4 h-4 text-[#F85BB4]" />
             </div>
             Customization
           </div>
           <div className="p-1 rounded-lg hover:bg-white/60 transition-colors">
             {isExpanded ? (
-              <ChevronUp className="w-5 h-5 text-[#FF2D95]" />
+              <ChevronUp className="w-5 h-5 text-[#F85BB4]" />
             ) : (
-              <ChevronDown className="w-5 h-5 text-[#FF2D95]" />
+              <ChevronDown className="w-5 h-5 text-[#F85BB4]" />
             )}
           </div>
         </CardTitle>
@@ -58,7 +58,7 @@ export default function CustomizationOptions() {
           {/* Coming Soon Overlay */}
           <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm rounded-b-2xl">
             <div className="text-center">
-              <div className="text-3xl font-bold text-[#FF2D95] mb-2">Coming Soon</div>
+              <div className="text-3xl font-bold text-[#F85BB4] mb-2">Coming Soon</div>
               <p className="text-sm text-[#6B6B6B] font-medium">Exciting customization features on the way!</p>
             </div>
           </div>

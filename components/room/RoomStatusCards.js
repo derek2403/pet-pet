@@ -14,9 +14,9 @@ export default function RoomStatusCards() {
         <CardContent className="p-6 relative">
           <div className="flex items-start gap-4">
             <div className="relative">
-              <div className="absolute inset-0 bg-[#FF2D95]/20 rounded-xl blur-lg" />
+              <div className="absolute inset-0 bg-[#F85BB4]/20 rounded-xl blur-lg" />
               <div className="relative p-3 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-xl shadow-md">
-                <Home className="w-6 h-6 text-[#FF2D95]" />
+                <Home className="w-6 h-6 text-[#F85BB4]" />
               </div>
             </div>
             <div>

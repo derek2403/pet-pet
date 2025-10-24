@@ -26,7 +26,7 @@ export default function RoomHeader({ roomName, onRoomNameChange }) {
         {/* Back to Dashboard Button */}
         <div className="flex items-center gap-3">
           <Link href="/dashboard">
-            <Button variant="outline" className="rounded-full bg-white/80 backdrop-blur-md border-[#E8E4F0]/50 text-[#4A4458] font-semibold hover:bg-white hover:border-[#FF2D95] hover:shadow-lg transition-all duration-200 shadow-md">
+            <Button variant="outline" className="rounded-full bg-white/80 backdrop-blur-md border-[#E8E4F0]/50 text-[#4A4458] font-semibold hover:bg-white hover:border-[#F85BB4] hover:shadow-lg transition-all duration-200 shadow-md">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
             </Button>
@@ -36,9 +36,9 @@ export default function RoomHeader({ roomName, onRoomNameChange }) {
         {/* Centered Room Title with Home Icon */}
         <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
           <div className="relative">
-            <div className="absolute inset-0 bg-[#FF2D95]/20 rounded-2xl blur-lg" />
+            <div className="absolute inset-0 bg-[#F85BB4]/20 rounded-2xl blur-lg" />
             <div className="relative p-3 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-2xl shadow-lg">
-              <Home className="w-8 h-8 text-[#FF2D95]" />
+              <Home className="w-8 h-8 text-[#F85BB4]" />
             </div>
           </div>
           {isEditingName ? (
@@ -48,7 +48,7 @@ export default function RoomHeader({ roomName, onRoomNameChange }) {
               onKeyDown={handleSaveName}
               onBlur={handleSaveName}
               autoFocus
-              className="text-2xl font-bold text-[#4A4458] h-12 w-64 border-[#E8E4F0] focus:border-[#FF2D95] bg-white/80 backdrop-blur-sm rounded-xl shadow-md"
+              className="text-2xl font-bold text-[#4A4458] h-12 w-64 border-[#E8E4F0] focus:border-[#F85BB4] bg-white/80 backdrop-blur-sm rounded-xl shadow-md"
             />
           ) : (
             <div 
@@ -56,7 +56,7 @@ export default function RoomHeader({ roomName, onRoomNameChange }) {
               onClick={() => setIsEditingName(true)}
             >
               <h1 className="text-2xl font-bold text-[#4A4458] tracking-tight">{roomName}</h1>
-              <Pencil className="w-4 h-4 text-[#FF2D95] opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Pencil className="w-4 h-4 text-[#F85BB4] opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           )}
         </div>
