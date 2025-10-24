@@ -18,7 +18,7 @@ export default function Room() {
   const [notificationMessage, setNotificationMessage] = useState('');
   
   // Cache-busting parameter forces browser to fetch updated scene with dog
-  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=25";
+  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=26";
 
   // Helper function to show popup notification with auto-fade
   const showPopupNotification = (message) => {
