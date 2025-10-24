@@ -22,12 +22,11 @@ export default function DashboardHeader() {
           <h1 className="text-3xl font-bold tracking-tight">
             <AuroraText 
               colors={["#FF2D95", "#FF6B9D", "#C084FC", "#60A5FA", "#FF2D95"]}
-              speed={1.2}
+              speed={2}
             >
-              PetPet Dashboard
+              PetPet
             </AuroraText>
           </h1>
-          <p className="text-sm text-[#6B6B6B] font-medium mt-0.5">Your pet's on-chain activity hub</p>
         </div>
       </div>
 
