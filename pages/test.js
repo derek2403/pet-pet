@@ -14,10 +14,13 @@ export default function TestPage() {
   const [petName, setPetName] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [myPets, setMyPets] = useState([]);
-  const [allPets, setAllPets] = useState([]);
+  const [myPets, setMyPets] = useState([]); // Array of {address, name}
+  const [allPets, setAllPets] = useState([]); // Array of {address, name}
   const [selectedPet, setSelectedPet] = useState(null);
   const [petStats, setPetStats] = useState(null);
+  const [interactPetName, setInteractPetName] = useState(''); // For searching pet by name
+  const [interactAddress, setInteractAddress] = useState(''); // For direct address entry
+  const [interactDuration, setInteractDuration] = useState(600); // Default 10 minutes
 
   // Initialize transaction hooks with Base Sepolia chain ID
   const { showTransactionToast, handleTransactionWithNotification } = useTransactionToast("84532");
@@ -99,7 +102,19 @@ export default function TestPage() {
     }
   };
 
-  // Load user's pets and all pets
+  // Helper function to fetch pet name from contract
+  const fetchPetName = async (petAddress, provider) => {
+    try {
+      const pet = new ethers.Contract(petAddress, PET_ABI, provider);
+      const name = await pet.petName();
+      return name;
+    } catch (error) {
+      console.error(`Error fetching name for ${petAddress}:`, error);
+      return 'Unknown'; // Fallback if we can't fetch the name
+    }
+  };
+
+  // Load user's pets and all pets with their names
   const loadPets = async (userAddress) => {
     try {
       let provider;
@@ -133,16 +148,32 @@ export default function TestPage() {
       console.log('Total pet count:', count.toString());
       
       // Get user's pets
-      const userPets = await registry.getPetsByOwner(userAddress);
-      console.log('User pets:', userPets);
-      setMyPets(userPets);
+      const userPetsAddresses = await registry.getPetsByOwner(userAddress);
+      console.log('User pet addresses:', userPetsAddresses);
+      
+      // Fetch names for user's pets
+      const userPetsWithNames = await Promise.all(
+        userPetsAddresses.map(async (address) => ({
+          address,
+          name: await fetchPetName(address, provider)
+        }))
+      );
+      setMyPets(userPetsWithNames);
       
       // Get all pets
-      const all = await registry.getAllPets();
-      console.log('All pets:', all);
-      setAllPets(all);
+      const allPetsAddresses = await registry.getAllPets();
+      console.log('All pet addresses:', allPetsAddresses);
       
-      setMessage(`📊 Total pets in system: ${count.toString()} | Your pets: ${userPets.length}`);
+      // Fetch names for all pets
+      const allPetsWithNames = await Promise.all(
+        allPetsAddresses.map(async (address) => ({
+          address,
+          name: await fetchPetName(address, provider)
+        }))
+      );
+      setAllPets(allPetsWithNames);
+      
+      setMessage(`📊 Total pets in system: ${count.toString()} | Your pets: ${userPetsWithNames.length}`);
     } catch (error) {
       console.error('Error loading pets:', error);
       setMessage(`❌ Error: ${error.message || 'Failed to load pets. Check console for details.'}`);
@@ -158,19 +189,22 @@ export default function TestPage() {
 
     try {
       setLoading(true);
-      setMessage('🔄 Compiling contract for pet "' + petName + '"...');
+      setMessage('🔍 Checking name availability...');
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const registry = new ethers.Contract(REGISTRY_ADDRESS.address, REGISTRY_ABI, signer);
 
-      // Check if name is available
+      // Check if name is available (case-insensitive check in registry)
       const available = await registry.isPetNameAvailable(petName);
       if (!available) {
-        setMessage('❌ Pet name already taken!');
+        setMessage(`❌ Pet name "${petName}" already taken! (Names are case-insensitive)`);
         setLoading(false);
         return;
       }
+      
+      console.log(`✅ Name "${petName}" is available`);
+      setMessage('🔄 Compiling contract for pet "' + petName + '"...');
 
       // Compile contract via backend API
       setMessage('⏳ Compiling contract (this may take 10-20 seconds)...');
@@ -216,20 +250,30 @@ export default function TestPage() {
       setMessage(`✅ Contract deployed! Registering in registry...`);
 
       // Register the pet in the registry with transaction toast
-      await handleTransactionWithNotification(
-        async () => {
-          const tx = await registry.registerPet(petName, petAddress, account);
-          setMessage('⏳ Registering pet...');
-          await tx.wait();
-          return tx;
-        },
-        {
-          onSuccess: (result, txHash) => {
-            console.log('Registration transaction:', txHash);
+      try {
+        await handleTransactionWithNotification(
+          async () => {
+            const tx = await registry.registerPet(petName, petAddress, account);
+            setMessage('⏳ Registering pet in registry...');
+            await tx.wait();
+            return tx;
           },
-          showToast: true
+          {
+            onSuccess: (result, txHash) => {
+              console.log('Registration transaction:', txHash);
+            },
+            showToast: true
+          }
+        );
+      } catch (regError) {
+        // Handle race condition where name was taken between check and registration
+        if (regError.message && regError.message.includes('Pet name already exists')) {
+          setMessage(`❌ Pet name was taken by someone else during deployment. Contract deployed at ${petAddress} but not registered.`);
+          setLoading(false);
+          return;
         }
-      );
+        throw regError; // Re-throw if it's a different error
+      }
 
       setMessage(`✅ Pet "${petName}" (contract ${compileResult.contractName}) created at ${petAddress}`);
       
@@ -313,6 +357,91 @@ export default function TestPage() {
     } catch (error) {
       console.error('Verification error:', error);
       setMessage('❌ Verification failed: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Look up pet address by name from registry
+  const lookupPetByName = async (name) => {
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const registry = new ethers.Contract(REGISTRY_ADDRESS.address, REGISTRY_ABI, provider);
+      const address = await registry.getPetByName(name);
+      
+      if (address === ethers.ZeroAddress || address === '0x0000000000000000000000000000000000000000') {
+        setMessage(`❌ Pet "${name}" not found in registry`);
+        return null;
+      }
+      
+      return address;
+    } catch (error) {
+      console.error('Error looking up pet:', error);
+      setMessage(`❌ Error looking up pet: ${error.message}`);
+      return null;
+    }
+  };
+
+  // Handle pet interaction
+  const handleInteract = async () => {
+    try {
+      setLoading(true);
+      
+      // Determine which address to use
+      let targetAddress = null;
+      
+      if (interactAddress.trim()) {
+        // Use direct address if provided
+        if (!ethers.isAddress(interactAddress)) {
+          setMessage('❌ Invalid Ethereum address');
+          setLoading(false);
+          return;
+        }
+        targetAddress = interactAddress;
+      } else if (interactPetName.trim()) {
+        // Look up by name
+        setMessage('🔍 Looking up pet by name...');
+        targetAddress = await lookupPetByName(interactPetName);
+        if (!targetAddress) {
+          setLoading(false);
+          return;
+        }
+      } else {
+        setMessage('❌ Please enter a pet name or contract address');
+        setLoading(false);
+        return;
+      }
+      
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const pet = new ethers.Contract(selectedPet.address, PET_ABI, signer);
+      
+      // Execute interaction with toast
+      await handleTransactionWithNotification(
+        async () => {
+          const tx = await pet.interact(targetAddress, interactDuration);
+          setMessage('⏳ Recording interaction...');
+          await tx.wait();
+          return tx;
+        },
+        {
+          onSuccess: () => {
+            setMessage(`✅ Interaction successful! Both pets recorded the interaction (contract-to-contract call)`);
+            // Clear input fields
+            setInteractPetName('');
+            setInteractAddress('');
+            // Refresh pet stats
+            viewPet(selectedPet.address);
+          },
+          onError: (error) => {
+            setMessage('❌ Error: ' + (error.reason || error.message));
+          },
+          showToast: true
+        }
+      );
+    } catch (error) {
+      console.error(error);
+      setMessage('❌ Error: ' + (error.reason || error.message));
     } finally {
       setLoading(false);
     }
@@ -412,10 +541,13 @@ export default function TestPage() {
             background: '#fafafa'
           }}>
             <h2>➕ Create New Pet</h2>
+            <p style={{ color: '#666', fontSize: '14px', marginTop: '10px', marginBottom: '15px' }}>
+              ℹ️ Pet names are <strong>case-insensitive</strong> and must be unique (e.g., "Buddy", "buddy", "BUDDY" are all the same)
+            </p>
             <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
               <input
                 type="text"
-                placeholder="Enter pet name"
+                placeholder="Enter pet name (e.g., Buddy, Max, Luna)"
                 value={petName}
                 onChange={(e) => setPetName(e.target.value)}
                 disabled={loading}
@@ -475,19 +607,25 @@ export default function TestPage() {
               <p style={{ color: '#666' }}>You haven't created any pets yet.</p>
             ) : (
               <div style={{ display: 'grid', gap: '10px', marginTop: '20px' }}>
-                {myPets.map((petAddr, idx) => (
+                {myPets.map((pet, idx) => (
                   <div 
                     key={idx}
-                    onClick={() => viewPet(petAddr)}
+                    onClick={() => viewPet(pet.address)}
                     style={{
                       padding: '15px',
-                      background: selectedPet?.address === petAddr ? '#e3f2fd' : 'white',
+                      background: selectedPet?.address === pet.address ? '#e3f2fd' : 'white',
                       border: '1px solid #ddd',
                       borderRadius: '8px',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
                     }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = selectedPet?.address === pet.address ? '#e3f2fd' : '#f5f5f5'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = selectedPet?.address === pet.address ? '#e3f2fd' : 'white'}
                   >
-                    <code>{petAddr}</code>
+                    <div style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: '5px', color: '#0070f3' }}>
+                      🐾 {pet.name}
+                    </div>
+                    <code style={{ fontSize: '12px', color: '#666' }}>{pet.address}</code>
                   </div>
                 ))}
               </div>
@@ -629,6 +767,124 @@ export default function TestPage() {
                       💧 Drink (500ml)
                     </button>
                   </div>
+
+                  {/* Pet Interaction Section */}
+                  <div style={{ marginTop: '30px', padding: '20px', background: 'white', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                    <h3>🤝 Interact with Another Pet</h3>
+                    <p style={{ color: '#666', fontSize: '14px', marginBottom: '10px' }}>
+                      Enter a pet name to look up from registry OR enter the contract address directly
+                    </p>
+                    <div style={{ 
+                      background: '#f0f9ff', 
+                      border: '1px solid #0ea5e9', 
+                      padding: '10px', 
+                      borderRadius: '6px', 
+                      marginBottom: '15px',
+                      fontSize: '13px'
+                    }}>
+                      <strong>ℹ️ Contract-to-Contract Interaction:</strong> When you interact, your pet's contract will call the other pet's contract directly, creating an internal transaction. Both pets will record the interaction automatically!
+                    </div>
+                    
+                    <div style={{ display: 'grid', gap: '15px' }}>
+                      {/* Pet Name Lookup Field */}
+                      <div>
+                        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', fontSize: '14px' }}>
+                          Search by Pet Name:
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g., Buddy, Max, Luna..."
+                          value={interactPetName}
+                          onChange={(e) => {
+                            setInteractPetName(e.target.value);
+                            // Clear address field when typing name
+                            if (e.target.value) setInteractAddress('');
+                          }}
+                          disabled={loading}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            fontSize: '14px',
+                            border: '2px solid #ddd',
+                            borderRadius: '6px',
+                            boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
+
+                      {/* Divider */}
+                      <div style={{ textAlign: 'center', color: '#999', fontSize: '14px' }}>
+                        — OR —
+                      </div>
+
+                      {/* Direct Address Field */}
+                      <div>
+                        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', fontSize: '14px' }}>
+                          Enter Contract Address Directly:
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="0x..."
+                          value={interactAddress}
+                          onChange={(e) => {
+                            setInteractAddress(e.target.value);
+                            // Clear name field when typing address
+                            if (e.target.value) setInteractPetName('');
+                          }}
+                          disabled={loading}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            fontSize: '14px',
+                            border: '2px solid #ddd',
+                            borderRadius: '6px',
+                            fontFamily: 'monospace',
+                            boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
+
+                      {/* Duration Field */}
+                      <div>
+                        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', fontSize: '14px' }}>
+                          Interaction Duration (seconds):
+                        </label>
+                        <input
+                          type="number"
+                          value={interactDuration}
+                          onChange={(e) => setInteractDuration(Number(e.target.value))}
+                          disabled={loading}
+                          min="1"
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            fontSize: '14px',
+                            border: '2px solid #ddd',
+                            borderRadius: '6px',
+                            boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
+
+                      {/* Submit Button */}
+                      <button
+                        onClick={handleInteract}
+                        disabled={loading || (!interactPetName.trim() && !interactAddress.trim())}
+                        style={{
+                          padding: '15px',
+                          fontSize: '16px',
+                          background: loading || (!interactPetName.trim() && !interactAddress.trim()) ? '#ccc' : '#ec4899',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: loading || (!interactPetName.trim() && !interactAddress.trim()) ? 'not-allowed' : 'pointer',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        {loading ? '⏳ Processing...' : '🤝 Record Interaction'}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -646,19 +902,25 @@ export default function TestPage() {
               <p style={{ color: '#666' }}>No pets created yet.</p>
             ) : (
               <div style={{ display: 'grid', gap: '10px', marginTop: '20px' }}>
-                {allPets.map((petAddr, idx) => (
+                {allPets.map((pet, idx) => (
                   <div 
                     key={idx}
-                    onClick={() => viewPet(petAddr)}
+                    onClick={() => viewPet(pet.address)}
                     style={{
                       padding: '15px',
-                      background: 'white',
+                      background: selectedPet?.address === pet.address ? '#e3f2fd' : 'white',
                       border: '1px solid #ddd',
                       borderRadius: '8px',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
                     }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = selectedPet?.address === pet.address ? '#e3f2fd' : '#f5f5f5'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = selectedPet?.address === pet.address ? '#e3f2fd' : 'white'}
                   >
-                    <code>{petAddr}</code>
+                    <div style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: '5px', color: '#10b981' }}>
+                      🐾 {pet.name}
+                    </div>
+                    <code style={{ fontSize: '12px', color: '#666' }}>{pet.address}</code>
                   </div>
                 ))}
               </div>
