@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ScrollText, CheckCircle2, Clock } from "lucide-react";
+import { CheckCircle2, Clock } from "lucide-react";
 
 /**
  * ActivityTimelineCard Component
@@ -14,9 +14,6 @@ export default function ActivityTimelineCard({ events }) {
       
       <CardHeader className="relative">
         <CardTitle className="flex items-center gap-2 text-[#4A4458] font-semibold">
-          <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
-            <ScrollText className="w-4 h-4 text-[#F85BB4]" />
-          </div>
           Recent Activity Timeline
         </CardTitle>
       </CardHeader>

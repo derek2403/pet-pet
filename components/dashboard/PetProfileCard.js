@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Activity, Wifi, WifiOff, Shield, Pencil, Upload, ZoomIn, ZoomOut } from "lucide-react";
+import { Wifi, WifiOff, Pencil, Upload, ZoomIn, ZoomOut } from "lucide-react";
 
 /**
  * Helper function to create cropped image
@@ -198,14 +198,13 @@ export default function PetProfileCard({ pet, onPetNameChange }) {
                 )}
                 <div className="flex items-center gap-2 mt-1">
                   <p className="text-[#D4A5A5] font-medium">{pet.ens}</p>
-                  <Shield className="w-4 h-4 text-[#D4A5A5]" />
                 </div>
                 <p className="text-[#5A5A5A] mt-1">
                   {pet.breed} • {pet.species}
                 </p>
               </div>
               <Badge className="bg-[#F85BB4] text-white font-semibold hover:shadow-lg border-none px-4 py-2 shadow-md transition-all duration-200 hover:scale-105">
-                <Activity className="w-4 h-4 mr-1.5 animate-pulse" />
+                <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse" />
                 {pet.status}
               </Badge>
             </div>

@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Shield, Eye, EyeOff, Users } from "lucide-react";
+import { Eye, EyeOff, Users } from "lucide-react";
 
 /**
  * PrivacyControlsCard Component
@@ -21,12 +21,8 @@ export default function PrivacyControlsCard() {
       
       <CardHeader className="relative">
         <CardTitle className="flex items-center gap-2 text-[#4A4458] font-semibold">
-          <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
-            <Shield className="w-4 h-4 text-[#F85BB4]" />
-          </div>
           Privacy & Sharing Controls
         </CardTitle>
-        <p className="text-sm text-[#6B6B6B] mt-2 font-medium">Manage your pet's on-chain data visibility</p>
       </CardHeader>
       <CardContent className="relative">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

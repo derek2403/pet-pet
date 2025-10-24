@@ -35,7 +35,6 @@ export default function DashboardHeader() {
         {/* Visit 3D Room Button with solid pink */}
         <Link href="/room">
           <Button className="bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 transition-all duration-300 text-white font-semibold rounded-full shadow-lg px-6">
-            <Boxes className="w-4 h-4 mr-2" />
             Visit Room
           </Button>
         </Link>

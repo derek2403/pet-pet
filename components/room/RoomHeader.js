@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Home, ArrowLeft, Pencil } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import Link from 'next/link';
 
 /**
  * RoomHeader Component
- * Displays the header with back button, editable room title, and home icon
+ * Displays the header with back button and editable room title
  */
 export default function RoomHeader({ roomName, onRoomNameChange }) {
   const [isEditingName, setIsEditingName] = useState(false);
@@ -33,14 +33,8 @@ export default function RoomHeader({ roomName, onRoomNameChange }) {
           </Link>
         </div>
 
-        {/* Centered Room Title with Home Icon */}
+        {/* Centered Room Title */}
         <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
-          <div className="relative">
-            <div className="absolute inset-0 bg-[#F85BB4]/20 rounded-2xl blur-lg" />
-            <div className="relative p-3 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-2xl shadow-lg">
-              <Home className="w-8 h-8 text-[#F85BB4]" />
-            </div>
-          </div>
           {isEditingName ? (
             <Input
               value={localName}

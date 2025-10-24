@@ -31,7 +31,6 @@ export default function FeaturedRoomCard() {
             </p>
             <Link href="/room">
               <Button className="bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl transition-all duration-300 text-white font-medium rounded-full px-6 py-2.5 shadow-lg">
-                <Boxes className="w-4 h-4 mr-2" />
                 Enter Room
               </Button>
             </Link>

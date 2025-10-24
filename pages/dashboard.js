@@ -11,7 +11,6 @@ import MonthlySummaryCard from '@/components/dashboard/MonthlySummaryCard';
 import UpcomingVetCard from '@/components/dashboard/UpcomingVetCard';
 import ActivityTimelineCard from '@/components/dashboard/ActivityTimelineCard';
 import PrivacyControlsCard from '@/components/dashboard/PrivacyControlsCard';
-import TabPlaceholder from '@/components/dashboard/TabPlaceholder';
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
 import {
   AlertCircle,
@@ -332,12 +331,6 @@ export default function Dashboard() {
                 >
                   {/* Monthly Summary & Analytics */}
                   <MonthlySummaryCard stats={monthlyStats} />
-                  
-                  <TabPlaceholder 
-                    icon={BarChart3}
-                    title="Additional Analytics"
-                    description="Charts and trends for pet health and activity will be displayed here"
-                  />
                 </motion.div>
               </TabsContent>
             )}
@@ -356,12 +349,6 @@ export default function Dashboard() {
                 >
                   {/* Privacy & Sharing Controls */}
                   <PrivacyControlsCard />
-                  
-                  <TabPlaceholder 
-                    icon={Settings}
-                    title="Additional Settings"
-                    description="Manage pet information, devices, and other settings here"
-                  />
                 </motion.div>
               </TabsContent>
             )}

@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { TrendingUp, Footprints, Moon, Heart, MapPin } from "lucide-react";
+import { Footprints, Moon, Heart, MapPin } from "lucide-react";
 
 /**
  * MonthlySummaryCard Component
@@ -15,9 +15,6 @@ export default function MonthlySummaryCard({ stats }) {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2 text-[#4A4458] font-semibold">
-              <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
-                <TrendingUp className="w-4 h-4 text-[#F85BB4]" />
-              </div>
               Monthly Summary
             </CardTitle>
             <p className="text-sm text-[#6B6B6B] mt-2 font-medium">Last 30 days of verified activity</p>
