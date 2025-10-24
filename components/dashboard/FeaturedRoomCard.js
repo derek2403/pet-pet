@@ -30,7 +30,7 @@ export default function FeaturedRoomCard() {
               View and interact with your pet's cozy space in real-time.
             </p>
             <Link href="/room">
-              <Button className="bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl transition-all duration-300 text-white font-medium rounded-full px-6 py-2.5 shadow-lg">
+              <Button className="bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl transition-all duration-300 text-white font-bold text-lg rounded-full px-10 py-6 shadow-lg">
                 Enter Room
               </Button>
             </Link>
