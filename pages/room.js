@@ -17,14 +17,14 @@ export default function Room() {
   return (
     <>
       <BackgroundGradientAnimation
-        gradientBackgroundStart="#FFF7FB"
-        gradientBackgroundEnd="#EEF2FF"
-        firstColor="rgb(255, 183, 197)"
-        secondColor="199, 210, 254"
-        thirdColor="190, 242, 234"
-        fourthColor="254, 215, 170"
-        fifthColor="221, 214, 254"
-        pointerColor="255, 236, 244"
+        gradientBackgroundStart="#FCE7F3" /* softer pink */
+        gradientBackgroundEnd="#DBEAFE" /* pale blue */
+        firstColor="rgb(255, 228, 232)" /* blush */
+        secondColor="221, 214, 254" /* lavender */
+        thirdColor="186, 230, 253" /* sky */
+        fourthColor="199, 210, 254" /* periwinkle */
+        fifthColor="255, 200, 210" /* light rose */
+        pointerColor="240, 249, 255" /* very light azure */
         size="120%"
         blendingValue="normal"
         interactive={true}
