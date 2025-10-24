@@ -21,7 +21,7 @@ export default function InstructionsModal({ open, onOpenChange }) {
           <Info className="w-4 h-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-white/95 backdrop-blur-md border-[#E8E4F0]/50 shadow-2xl overflow-hidden">
+      <DialogContent className="sm:max-w-md bg-white/95 backdrop-blur-md border-[#E8E4F0]/50 shadow-2xl overflow-hidden" style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}>
         {/* Decorative background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFE4E8]/30 rounded-full blur-3xl" />
