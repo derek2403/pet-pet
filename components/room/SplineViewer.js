@@ -243,6 +243,22 @@ export default function SplineViewer({
     } catch (_) {
       // Non-fatal; wheel/touch listeners already prevent page scroll
     }
+
+    // Raise the camera slightly on the Y axis by default for a better view
+    try {
+      const controls = controlsRef.current;
+      const cameraObj =
+        (controls && controls.object) ||
+        splineApp?._camera ||
+        splineApp?._runtime?._camera ||
+        null;
+      if (cameraObj && cameraObj.position && typeof cameraObj.position.y === 'number') {
+        cameraObj.position.y += 100;
+        if (controls && typeof controls.update === 'function') {
+          controls.update();
+        }
+      }
+    } catch (_) {}
   }
 
   // Emit helper that targets the calibrated dog object and falls back to name-based emit
