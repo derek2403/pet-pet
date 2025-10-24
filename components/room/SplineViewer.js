@@ -199,7 +199,7 @@ export default function SplineViewer({ sceneUrl, maxStepDistance = 8 }) {
           // Skip if component unmounted
           if (!isMountedRef.current) return;
           cycleAnimations(splineApp, shibainu || armature);
-        }, 3000); // Cycle every 3 seconds
+        }, 2000); // Cycle every 2 second
       } else {
         console.log('Dog not found. First 10 object names:', 
           allObjects.slice(0, 10).map(obj => obj.name || 'unnamed')
@@ -325,12 +325,12 @@ export default function SplineViewer({ sceneUrl, maxStepDistance = 8 }) {
             };
             requestAnimationFrame(lockFinalPose);
 
-            // Wait 2 seconds before allowing next walk (cooldown period)
-            console.log('⏰ Starting 2-second cooldown before next walk...');
+            // Wait 1 second before allowing next walk (cooldown period)
+            console.log('⏰ Starting 1-second cooldown before next walk...');
             setTimeout(() => {
               isWalkingRef.current = false;
               console.log('✅ Cooldown complete - dog can walk again');
-            }, 2000); // 2 second cooldown
+            }, 1000); // 1 second cooldown
             
           } catch (e) {
             console.error('Error sending mouseUp:', e);
@@ -613,7 +613,7 @@ export default function SplineViewer({ sceneUrl, maxStepDistance = 8 }) {
           
           {/* Selected Object Overlay */}
           {selectedObject && (
-            <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md rounded-xl p-4 shadow-lg border border-[#E8E4F0]/50">
+            <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-md rounded-xl p-4 shadow-lg border border-[#E8E4F0]/50">
               <p className="text-sm font-semibold text-[#6B6B6B]">Selected Object:</p>
               <p className="text-lg font-bold text-[#F85BB4]">{selectedObject}</p>
             </div>
