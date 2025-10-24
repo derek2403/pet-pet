@@ -140,9 +140,9 @@ export function handleFeedDog(params) {
 
   // Bowl location coordinates
   const bowlLocation = {
-    x: 125,
-    y: -65, // Use floor level from room bounds
-    z: 115
+    x: 142,
+    y: -65, // Floor level
+    z: 176
   };
 
   // Get current position
@@ -204,6 +204,7 @@ export function handleFeedDog(params) {
       if (remaining <= stepDist + 0.5) {
         // Arrived at bowl
         shibainu.position.x = bowlLocation.x;
+        shibainu.position.y = bowlLocation.y;
         shibainu.position.z = bowlLocation.z;
         if (shibainu.rotation) {
           shibainu.rotation.y = targetRotation;
