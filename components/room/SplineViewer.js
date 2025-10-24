@@ -304,9 +304,9 @@ export default function SplineViewer({
         console.log('Starting walk cycle');
         isWalkingRef.current = true; // Set walking flag
         
-        // Reset to a known idle then emit mouseDown (guards against stuck state)
+        // Reset to a known idle first; we will start walk AFTER a short pre-rotation
+        // This prevents the dog from sliding while turning.
         emitDogEvent(splineApp, 'mouseUp');
-        requestAnimationFrame(() => emitDogEvent(splineApp, 'mouseDown'));
 
         // Safety: ensure walk can't run forever if mouseUp is missed.
         // Compute a generous timeout based on max step distance and walk speed
@@ -321,8 +321,9 @@ export default function SplineViewer({
           emitDogEvent(splineApp, 'mouseUp');
         }, maxDurationMs);
         
-        // Move the dog to a new position and emit mouseUp immediately on arrival
-        moveDogToRandomPosition(shibainu, () => {
+        // Move the dog to a new position; this function will handle
+        // turning first, then starting walk, and finally stopping on arrival.
+        moveDogToRandomPosition(shibainu, splineApp, () => {
           try {
             // Clear safety timeout and send single, authoritative mouseUp
             if (walkTimeoutRef.current) {
@@ -377,7 +378,7 @@ export default function SplineViewer({
   // ensureIdleState removed; idle is controlled via Spline events
 
   // Move the dog to a random position in the room
-  function moveDogToRandomPosition(shibainu, onComplete) {
+  function moveDogToRandomPosition(shibainu, splineApp, onComplete) {
     if (!shibainu) return;
     
     try {
@@ -460,11 +461,45 @@ export default function SplineViewer({
       const dz = newPos.z - startPos.z;
       const targetRotation = Math.atan2(dx, dz);
 
-      // Constant-speed movement with overshoot clamp so we land exactly on target
-      const unitsPerSecond = 18; // slightly slower to better match foot animation
+      // Helper to normalize angles into [-PI, PI]
+      const normalizeAngle = (a) => {
+        let ang = a;
+        while (ang > Math.PI) ang -= Math.PI * 2;
+        while (ang < -Math.PI) ang += Math.PI * 2;
+        return ang;
+      };
+
+      // Phase 1: pre-rotation in place before starting to walk
+      const currentY = shibainu?.rotation?.y || 0;
+      let remainingTurn = normalizeAngle(targetRotation - currentY);
+      const needTurn = Math.abs(remainingTurn) > 0.03; // small threshold
+      const maxTurnSpeed = 7.5; // rad/sec – quick but noticeable
+      let lastTurnTs = performance.now();
+
+      function rotateInPlace(nowTs) {
+        if (!isMountedRef.current) return;
+        const dt = Math.min(0.05, Math.max(0, (nowTs - lastTurnTs) / 1000));
+        lastTurnTs = nowTs;
+        if (shibainu?.rotation) {
+          const step = Math.sign(remainingTurn) * Math.min(Math.abs(remainingTurn), maxTurnSpeed * dt);
+          shibainu.rotation.y += step;
+          remainingTurn -= step;
+        }
+        if (Math.abs(remainingTurn) <= 0.01) {
+          if (shibainu?.rotation) shibainu.rotation.y = targetRotation;
+          // Start walking only AFTER the turn finishes
+          emitDogEvent(splineApp, 'mouseDown');
+          requestAnimationFrame(animateMove);
+          return;
+        }
+        requestAnimationFrame(rotateInPlace);
+      }
+
+      // Phase 2: constant-speed movement with overshoot clamp so we land exactly on target
+      const unitsPerSecond = 18; // tuned to match footstep rate
       let lastTs = performance.now();
 
-      function animate(nowTs) {
+      function animateMove(nowTs) {
         if (!isMountedRef.current) return; // stop if unmounted
 
         const dt = Math.min(0.05, Math.max(0, (nowTs - lastTs) / 1000)); // clamp dt to avoid huge jumps
@@ -507,10 +542,16 @@ export default function SplineViewer({
           console.log('Dog position update:', {x: shibainu.position.x, z: shibainu.position.z});
         }
 
-        requestAnimationFrame(animate);
+        requestAnimationFrame(animateMove);
       }
 
-      requestAnimationFrame(animate);
+      // Start pre-rotation if needed; otherwise begin walking immediately
+      if (needTurn) {
+        requestAnimationFrame(rotateInPlace);
+      } else {
+        emitDogEvent(splineApp, 'mouseDown');
+        requestAnimationFrame(animateMove);
+      }
       console.log('Starting dog movement from', startPos, 'to', newPos);
     } catch (error) {
       console.error('Error moving dog:', error);
@@ -676,4 +717,5 @@ export default function SplineViewer({
     </Card>
   );
 }
+
 
