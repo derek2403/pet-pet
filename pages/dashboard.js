@@ -188,13 +188,13 @@ export default function Dashboard() {
   return (
     <>
       <BackgroundGradientAnimation
-        gradientBackgroundStart="#FFF7FB" /* warm pink tint */
-        gradientBackgroundEnd="#EEF2FF" /* cool lavender tint */
-        firstColor="rgb(255, 183, 197)" /* soft rose blob */
-        secondColor="199, 210, 254" /* periwinkle */
+        gradientBackgroundStart="#FFE3EA" /* soft pink like screenshot left */
+        gradientBackgroundEnd="#C9D4FF" /* pastel lavender/blue like screenshot right */
+        firstColor="rgb(221, 214, 254)" /* soft purple */
+        secondColor="254, 215, 170" /* peach */
         thirdColor="190, 242, 234" /* mint/teal */
-        fourthColor="254, 215, 170" /* peach */
-        fifthColor="221, 214, 254" /* soft purple */
+        fourthColor="199, 210, 254" /* periwinkle */
+        fifthColor="255, 183, 197" /* soft rose blob */
         pointerColor="255, 236, 244" /* very light pink pointer */
         size="120%"
         blendingValue="normal"
