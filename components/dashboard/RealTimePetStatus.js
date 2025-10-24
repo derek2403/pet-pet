@@ -29,7 +29,7 @@ export default function RealTimePetStatus({ currentActivity }) {
               <div className="relative">
                 <div className="absolute inset-0 bg-[#F85BB4]/12 rounded-2xl blur-md" />
                 <div className="relative p-4 bg-white rounded-2xl shadow-sm">
-                  <Footprints className="w-8 h-8 text-[#F85BB4] animate-pulse" />
+                  <Footprints className="w-8 h-8 text-[#F85BB4] animate-double-pulse" />
                 </div>
               </div>
               <div>
