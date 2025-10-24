@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Box, Monitor, Armchair, Lightbulb, Flower, ChevronDown, ChevronUp } from "lucide-react";
+import { Box, Monitor, Armchair, Lightbulb, Dog, ChevronDown, ChevronUp } from "lucide-react";
 
 /**
  * RoomObjectsList Component
@@ -17,10 +17,10 @@ export default function RoomObjectsList() {
       gradientFrom: "#FFE4E8",
       gradientTo: "#FFD4E5",
       iconColor: "#D4A5A5",
-      badgeText: "Interactive",
-      badgeBorder: "border-pink-200",
-      badgeColor: "text-[#D4A5A5]",
-      badgeBg: "bg-pink-50"
+      badgeText: "Static",
+      badgeBorder: "border-purple-300",
+      badgeColor: "text-[#9B7FB5]",
+      badgeBg: "bg-purple-100"
     },
     {
       name: "Gaming Chair",
@@ -29,9 +29,9 @@ export default function RoomObjectsList() {
       gradientTo: "#F0E8FF",
       iconColor: "#C5B5D4",
       badgeText: "Static",
-      badgeBorder: "border-purple-200",
-      badgeColor: "text-[#C5B5D4]",
-      badgeBg: "bg-purple-50"
+      badgeBorder: "border-purple-300",
+      badgeColor: "text-[#9B7FB5]",
+      badgeBg: "bg-purple-100"
     },
     {
       name: "Desk Lamp",
@@ -39,21 +39,21 @@ export default function RoomObjectsList() {
       gradientFrom: "#FFF5F7",
       gradientTo: "#FFEEF5",
       iconColor: "#E4B5C5",
-      badgeText: "Animated",
-      badgeBorder: "border-pink-200",
-      badgeColor: "text-[#E4B5C5]",
-      badgeBg: "bg-pink-50"
+      badgeText: "Static",
+      badgeBorder: "border-purple-300",
+      badgeColor: "text-[#9B7FB5]",
+      badgeBg: "bg-purple-100"
     },
     {
-      name: "Plant Pot",
-      icon: Flower,
+      name: "Dog",
+      icon: Dog,
       gradientFrom: "#FFE4E8",
       gradientTo: "#FFD4E5",
       iconColor: "#D4A5A5",
-      badgeText: "Decoration",
-      badgeBorder: "border-pink-200",
-      badgeColor: "text-[#D4A5A5]",
-      badgeBg: "bg-pink-50"
+      badgeText: "Interactive",
+      badgeBorder: "border-pink-300",
+      badgeColor: "text-[#E91E8C]",
+      badgeBg: "bg-pink-100"
     }
   ];
 
@@ -104,7 +104,7 @@ export default function RoomObjectsList() {
                 </div>
                 <Badge 
                   variant="outline" 
-                  className={`${obj.badgeBorder} ${obj.badgeColor} ${obj.badgeBg} shadow-sm font-semibold`}
+                  className={`${obj.badgeBorder} ${obj.badgeColor} ${obj.badgeBg} shadow-sm font-bold`}
                 >
                   {obj.badgeText}
                 </Badge>
