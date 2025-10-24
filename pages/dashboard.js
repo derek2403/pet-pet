@@ -33,7 +33,7 @@ import {
  */
 export default function Dashboard() {
   // State for pet name editing
-  const [petName, setPetName] = useState("Buddy");
+  const [petName, setPetName] = useState("Shibaba");
   
   // Track active tab for animations
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -96,15 +96,15 @@ export default function Dashboard() {
 
   // Mock data
   const pets = [
-    { id: 1, name: "Buddy", ens: "buddy.petpet.eth" },
+    { id: 1, name: "Shibaba", ens: "shibaba.petpet.eth" },
     { id: 2, name: "Luna", ens: "luna.petpet.eth" },
   ];
 
   const selectedPet = {
     name: petName,
-    ens: "buddy.petpet.eth",
+    ens: "shibaba.petpet.eth",
     species: "Dog",
-    breed: "Golden Retriever",
+    breed: "Shiba Inu",
     status: "Active",
     deviceId: "Device #7892",
     deviceStatus: "connected",
@@ -170,7 +170,7 @@ export default function Dashboard() {
   const alerts = [
     {
       type: "warning",
-      message: "Buddy missed his last meal window.",
+      message: "Shibaba missed his last meal window.",
       icon: AlertCircle,
     },
     {

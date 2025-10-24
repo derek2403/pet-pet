@@ -324,7 +324,7 @@ async function dominantRGB(img: HTMLImageElement) {
   {
     "id": "1",
     "species": "dog",
-    "ens": "buddy.petpet.eth",
+    "ens": "shibaba.petpet.eth",
     "status": "idle",
     "variants": {
       "ears": "Flop",
