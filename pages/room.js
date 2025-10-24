@@ -74,12 +74,7 @@ export default function Room() {
                 onClick={() => console.log('Feed action')}
                 className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
               >
-                <div className="relative">
-                  <div className="absolute inset-0 bg-white/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative p-3 bg-white/20 rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
-                    <UtensilsCrossed className="w-6 h-6 text-white" />
-                  </div>
-                </div>
+                <UtensilsCrossed className="w-7 h-7 text-white" />
                 <div className="text-sm font-bold text-white">Feed</div>
               </Button>
 
@@ -88,12 +83,7 @@ export default function Room() {
                 onClick={() => console.log('Play action')}
                 className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
               >
-                <div className="relative">
-                  <div className="absolute inset-0 bg-white/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative p-3 bg-white/20 rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
-                    <Gamepad2 className="w-6 h-6 text-white" />
-                  </div>
-                </div>
+                <Gamepad2 className="w-7 h-7 text-white" />
                 <div className="text-sm font-bold text-white">Play</div>
               </Button>
 
@@ -102,12 +92,7 @@ export default function Room() {
                 onClick={() => console.log('Walk action')}
                 className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
               >
-                <div className="relative">
-                  <div className="absolute inset-0 bg-white/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative p-3 bg-white/20 rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
-                    <Footprints className="w-6 h-6 text-white" />
-                  </div>
-                </div>
+                <Footprints className="w-7 h-7 text-white" />
                 <div className="text-sm font-bold text-white">Walk</div>
               </Button>
 
@@ -119,12 +104,7 @@ export default function Room() {
                 }}
                 className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
               >
-                <div className="relative">
-                  <div className="absolute inset-0 bg-white/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative p-3 bg-white/20 rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
-                    <Heart className="w-6 h-6 text-white" />
-                  </div>
-                </div>
+                <Heart className="w-7 h-7 text-white" />
                 <div className="text-sm font-bold text-white">Pet</div>
               </Button>
             </div>
