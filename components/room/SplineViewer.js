@@ -44,7 +44,7 @@ export default function SplineViewer({ sceneUrl, maxStepDistance = 8 }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSoundOn, setIsSoundOn] = useState(false);
-  const [selectedObject, setSelectedObject] = useState(null);
+  const [selectedObject, setSelectedObject] = useState('Happy');
   const [isPointerOverViewer, setIsPointerOverViewer] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const isWalkingRef = useRef(false); // Track if dog is currently walking or in cooldown
@@ -191,10 +191,9 @@ export default function SplineViewer({ sceneUrl, maxStepDistance = 8 }) {
         dogEventTargetRef.current = shibainu || armature || null;
         if (dogEventTargetRef.current) {
           console.log('Event target set to:', dogEventTargetRef.current.name);
-          // Show selected object badge by default on load (bottom-right)
+          // Show dog status badge by default on load
           try {
-            const defaultName = dogEventTargetRef.current.name || 'Shibainu';
-            setSelectedObject(defaultName);
+            setSelectedObject('Happy');
           } catch (_) {}
         }
         
@@ -504,8 +503,7 @@ export default function SplineViewer({ sceneUrl, maxStepDistance = 8 }) {
 
   // Handle object interaction
   function onSplineMouseDown(e) {
-    if (e.target.name) {
-      setSelectedObject(e.target.name);
+    if (e.target?.name) {
       console.log('Clicked on:', e.target.name);
       // If the clicked object looks like the dog, remember it as event target
       const nameLower = String(e.target.name).toLowerCase();
@@ -618,8 +616,8 @@ export default function SplineViewer({ sceneUrl, maxStepDistance = 8 }) {
           
           {/* Selected Object Overlay */}
           {selectedObject && (
-            <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-md rounded-xl p-4 shadow-lg border border-[#E8E4F0]/50">
-              <p className="text-sm font-semibold text-[#6B6B6B]">Selected Object:</p>
+            <div className="absolute bottom-4 right-4 z-50 bg-white/95 backdrop-blur-md rounded-xl p-4 shadow-lg border border-[#E8E4F0]/50 min-w-[240px] pointer-events-none">
+              <p className="text-sm font-semibold text-[#6B6B6B]">Dog Status:</p>
               <p className="text-lg font-bold text-[#F85BB4]">{selectedObject}</p>
             </div>
           )}
