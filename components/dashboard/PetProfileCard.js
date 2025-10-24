@@ -131,15 +131,21 @@ export default function PetProfileCard({ pet, onPetNameChange }) {
             <div 
               className="relative cursor-pointer"
               onClick={() => {
-                // If we have the original image, use that for editing
-                if (originalImage) {
-                  setImageSrc(originalImage);
+                // Check if we have an image to edit (either uploaded or the default pet avatar)
+                const imageToEdit = originalImage || (croppedImage && (croppedImage.startsWith('/') || croppedImage.startsWith('http') || croppedImage.startsWith('blob:')) ? croppedImage : null);
+                
+                if (imageToEdit) {
+                  // If no original image stored yet, save the current image as original
+                  if (!originalImage && croppedImage && (croppedImage.startsWith('/') || croppedImage.startsWith('http') || croppedImage.startsWith('blob:'))) {
+                    setOriginalImage(croppedImage);
+                  }
+                  setImageSrc(imageToEdit);
                   // Restore the last saved crop and zoom settings
                   setCrop(savedCrop);
                   setZoom(savedZoom);
                   setIsEditingImage(true);
                 } else {
-                  // Otherwise trigger file upload
+                  // No image available, trigger file upload
                   document.getElementById('avatar-upload').click();
                 }
               }}
@@ -234,7 +240,10 @@ export default function PetProfileCard({ pet, onPetNameChange }) {
 
       {/* Image Cropping Dialog */}
       <Dialog open={isEditingImage} onOpenChange={setIsEditingImage}>
-        <DialogContent className="max-w-2xl bg-white/95 backdrop-blur-md border-[#E8E4F0]/50">
+        <DialogContent 
+          className="max-w-2xl bg-white/95 backdrop-blur-md border-[#E8E4F0]/50"
+          style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}
+        >
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-[#4A4458]">Crop Profile Picture</DialogTitle>
           </DialogHeader>
