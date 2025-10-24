@@ -29,14 +29,8 @@ export default function InstructionsModal({ open, onOpenChange }) {
         </div>
         
         <DialogHeader className="relative">
-          <DialogTitle className="flex items-center gap-3 text-[#4A4458] text-xl font-bold">
-            <div className="relative">
-              <div className="absolute inset-0 bg-[#FF2D95]/20 rounded-xl blur-lg" />
-              <div className="relative p-2 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-xl shadow-md">
-                <Info className="w-5 h-5 text-[#FF2D95]" />
-              </div>
-            </div>
-            How to interact with the 3D Room
+          <DialogTitle className="text-[#4A4458] text-xl font-bold">
+            How to interact with your pet's room
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-3 py-4 relative">
@@ -49,12 +43,8 @@ export default function InstructionsModal({ open, onOpenChange }) {
             description="Zoom in and out"
           />
           <InstructionItem
-            title="Click Objects"
-            description="Select interactive elements"
-          />
-          <InstructionItem
-            title="Panning"
-            description="Disabled for smoother navigation"
+            title="Action Buttons"
+            description="Use Feed, Play, Walk, and Pet buttons to interact with your pet"
           />
         </div>
       </DialogContent>
