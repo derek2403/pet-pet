@@ -19,6 +19,7 @@ import {
 import { emitDogEvent, findDogObject } from './helpers';
 import { moveDogToRandomPosition } from './dogMovement';
 import { handleFeedDog } from './dogFeeding';
+import { handlePlayDog } from './dogPlaying';
 
 // Dynamically import Spline component for better performance
 const Spline = dynamic(() => import('@splinetool/react-spline'), {
@@ -42,7 +43,8 @@ export default function SplineViewer({
   maxStepDistance = 8, 
   showNotification = false, 
   notificationMessage = '',
-  onFeedReady = null // Callback to pass the feed function to parent
+  onFeedReady = null, // Callback to pass the feed function to parent
+  onPlayReady = null  // Callback to pass the play function to parent
 }) {
   // Refs for Spline and controls
   const splineRef = useRef();
@@ -59,6 +61,8 @@ export default function SplineViewer({
   const isWalkingRef = useRef(false); // Track if dog is currently walking or in cooldown
   const isFeedingRef = useRef(false); // Track if dog is currently feeding
   const feedQueuedRef = useRef(false); // Track if feed action is queued
+  const isPlayingRef = useRef(false); // Track if dog is currently playing
+  const playQueuedRef = useRef(false); // Track if play action is queued
   
   // UI state
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -162,7 +166,7 @@ export default function SplineViewer({
   // Cycle through different animations and move the dog around
   function cycleAnimations(splineApp, shibainu) {
     // Check if dog is already walking, feeding, or in cooldown
-    if (isWalkingRef.current || isFeedingRef.current) {
+    if (isWalkingRef.current || isFeedingRef.current || isPlayingRef.current) {
       console.log('⏸️ Skipping cycle - dog is busy (walking, feeding, or in cooldown)');
       return;
     }
@@ -242,6 +246,12 @@ export default function SplineViewer({
                   setTimeout(() => {
                     handleFeed();
                   }, 100);
+              } else if (playQueuedRef.current) {
+                console.log('📋 Executing queued play action...');
+                playQueuedRef.current = false;
+                setTimeout(() => {
+                  handlePlay();
+                }, 100);
                 }
               }, 1000); // 1 second cooldown
               
@@ -271,6 +281,20 @@ export default function SplineViewer({
       isFeedingRef,
       isWalkingRef,
       feedQueuedRef,
+      isMountedRef,
+      maxStepDistance
+    });
+  }
+
+  // Wrapper function for handlePlayDog with necessary refs
+  function handlePlay() {
+    handlePlayDog({
+      splineApp: splineRef.current,
+      dogEventTarget: dogEventTargetRef.current,
+      isPlayingRef,
+      isWalkingRef,
+      isFeedingRef,
+      playQueuedRef,
       isMountedRef
     });
   }
@@ -284,6 +308,9 @@ export default function SplineViewer({
     // Pass the feed function to parent component
     if (typeof onFeedReady === 'function') {
       onFeedReady(handleFeed);
+    }
+    if (typeof onPlayReady === 'function') {
+      onPlayReady(handlePlay);
     }
     
     // Set initial zoom

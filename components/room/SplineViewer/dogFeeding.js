@@ -10,8 +10,9 @@ import { emitDogEvent, normalizeAngle, findDogObject } from './helpers';
  * @param {Object} splineApp - The Spline application instance
  * @param {Object} dogEventTarget - The dog event target
  * @param {Object} isFeedingRef - Ref tracking if dog is feeding
+ * @param {Object} [lockPose] - Optional pose locker { target, yaw, ms, isMountedRef }
  */
-function triggerEatingAnimation(splineApp, dogEventTarget, isFeedingRef) {
+function triggerEatingAnimation(splineApp, dogEventTarget, isFeedingRef, lockPose) {
   console.log('🍖 Triggering eating animation with "=" key press...');
   
   // Spline listens to keyboard events on the window/document/canvas
@@ -80,6 +81,25 @@ function triggerEatingAnimation(splineApp, dogEventTarget, isFeedingRef) {
 }
 
 /**
+ * Keep the dog's yaw fixed for a duration (to prevent the eat clip from twisting it)
+ * @param {Object} target - Spline object with rotation
+ * @param {number} yaw - Target yaw in radians
+ * @param {number} ms - How long to hold
+ * @param {Object} isMountedRef - Mount guard
+ */
+function lockYawForMs(target, yaw, ms, isMountedRef) {
+  const holdUntil = performance.now() + Math.max(0, ms || 0);
+  const hold = (ts) => {
+    if (!isMountedRef?.current) return;
+    if (target?.rotation) {
+      target.rotation.y = yaw;
+    }
+    if (ts < holdUntil) requestAnimationFrame(hold);
+  };
+  requestAnimationFrame(hold);
+}
+
+/**
  * Main feed handler - moves dog to bowl and triggers eating animation
  * @param {Object} params - Parameters object
  * @param {Object} params.splineApp - The Spline application instance
@@ -89,6 +109,7 @@ function triggerEatingAnimation(splineApp, dogEventTarget, isFeedingRef) {
  * @param {Object} params.isWalkingRef - Ref tracking if dog is walking
  * @param {Object} params.feedQueuedRef - Ref tracking if feed is queued
  * @param {Object} params.isMountedRef - Ref to check if component is mounted
+ * @param {number} params.maxStepDistance - Maximum step distance allowed for a single move
  */
 export function handleFeedDog(params) {
   const {
@@ -98,7 +119,8 @@ export function handleFeedDog(params) {
     isFeedingRef,
     isWalkingRef,
     feedQueuedRef,
-    isMountedRef
+    isMountedRef,
+    maxStepDistance
   } = params;
 
   // If dog is already feeding, ignore the request
@@ -131,13 +153,6 @@ export function handleFeedDog(params) {
     return;
   }
 
-  // Set feeding flag to prevent other animations
-  isFeedingRef.current = true;
-  console.log('🍖 Starting feed sequence...');
-
-  // Stop current animation and go to idle
-  emitDogEvent(splineApp, 'mouseUp', dogEventTarget);
-
   // Bowl location coordinates
   const bowlLocation = {
     x: 142,
@@ -151,6 +166,23 @@ export function handleFeedDog(params) {
     y: shibainu.position?.y || 0,
     z: shibainu.position?.z || 0
   };
+
+  // Enforce distance gate: only allow feeding if target within max step distance
+  const stepLimit = typeof maxStepDistance === 'number' && maxStepDistance > 0 ? maxStepDistance : 12;
+  const distToBowl = Math.hypot(bowlLocation.x - startPos.x, bowlLocation.z - startPos.z);
+  if (distToBowl > stepLimit) {
+    // Too far: queue feed and exit. Random walk cycles will re-attempt when closer.
+    feedQueuedRef.current = true;
+    console.log(`⛔ Too far to feed (dist=${distToBowl.toFixed(2)} > stepLimit=${stepLimit}). Queued feed.`);
+    return;
+  }
+
+  // Set feeding flag to prevent other animations
+  isFeedingRef.current = true;
+  console.log('🍖 Starting feed sequence...');
+
+  // Stop current animation and go to idle
+  emitDogEvent(splineApp, 'mouseUp', dogEventTarget);
 
   console.log('🐕 Dog moving from', startPos, 'to bowl at', bowlLocation);
 
@@ -217,6 +249,8 @@ export function handleFeedDog(params) {
         // Wait a moment, then trigger eating animation
         setTimeout(() => {
           console.log('🍖 Starting eating animation...');
+          // Keep facing the bowl while eating so the nose stays in the bowl
+          lockYawForMs(shibainu, targetRotation, 3300, isMountedRef);
           triggerEatingAnimation(splineApp, dogEventTarget, isFeedingRef);
         }, 300);
         return;

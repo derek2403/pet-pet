@@ -18,9 +18,10 @@ export default function Room() {
   const [notificationMessage, setNotificationMessage] = useState('');
   // State to store the feed function from SplineViewer
   const [feedDogFunction, setFeedDogFunction] = useState(null);
+  const [playDogFunction, setPlayDogFunction] = useState(null);
   
   // Cache-busting parameter forces browser to fetch updated scene with dog
-  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=32";
+  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=33";
 
   // Helper function to show popup notification with auto-fade
   const showPopupNotification = (message) => {
@@ -68,6 +69,7 @@ export default function Room() {
               showNotification={showNotification}
               notificationMessage={notificationMessage}
               onFeedReady={(feedFunc) => setFeedDogFunction(() => feedFunc)}
+              onPlayReady={(playFunc) => setPlayDogFunction(() => playFunc)}
             />
 
             {/* Pet Action Buttons */}
@@ -91,7 +93,14 @@ export default function Room() {
 
               {/* Play Button */}
               <Button
-                onClick={() => console.log('Play action')}
+                onClick={() => {
+                  console.log('Play action triggered');
+                  if (playDogFunction) {
+                    playDogFunction();
+                  } else {
+                    console.log('Play function not ready yet');
+                  }
+                }}
                 className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
               >
                 <Gamepad2 className="w-10 h-10 text-white" />
