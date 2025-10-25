@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
-import { Boxes, Home as HomeIcon } from "lucide-react";
+import Image from 'next/image';
 
 /**
  * FeaturedRoomCard Component
@@ -35,7 +35,7 @@ export default function FeaturedRoomCard() {
           <div className="hidden md:block relative">
             <div className="absolute inset-0 bg-[#FF2D95]/20 rounded-2xl blur-xl" />
             <div className="relative p-6 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg group-hover:rotate-3 group-hover:scale-110 transition-all duration-500">
-              <HomeIcon className="w-24 h-24 text-[#F85BB4]" />
+              <Image src="/house.png" alt="House" width={96} height={96} className="w-24 h-24" />
             </div>
           </div>
         </div>
