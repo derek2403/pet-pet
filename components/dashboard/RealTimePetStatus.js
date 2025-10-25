@@ -7,7 +7,7 @@ import { Activity, Footprints, Clock, MapPin, CheckCircle2 } from "lucide-react"
  */
 export default function RealTimePetStatus({ currentActivity }) {
   return (
-    <Card className="bg-white/60 backdrop-blur-md border-[#E8E4F0]/50 rounded-2xl lg:col-span-2 shadow-lg hover:shadow-xl transition-all duration-300 animate-in fade-in slide-in-from-left-4 duration-500 group overflow-hidden">
+    <Card className="bg-white/60 backdrop-blur-md border-[#E8E4F0]/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-in fade-in slide-in-from-left-4 duration-500 group overflow-hidden">
       {/* Background gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#FFE4E8]/10 via-transparent to-[#F8F5FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
@@ -28,12 +28,12 @@ export default function RealTimePetStatus({ currentActivity }) {
             <div className="flex items-center gap-4">
               <div className="relative">
                 <div className="absolute inset-0 bg-[#F85BB4]/12 rounded-2xl blur-md" />
-                <div className="relative p-4 bg-white rounded-2xl shadow-sm">
-                  <Footprints className="w-8 h-8 text-[#F85BB4] animate-double-pulse" />
+                <div className="relative p-3 bg-white rounded-xl shadow-sm">
+                  <Footprints className="w-7 h-7 text-[#F85BB4] animate-double-pulse" />
                 </div>
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-[#4A4458] tracking-tight">{currentActivity.type}</h3>
+                <h3 className="text-lg font-bold text-[#4A4458] tracking-tight">{currentActivity.type}</h3>
                 <p className="text-[#6B6B6B] flex items-center gap-2 mt-1.5 font-medium">
                   <Clock className="w-4 h-4 text-[#D4A5A5]" />
                   <span className="text-sm">Duration: {currentActivity.duration}</span>

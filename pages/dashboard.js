@@ -286,11 +286,11 @@ export default function Dashboard() {
             {/* Featured 3D Room Card */}
             <FeaturedRoomCard />
 
-            {/* Real-Time Pet Status - now full width since alerts moved to popup */}
-            <RealTimePetStatus currentActivity={currentActivity} />
-
-            {/* Upcoming Vet Appointment */}
-            <UpcomingVetCard appointment={nextVetVisit} />
+            {/* Real-Time Pet Status & Upcoming Vet Appointment Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <RealTimePetStatus currentActivity={currentActivity} />
+              <UpcomingVetCard appointment={nextVetVisit} />
+            </div>
                 </motion.div>
               </TabsContent>
             )}
