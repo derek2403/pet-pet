@@ -6,7 +6,6 @@ import PetSelector from '@/components/dashboard/PetSelector';
 import PetProfileCard from '@/components/dashboard/PetProfileCard';
 import FeaturedRoomCard from '@/components/dashboard/FeaturedRoomCard';
 import RealTimePetStatus from '@/components/dashboard/RealTimePetStatus';
-import AlertsCard from '@/components/dashboard/AlertsCard';
 import MonthlySummaryCard from '@/components/dashboard/MonthlySummaryCard';
 import UpcomingVetCard from '@/components/dashboard/UpcomingVetCard';
 import ActivityTimelineCard from '@/components/dashboard/ActivityTimelineCard';
@@ -202,9 +201,9 @@ export default function Dashboard() {
       />
       {/* Content wrapper above background */}
       <div className="relative z-10">
-        {/* Header with navigation and wallet */}
+        {/* Header with navigation and wallet - pass alerts to the header for the popup */}
         <div className="container mx-auto px-6 py-6" style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}>
-        <DashboardHeader />
+        <DashboardHeader alerts={alerts} />
 
         {/* Main Content with Tabs */}
         <Tabs 
@@ -287,11 +286,8 @@ export default function Dashboard() {
             {/* Featured 3D Room Card */}
             <FeaturedRoomCard />
 
-            {/* Real-Time Pet Status & Alerts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <RealTimePetStatus currentActivity={currentActivity} />
-              <AlertsCard alerts={alerts} />
-            </div>
+            {/* Real-Time Pet Status - now full width since alerts moved to popup */}
+            <RealTimePetStatus currentActivity={currentActivity} />
 
             {/* Upcoming Vet Appointment */}
             <UpcomingVetCard appointment={nextVetVisit} />
