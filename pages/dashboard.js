@@ -106,7 +106,7 @@ export default function Dashboard() {
     status: "Active",
     deviceId: "Device #7892",
     deviceStatus: "connected",
-    avatar: "/shiba.jpg",
+    avatar: "/shiba2.jpeg",
   };
 
   const currentActivity = {
@@ -249,7 +249,7 @@ export default function Dashboard() {
               value="insights"
               onMouseDown={(e) => { e.preventDefault(); movePillToTab('insights'); setActiveTab('insights'); }}
               onTouchStart={() => { movePillToTab('insights'); setActiveTab('insights'); }}
-              className="relative z-10 rounded-xl shadow-none active:shadow-none focus:shadow-none data-[state=active]:shadow-none data-[state=active]:text-white data-[state=active]:bg-transparent hover:bg-transparent active:bg-transparent text-[#6B6B6B] transition-colors duration-200 outline-none focus:outline-none focus:ring-0 ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="relative z-10 rounded-xl shadow-none active:shadow-none focus:shadow-none data-[state=active]:shadow-none data-[state=active]:text-white data-[state=active]:bg-transparent hover:bg-transparent active:bg-transparent text-[#6B6B6B] transition-colors duration-200 outline-none focus:outline-none focus:ring-0 ring-0 ring-offset-0 focus:ring-offset-0"
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               Insights
