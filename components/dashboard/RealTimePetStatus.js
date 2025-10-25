@@ -42,13 +42,13 @@ export default function RealTimePetStatus({ currentActivity }) {
             </div>
           </div>
           
-          {/* ZKP Privacy indicator - aligned with blockchain theme */}
+          {/* TEE Privacy indicator - aligned with blockchain theme */}
           <div className="flex items-center gap-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-pink-100/50 shadow-sm">
             <div className="p-2 bg-gradient-to-br from-[#FFE4E8] to-[#F8F5FF] rounded-lg">
               <MapPin className="w-4 h-4 text-[#F85BB4]" />
             </div>
             <div className="flex-1">
-              <span className="text-sm font-semibold text-[#4A4458] block">Zero-Knowledge Location Privacy</span>
+              <span className="text-sm font-semibold text-[#4A4458] block">TEE Location Privacy</span>
               <span className="text-xs text-[#6B6B6B]">{currentActivity.location}</span>
             </div>
             <CheckCircle2 className="w-5 h-5 text-[#D4A5A5]" />

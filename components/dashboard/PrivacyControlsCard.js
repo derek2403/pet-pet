@@ -49,12 +49,12 @@ export default function PrivacyControlsCard() {
             </div>
           </div>
 
-          {/* Proof Visibility - Emphasize ZKP theme */}
+          {/* Proof Visibility - Emphasize TEE theme */}
           <div className="relative p-6 bg-gradient-to-br from-[#F8F5FF] to-[#F0E8FF] rounded-xl border border-purple-100/50 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group/control">
             <div className="absolute top-0 right-0 w-16 h-16 bg-white/20 rounded-full blur-xl" />
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
-                <span className="font-semibold text-[#4A4458]">ZK Proof Visibility</span>
+                <span className="font-semibold text-[#4A4458]">TEE Proof Visibility</span>
                 <div className="p-2 bg-white/60 rounded-lg shadow-sm">
                   <EyeOff className="w-4 h-4 text-[#C5B5D4]" />
                 </div>
@@ -64,7 +64,7 @@ export default function PrivacyControlsCard() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="show">Show ZK Proofs</SelectItem>
+                  <SelectItem value="show">Show TEE Proofs</SelectItem>
                   <SelectItem value="hide">Hide Details</SelectItem>
                 </SelectContent>
               </Select>
