@@ -110,7 +110,7 @@ export default function DashboardHeader({ alerts = [] }) {
                           alert.type === "warning"
                             ? "text-[#FF2D95]"
                             : alert.type === "info"
-                            ? "text-[#C5B5D4]"
+                            ? "text-[#9B7BB7]"
                             : "text-[#FF2D95]"
                         }`}
                       />
