@@ -145,11 +145,16 @@ export function handleFeedDog(params) {
     return;
   }
 
-  // Find the dog object
+  // Find the dog object and its armature/root; use whichever actually controls transform
   const shibainu = findDogObject(splineApp, allObjects);
+  const armature =
+    splineApp.findObjectByName('AnimalArmature') ||
+    allObjects.find(obj => obj.name && obj.name.toLowerCase().includes('animalarmature'));
 
-  if (!shibainu) {
-    console.error('Dog not found');
+  const dogTransform = shibainu || armature || dogEventTarget;
+
+  if (!dogTransform) {
+    console.error('Dog transform target not found');
     return;
   }
 
@@ -162,9 +167,9 @@ export function handleFeedDog(params) {
 
   // Get current position
   const startPos = {
-    x: shibainu.position?.x || 0,
-    y: shibainu.position?.y || 0,
-    z: shibainu.position?.z || 0
+    x: dogTransform.position?.x || 0,
+    y: dogTransform.position?.y || 0,
+    z: dogTransform.position?.z || 0
   };
 
   // Enforce distance gate: only allow feeding if target within max step distance
@@ -192,7 +197,7 @@ export function handleFeedDog(params) {
   const targetRotation = Math.atan2(dx, dz);
 
   // Phase 1: Rotate to face the bowl
-  const currentY = shibainu?.rotation?.y || 0;
+  const currentY = dogTransform?.rotation?.y || 0;
   let remainingTurn = normalizeAngle(targetRotation - currentY);
   const needTurn = Math.abs(remainingTurn) > 0.03;
   const maxTurnSpeed = 7.5; // rad/sec
@@ -202,13 +207,13 @@ export function handleFeedDog(params) {
     if (!isMountedRef.current) return;
     const dt = Math.min(0.05, Math.max(0, (nowTs - lastTurnTs) / 1000));
     lastTurnTs = nowTs;
-    if (shibainu?.rotation) {
+    if (dogTransform?.rotation) {
       const step = Math.sign(remainingTurn) * Math.min(Math.abs(remainingTurn), maxTurnSpeed * dt);
-      shibainu.rotation.y += step;
+      dogTransform.rotation.y += step;
       remainingTurn -= step;
     }
     if (Math.abs(remainingTurn) <= 0.01) {
-      if (shibainu?.rotation) shibainu.rotation.y = targetRotation;
+      if (dogTransform?.rotation) dogTransform.rotation.y = targetRotation;
       // Start walking to bowl
       emitDogEvent(splineApp, 'mouseDown', dogEventTarget);
       requestAnimationFrame(walkToBowl);
@@ -227,19 +232,19 @@ export function handleFeedDog(params) {
     const dt = Math.min(0.05, Math.max(0, (nowTs - lastWalkTs) / 1000));
     lastWalkTs = nowTs;
 
-    if (shibainu.position) {
-      const rx = bowlLocation.x - shibainu.position.x;
-      const rz = bowlLocation.z - shibainu.position.z;
+    if (dogTransform.position) {
+      const rx = bowlLocation.x - dogTransform.position.x;
+      const rz = bowlLocation.z - dogTransform.position.z;
       const remaining = Math.hypot(rx, rz);
 
       const stepDist = unitsPerSecond * dt;
       if (remaining <= stepDist + 0.5) {
         // Arrived at bowl
-        shibainu.position.x = bowlLocation.x;
-        shibainu.position.y = bowlLocation.y;
-        shibainu.position.z = bowlLocation.z;
-        if (shibainu.rotation) {
-          shibainu.rotation.y = targetRotation;
+        dogTransform.position.x = bowlLocation.x;
+        dogTransform.position.y = bowlLocation.y;
+        dogTransform.position.z = bowlLocation.z;
+        if (dogTransform.rotation) {
+          dogTransform.rotation.y = targetRotation;
         }
         console.log('✅ Arrived at bowl!');
 
@@ -250,7 +255,7 @@ export function handleFeedDog(params) {
         setTimeout(() => {
           console.log('🍖 Starting eating animation...');
           // Keep facing the bowl while eating so the nose stays in the bowl
-          lockYawForMs(shibainu, targetRotation, 3300, isMountedRef);
+          lockYawForMs(dogTransform, targetRotation, 3300, isMountedRef);
           triggerEatingAnimation(splineApp, dogEventTarget, isFeedingRef);
         }, 300);
         return;
@@ -259,11 +264,11 @@ export function handleFeedDog(params) {
       // Continue walking
       const ux = remaining > 0 ? rx / remaining : 0;
       const uz = remaining > 0 ? rz / remaining : 0;
-      shibainu.position.x += ux * stepDist;
-      shibainu.position.z += uz * stepDist;
+      dogTransform.position.x += ux * stepDist;
+      dogTransform.position.z += uz * stepDist;
 
-      if (shibainu.rotation) {
-        shibainu.rotation.y = targetRotation;
+      if (dogTransform.rotation) {
+        dogTransform.rotation.y = targetRotation;
       }
     }
 
