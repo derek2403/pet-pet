@@ -1,7 +1,7 @@
 // PetPet Registry Contract Configuration
 export const REGISTRY_ADDRESS = {
   address: "0xD37041D5A68a5B0b460e944b2FA31F4E757E8Fc0",
-  chainId: 84532, // Base Sepolia
+  chainId: 2403, // PetPet Testnet
   abi: [
     {
       "anonymous": false,

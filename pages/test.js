@@ -6,8 +6,8 @@ import { useTransactionHistory } from '../hooks/useTransactionHistory';
 
 const REGISTRY_ABI = REGISTRY_ADDRESS.abi;
 
-// Base Sepolia RPC URL (fallback)
-const BASE_SEPOLIA_RPC = 'https://sepolia.base.org';
+// PetPet Testnet RPC URL (fallback)
+const PETPET_RPC = 'https://c2e90a7139bb5f5fe1c6deab725ee1a45631b952-8545.dstack-prod5.phala.network/';
 
 export default function TestPage() {
   const [account, setAccount] = useState(null);
@@ -22,9 +22,9 @@ export default function TestPage() {
   const [interactAddress, setInteractAddress] = useState(''); // For direct address entry
   const [interactDuration, setInteractDuration] = useState(600); // Default 10 minutes
 
-  // Initialize transaction hooks with Base Sepolia chain ID
-  const { showTransactionToast, handleTransactionWithNotification } = useTransactionToast("84532");
-  const { showAddressTransactions, openTransactionPopup } = useTransactionHistory("84532");
+  // Initialize transaction hooks with PetPet Testnet chain ID
+  const { showTransactionToast, handleTransactionWithNotification } = useTransactionToast("2403");
+  const { showAddressTransactions, openTransactionPopup } = useTransactionHistory("2403");
 
   // Connect wallet
   const connectWallet = async () => {
@@ -40,14 +40,14 @@ export default function TestPage() {
       const network = await provider.getNetwork();
       console.log('Connected to network:', network.chainId.toString());
       
-      if (network.chainId !== 84532n) {
-        setMessage('⚠️ Please switch MetaMask to Base Sepolia (Chain ID: 84532)');
+      if (network.chainId !== 2403n) {
+        setMessage('⚠️ Please switch MetaMask to PetPet Testnet (Chain ID: 2403)');
         
         // Try to switch network automatically
         try {
           await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0x14a34' }], // 84532 in hex
+            params: [{ chainId: '0x963' }], // 2403 in hex
           });
         } catch (switchError) {
           // If network doesn't exist, add it
@@ -56,15 +56,15 @@ export default function TestPage() {
               await window.ethereum.request({
                 method: 'wallet_addEthereumChain',
                 params: [{
-                  chainId: '0x14a34',
-                  chainName: 'Base Sepolia',
+                  chainId: '0x963',
+                  chainName: 'PetPet Testnet',
                   nativeCurrency: {
-                    name: 'Ethereum',
-                    symbol: 'ETH',
+                    name: 'PetPet',
+                    symbol: 'PETPET',
                     decimals: 18
                   },
-                  rpcUrls: ['https://sepolia.base.org'],
-                  blockExplorerUrls: ['https://sepolia.basescan.org']
+                  rpcUrls: ['https://c2e90a7139bb5f5fe1c6deab725ee1a45631b952-8545.dstack-prod5.phala.network/'],
+                  blockExplorerUrls: ['https://petpet.cloud.blockscout.com/']
                 }]
               });
             } catch (addError) {
@@ -93,7 +93,7 @@ export default function TestPage() {
       const code = await provider.getCode(REGISTRY_ADDRESS.address);
       console.log('Contract code length:', code.length);
       if (code === '0x') {
-        throw new Error('No contract found at this address on Base Sepolia');
+        throw new Error('No contract found at this address on PetPet Testnet');
       }
       return true;
     } catch (error) {
@@ -124,19 +124,19 @@ export default function TestPage() {
         const network = await provider.getNetwork();
         console.log('MetaMask network:', network.chainId.toString());
         
-        if (network.chainId !== 84532n) {
-          setMessage(`⚠️ Wrong network! Please switch to Base Sepolia (Chain ID: 84532). Current: ${network.chainId}`);
+        if (network.chainId !== 2403n) {
+          setMessage(`⚠️ Wrong network! Please switch to PetPet Testnet (Chain ID: 2403). Current: ${network.chainId}`);
           return;
         }
       } catch (err) {
         console.warn('MetaMask provider issue, using fallback RPC');
-        provider = new ethers.JsonRpcProvider(BASE_SEPOLIA_RPC);
+        provider = new ethers.JsonRpcProvider(PETPET_RPC);
       }
       
       // Verify contract exists
       const contractExists = await verifyContract(provider);
       if (!contractExists) {
-        setMessage('❌ Contract not found! Make sure you deployed to Base Sepolia at: ' + REGISTRY_ADDRESS.address);
+        setMessage('❌ Contract not found! Make sure you deployed to PetPet Testnet at: ' + REGISTRY_ADDRESS.address);
         return;
       }
       
@@ -492,7 +492,7 @@ export default function TestPage() {
     <div style={{ padding: '40px', fontFamily: 'system-ui', maxWidth: '1200px', margin: '0 auto' }}>
       <h1 style={{ fontSize: '48px', marginBottom: '10px' }}>🐾 PetPet Test Page</h1>
       <p style={{ color: '#666', marginBottom: '30px' }}>
-        Connected to Base Sepolia | Registry: <code>{REGISTRY_ADDRESS.address}</code>
+        Connected to PetPet Testnet (Chain ID: 2403) | Registry: <code>{REGISTRY_ADDRESS.address}</code>
       </p>
 
       {/* Connect Wallet */}
@@ -938,12 +938,12 @@ export default function TestPage() {
         borderRadius: '8px'
       }}>
         <h3>🔗 Contract Information:</h3>
-        <p><strong>Network:</strong> Base Sepolia (Chain ID: 84532)</p>
+        <p><strong>Network:</strong> PetPet Testnet (Chain ID: 2403)</p>
         <p><strong>Registry Address:</strong> <code>{REGISTRY_ADDRESS.address}</code></p>
         <p><strong>System:</strong> Dynamic pet contracts (each pet = unique contract name)</p>
         <p>
           <a 
-            href={`https://base-sepolia.blockscout.com/address/${REGISTRY_ADDRESS.address}`} 
+            href={`https://petpet.cloud.blockscout.com/address/${REGISTRY_ADDRESS.address}`} 
             target="_blank" 
             rel="noopener noreferrer"
             style={{ color: '#0070f3' }}
@@ -963,7 +963,7 @@ export default function TestPage() {
       }}>
         <h3>📖 Instructions:</h3>
         <ol style={{ lineHeight: '1.8' }}>
-          <li>Make sure you're connected to <strong>Base Sepolia</strong> network in MetaMask</li>
+          <li>Make sure you're connected to <strong>PetPet Testnet</strong> network in MetaMask</li>
           <li>Click "Connect Wallet" to connect your wallet</li>
           <li>Open browser console (F12) to see debug logs</li>
           <li>Enter a unique pet name and click "Create Pet"</li>
@@ -975,12 +975,12 @@ export default function TestPage() {
         <ul style={{ lineHeight: '1.8' }}>
           <li>If you see "could not decode result data", check:
             <ul>
-              <li>✅ You're on Base Sepolia (not Ethereum Sepolia or other network)</li>
-              <li>✅ The contract exists at the address (click BaseScan link above)</li>
+              <li>✅ You're on PetPet Testnet (Chain ID: 2403)</li>
+              <li>✅ The contract exists at the address (click Blockscout link above)</li>
               <li>✅ Browser console shows "Contract code length: &gt; 2"</li>
             </ul>
           </li>
-          <li>Get testnet ETH: <a href="https://www.coinbase.com/faucets/base-ethereum-goerli-faucet" target="_blank" rel="noopener noreferrer" style={{ color: '#0070f3' }}>Base Sepolia Faucet</a></li>
+          <li>Get testnet tokens from the PetPet faucet</li>
         </ul>
       </div>
     </div>
