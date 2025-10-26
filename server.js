@@ -3,9 +3,17 @@ const { parse } = require('url');
 const next = require('next');
 const { Server } = require('socket.io');
 
-const dev = process.env.NODE_ENV !== 'production';
+// Force development mode for Docker deployment
+const dev = process.env.FORCE_DEV === 'true' || process.env.NODE_ENV !== 'production';
 const hostname = process.env.HOSTNAME || '0.0.0.0';
 const port = parseInt(process.env.PORT, 10) || 3000;
+
+console.log('🐾 PetPet Server Starting...');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('FORCE_DEV:', process.env.FORCE_DEV);
+console.log('Dev Mode:', dev);
+console.log('Hostname:', hostname);
+console.log('Port:', port);
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
