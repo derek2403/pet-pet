@@ -2,11 +2,20 @@
 pragma solidity ^0.8.28;
 
 /**
+ * @title IPet
+ * @notice Interface that all pet contracts implement for interactions
+ * @dev This allows different pet contracts to interact with each other
+ */
+interface IPet {
+    function receiveInteraction(address fromPetContract, uint256 duration) external;
+}
+
+/**
  * @title PET_NAME_PLACEHOLDER
  * @notice This is a template that will be modified for each unique pet
  * @dev The contract name will be replaced with the actual pet name during deployment
  */
-contract PET_NAME_PLACEHOLDER {
+contract PET_NAME_PLACEHOLDER is IPet {
     // Pet identity
     string public petName;
     address public owner;
@@ -93,15 +102,38 @@ contract PET_NAME_PLACEHOLDER {
         emit Drink(activityId, amount, block.timestamp);
     }
 
+    // Called by another pet contract to record an interaction
+    // This is an internal contract-to-contract call
+    function receiveInteraction(address fromPetContract, uint256 duration) external {
+        require(fromPetContract != address(0), "Invalid pet contract address");
+        require(fromPetContract != address(this), "Cannot interact with self");
+        require(duration > 0, "Duration must be positive");
+        
+        // Record that another pet interacted with this pet
+        uint256 activityId = activities.length;
+        activities.push(ActivityLog("interact", duration, block.timestamp, fromPetContract, "received"));
+        interactionCount++;
+        emit Interact(activityId, fromPetContract, duration, block.timestamp);
+    }
+
+    // Owner initiates interaction with another pet
+    // This calls the other pet's contract to record the interaction
     function interact(address otherPetContract, uint256 duration) external onlyOwner {
         require(otherPetContract != address(0), "Invalid pet contract address");
         require(otherPetContract != address(this), "Cannot interact with self");
         require(duration > 0, "Duration must be positive");
         
+        // Record in our own activity log
         uint256 activityId = activities.length;
-        activities.push(ActivityLog("interact", duration, block.timestamp, otherPetContract, ""));
+        activities.push(ActivityLog("interact", duration, block.timestamp, otherPetContract, "initiated"));
         interactionCount++;
         emit Interact(activityId, otherPetContract, duration, block.timestamp);
+        
+        // Call the other pet's contract to record the interaction (internal transaction)
+        // This creates a contract-to-contract interaction
+        // Use IPet interface so any pet contract (regardless of name) can interact
+        IPet otherPet = IPet(otherPetContract);
+        otherPet.receiveInteraction(address(this), duration);
     }
 
     function getActivityCount() external view returns (uint256) {
