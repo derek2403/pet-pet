@@ -857,6 +857,9 @@ export default function Dashboard() {
                   transition={{ duration: 0.3, ease: "easeOut" }}
                   className="space-y-6"
                 >
+                  {/* Pet Selector */}
+                  <PetSelector pets={pets} />
+
                   {/* Activity Timeline */}
                   <ActivityTimelineCard events={recentEvents} />
                 </motion.div>
