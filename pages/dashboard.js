@@ -88,29 +88,16 @@ export default function Dashboard() {
     return newIndex > currentIndex ? 1 : -1;
   };
 
-  // No persistence - fresh upload required each session
-
-  // Load pet data from localStorage on mount
+  // Always start fresh - no localStorage persistence
+  // Each page load shows the "Create Pet" card
   useEffect(() => {
+    // Clear any old persisted data on mount
     if (typeof window !== 'undefined') {
-      const savedPetName = localStorage.getItem('petName');
-      const savedPetAddress = localStorage.getItem('petContractAddress');
-      
-      if (savedPetName && savedPetAddress) {
-        setPetName(savedPetName);
-        setPetContractAddress(savedPetAddress);
-        setHasPet(true);
-      }
+      localStorage.removeItem('petName');
+      localStorage.removeItem('petContractAddress');
+      localStorage.removeItem('petImagePath');
     }
   }, []);
-
-  // Save pet data to localStorage whenever it changes
-  useEffect(() => {
-    if (petName && petContractAddress && typeof window !== 'undefined') {
-      localStorage.setItem('petName', petName);
-      localStorage.setItem('petContractAddress', petContractAddress);
-    }
-  }, [petName, petContractAddress]);
 
   // Set up socket connection for location tracking and activity monitoring
   useEffect(() => {
@@ -389,22 +376,18 @@ export default function Dashboard() {
         }
       }, 5000);
       
-      // Set pet data
+      // Set pet data (session only - not persisted)
       const trimmedName = newPetName.trim();
       setPetName(trimmedName);
       setPetContractAddress(petAddress);
       setHasPet(true);
       
-      // Save to localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('petName', trimmedName);
-        localStorage.setItem('petContractAddress', petAddress);
-      }
+      // Keep image path for this session
+      // Note: petImagePath stays in state for dashboard display
       
-      // Clear form
+      // Clear form inputs
       setNewPetName("");
       setImagePreview(null);
-      setPetImagePath(null);
       
     } catch (error) {
       console.error(error);
