@@ -71,10 +71,7 @@ export default function Dashboard() {
   
   const [activityHistory, setActivityHistory] = useState([
     { petName: "NuNa", activity: "Eat", timestamp: 1730006400000 },
-    { petName: "NuNa", activity: "Walk", timestamp: 1730005500000 },
-    { petName: "NuNa", activity: "Walk", timestamp: 1720006000000 }, // ~7:35 PM
-    { petName: "NuNa", activity: "Rest", timestamp: 1720006100000 }, // ~7:30 PM
-  ]);
+    { petName: "NuNa", activity: "Walk", timestamp: 1730005500000 },  ]);
   const [currentPets, setCurrentPets] = useState([]);
   
   // Selected pet state - default to NuNa (id: 1)
