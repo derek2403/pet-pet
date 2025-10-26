@@ -24,14 +24,18 @@ export default function PetSelector({ pets, selectedPetId, onPetChange, onAddPet
   const videoRef = useRef(null);
   const streamRef = useRef(null);
 
-  // Load camera setup from localStorage
+  // Load camera setup from localStorage (pet-specific)
   useEffect(() => {
-    const savedCamera = localStorage.getItem('selectedCamera');
+    const savedCamera = localStorage.getItem(`selectedCamera_${selectedPetId}`);
     if (savedCamera) {
       setSelectedCamera(savedCamera);
       setCameraSetup(true);
+    } else {
+      // Reset camera setup when switching to a pet with no camera setup
+      setSelectedCamera(null);
+      setCameraSetup(false);
     }
-  }, []);
+  }, [selectedPetId]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -62,7 +66,7 @@ export default function PetSelector({ pets, selectedPetId, onPetChange, onAddPet
   const handleCameraSelection = (camera) => {
     setSelectedCamera(camera);
     setCameraSetup(true);
-    localStorage.setItem('selectedCamera', camera);
+    localStorage.setItem(`selectedCamera_${selectedPetId}`, camera);
     setShowCameraSetup(false);
   };
 

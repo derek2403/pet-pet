@@ -5,7 +5,36 @@ import { Activity, Footprints, Clock, MapPin, CheckCircle2 } from "lucide-react"
  * RealTimePetStatus Component
  * Displays the pet's current activity and location verification status
  */
-export default function RealTimePetStatus({ currentActivity }) {
+export default function RealTimePetStatus({ currentActivity, petName }) {
+  // If no activity data, show empty state
+  if (!currentActivity) {
+    return (
+      <Card className="bg-white/60 backdrop-blur-md border-[#E8E4F0]/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-in fade-in slide-in-from-left-4 duration-500 group overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FFE4E8]/10 via-transparent to-[#F8F5FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        
+        <CardHeader className="relative">
+          <CardTitle className="flex items-center gap-2 text-[#4A4458] font-semibold">
+            <div className="p-1.5 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-lg shadow-sm">
+              <Activity className="w-4 h-4 text-[#F85BB4]" />
+            </div>
+            Real-Time Pet Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4 relative">
+          <div className="p-8 bg-gradient-to-br from-[#FFF5F7] to-[#F8F5FF] rounded-2xl border border-pink-100/50 shadow-md relative overflow-hidden">
+            <div className="text-center text-gray-500">
+              <Activity className="w-12 h-12 mx-auto mb-3 text-gray-400 opacity-50" />
+              <p className="text-lg font-medium text-[#4A4458]">No activity yet</p>
+              <p className="text-sm text-[#6B6B6B] mt-1">
+                {petName ? `${petName}'s activities will appear here` : 'Pet activities will appear here'}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="bg-white/60 backdrop-blur-md border-[#E8E4F0]/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-in fade-in slide-in-from-left-4 duration-500 group overflow-hidden">
       {/* Background gradient overlay */}

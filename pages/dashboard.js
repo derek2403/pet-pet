@@ -80,6 +80,11 @@ export default function Dashboard() {
   // Selected pet state - default to NuNa (id: 1)
   const [selectedPetId, setSelectedPetId] = useState(1);
   
+  // Pet-specific activity state
+  const [petActivities, setPetActivities] = useState({
+    1: { type: "Running", duration: "12 mins", location: "Proof verified" } // NuNa default
+  });
+  
   // Tab order for direction-based animations
   const tabOrder = ["dashboard", "timeline", "insights", "settings"];
   const getTabDirection = (newTab) => {
@@ -442,11 +447,8 @@ export default function Dashboard() {
   // Pets array for PetSelector component
   const pets = allPetsData.map(pet => ({ id: pet.id, name: pet.name }));
 
-  const currentActivity = {
-    type: "Running",
-    duration: "12 mins",
-    location: "Proof verified",
-  };
+  // Get current activity for selected pet (or null if none)
+  const currentActivity = petActivities[selectedPetId] || null;
 
   const monthlyStats = {
     running: "8 hours",
@@ -616,6 +618,7 @@ export default function Dashboard() {
               selectedPetId={selectedPetId} 
               onPetChange={setSelectedPetId}
               onAddPet={() => setShowAddPetModal(true)}
+              key={selectedPetId} // Force re-render on pet change to reset camera
             />
 
             <PetProfileCard pet={selectedPet} />
@@ -623,7 +626,7 @@ export default function Dashboard() {
             <FeaturedRoomCard />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <RealTimePetStatus currentActivity={currentActivity} />
+              <RealTimePetStatus currentActivity={currentActivity} petName={selectedPet?.name} />
               
               <Card className="bg-white/90 backdrop-blur-md border border-[#E8E4F0]/50 shadow-lg">
                 <CardHeader>
@@ -677,6 +680,7 @@ export default function Dashboard() {
                     selectedPetId={selectedPetId} 
                     onPetChange={setSelectedPetId}
                     onAddPet={() => setShowAddPetModal(true)}
+                    key={selectedPetId} // Force re-render on pet change to reset camera
                   />
 
                   <ActivityTimelineCard events={recentEvents} />

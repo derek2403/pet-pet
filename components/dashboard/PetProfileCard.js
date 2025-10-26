@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import Cropper from 'react-easy-crop';
 import { Card, CardContent } from "@/components/ui/card";
@@ -70,6 +70,17 @@ export default function PetProfileCard({ pet, onPetNameChange }) {
   // Save the last crop settings so we can restore them when editing
   const [savedCrop, setSavedCrop] = useState({ x: 0, y: 0 });
   const [savedZoom, setSavedZoom] = useState(1);
+
+  // Update local state when pet changes
+  useEffect(() => {
+    setLocalName(pet.name);
+    setCroppedImage(pet.avatar);
+    // Reset crop/zoom states when switching pets
+    setOriginalImage(null);
+    setImageSrc(null);
+    setSavedCrop({ x: 0, y: 0 });
+    setSavedZoom(1);
+  }, [pet.id, pet.name, pet.avatar]);
 
   // Save the pet name when user presses Enter or clicks outside
   function handleSaveName(e) {
