@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import RoomHeader from '@/components/room/RoomHeader';
 import SplineViewer from '@/components/room/SplineViewer';
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
@@ -8,7 +8,17 @@ import { BackgroundGradientAnimation } from "@/components/ui/background-gradient
  * Main page component that orchestrates the 3D room view and related UI
  */
 export default function Room() {
-  const [roomName, setRoomName] = useState("Shibaba's Room");
+  const [roomName, setRoomName] = useState("My Pet's Room");
+  
+  // Load pet name from localStorage on component mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedPetName = localStorage.getItem('petName');
+      if (savedPetName) {
+        setRoomName(`${savedPetName}'s Room`);
+      }
+    }
+  }, []);
   
   // Cache-busting parameter forces browser to fetch updated scene with dog
   const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=33";

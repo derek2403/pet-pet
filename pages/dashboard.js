@@ -75,6 +75,23 @@ export default function Dashboard() {
 
   // No persistence - fresh upload required each session
 
+  // Load pet name from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedPetName = localStorage.getItem('petName');
+      if (savedPetName) {
+        setPetName(savedPetName);
+      }
+    }
+  }, []);
+
+  // Save pet name to localStorage whenever it changes
+  useEffect(() => {
+    if (petName && typeof window !== 'undefined') {
+      localStorage.setItem('petName', petName);
+    }
+  }, [petName]);
+
   // Set up socket connection for location tracking and activity monitoring
   useEffect(() => {
     socketRef.current = io();
@@ -202,8 +219,14 @@ export default function Dashboard() {
     }
 
     // Set pet data for current session
-    setPetName(newPetName.trim());
+    const trimmedName = newPetName.trim();
+    setPetName(trimmedName);
     setHasPet(true);
+    
+    // Save pet name to localStorage for use in other pages
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('petName', trimmedName);
+    }
     
     // Clear form
     setNewPetName("");
