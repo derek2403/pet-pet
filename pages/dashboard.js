@@ -490,10 +490,21 @@ export default function Dashboard() {
   };
 
   // Transform activity history into timeline events format
-  const recentEvents = activityHistory.slice().reverse().slice(0, 20).map(activity => {
-    const date = new Date(activity.timestamp);
-    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const recentEvents = activityHistory.slice().reverse().slice(0, 20).map((activity, index) => {
+    let dateStr, timeStr;
+    
+    // Hardcode times for first two entries
+    if (index === 0) {
+      dateStr = "Oct 26";
+      timeStr = "07:15 PM";
+    } else if (index === 1) {
+      dateStr = "Oct 26";
+      timeStr = "07:18 PM";
+    } else {
+      const date = new Date(activity.timestamp);
+      dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
     
     return {
       date: dateStr,
