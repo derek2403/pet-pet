@@ -471,7 +471,7 @@ export default function Dashboard() {
       status: "Active",
       deviceId: "Device #5431",
       deviceStatus: "connected",
-      avatar: "/shiba.jpg",
+      avatar: "/NuNa.jpeg",
       contractAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb1",
     }
   ] : [];
