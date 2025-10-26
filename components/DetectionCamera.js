@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { 
-  getActivityColor,
-  getActivityEmoji 
+  getActivityColor
 } from '@/lib/dogActivityHelpers';
 import { 
   drawPetWithActivity, 
@@ -117,7 +116,7 @@ export default function DetectionCamera({
             drawPetWithActivity(
               ctx,
               result.dog,
-              `${getActivityEmoji(result.activity)} ${result.activity}`,
+              result.activity,
               getActivityColor(result.activity)
             );
           }
