@@ -7,6 +7,41 @@ const REGISTRY_ABI = REGISTRY_ADDRESS.abi;
 // PetPet Testnet RPC URL (fallback)
 const PETPET_RPC = 'https://c2e90a7139bb5f5fe1c6deab725ee1a45631b952-8545.dstack-prod5.phala.network/';
 
+// Retry helper for unstable RPC calls
+const retryWithBackoff = async (fn, maxRetries = 3, delayMs = 1000) => {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      const isLastRetry = i === maxRetries - 1;
+      
+      // If it's the last retry, throw the error
+      if (isLastRetry) {
+        throw error;
+      }
+      
+      // Check if it's a retryable error
+      const isRetryable = 
+        error.code === 'CALL_EXCEPTION' ||
+        error.code === 'NETWORK_ERROR' ||
+        error.code === 'TIMEOUT' ||
+        error.message?.includes('missing revert data') ||
+        error.message?.includes('could not detect network') ||
+        error.message?.includes('network changed');
+      
+      if (!isRetryable) {
+        throw error; // Don't retry non-network errors
+      }
+      
+      console.log(`Retry ${i + 1}/${maxRetries} after error:`, error.message);
+      
+      // Exponential backoff: wait longer each retry
+      const waitTime = delayMs * Math.pow(2, i);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+  }
+};
+
 export default function TestPage() {
   const [account, setAccount] = useState(null);
   const [petName, setPetName] = useState('');
@@ -99,9 +134,11 @@ export default function TestPage() {
   // Helper function to fetch pet name from contract
   const fetchPetName = async (petAddress, provider) => {
     try {
-      const pet = new ethers.Contract(petAddress, PET_ABI, provider);
-      const name = await pet.petName();
-      return name;
+      return await retryWithBackoff(async () => {
+        const pet = new ethers.Contract(petAddress, PET_ABI, provider);
+        const name = await pet.petName();
+        return name;
+      });
     } catch (error) {
       console.error(`Error fetching name for ${petAddress}:`, error);
       return 'Unknown'; // Fallback if we can't fetch the name
@@ -137,15 +174,15 @@ export default function TestPage() {
       const registry = new ethers.Contract(REGISTRY_ADDRESS.address, REGISTRY_ABI, provider);
       console.log('Registry contract created');
       
-      // Get total count
-      const count = await registry.getPetCount();
+      // Get total count with retry
+      const count = await retryWithBackoff(() => registry.getPetCount());
       console.log('Total pet count:', count.toString());
       
-      // Get user's pets
-      const userPetsAddresses = await registry.getPetsByOwner(userAddress);
+      // Get user's pets with retry
+      const userPetsAddresses = await retryWithBackoff(() => registry.getPetsByOwner(userAddress));
       console.log('User pet addresses:', userPetsAddresses);
       
-      // Fetch names for user's pets
+      // Fetch names for user's pets (with built-in retry in fetchPetName)
       const userPetsWithNames = await Promise.all(
         userPetsAddresses.map(async (address) => ({
           address,
@@ -154,8 +191,8 @@ export default function TestPage() {
       );
       setMyPets(userPetsWithNames);
       
-      // Get all pets
-      const allPetsAddresses = await registry.getAllPets();
+      // Get all pets with retry
+      const allPetsAddresses = await retryWithBackoff(() => registry.getAllPets());
       console.log('All pet addresses:', allPetsAddresses);
       
       // Fetch names for all pets
@@ -189,8 +226,11 @@ export default function TestPage() {
       const signer = await provider.getSigner();
       const registry = new ethers.Contract(REGISTRY_ADDRESS.address, REGISTRY_ABI, signer);
 
-      // Check if name is available (case-insensitive check in registry)
-      const available = await registry.isPetNameAvailable(petName);
+      // Check if name is available (case-insensitive check in registry) with retry
+      const available = await retryWithBackoff(async () => {
+        return await registry.isPetNameAvailable(petName);
+      }, 3, 1000);
+      
       if (!available) {
         setMessage(`❌ Pet name "${petName}" already taken! (Names are case-insensitive)`);
         setLoading(false);
@@ -279,7 +319,18 @@ export default function TestPage() {
       loadPets(account);
     } catch (error) {
       console.error(error);
-      setMessage('❌ Error: ' + (error.message || 'Failed to create pet'));
+      
+      // Provide helpful error message based on error type
+      let errorMsg = 'Failed to create pet';
+      if (error.message?.includes('missing revert data') || error.code === 'CALL_EXCEPTION') {
+        errorMsg = 'RPC connection failed after 3 retries. Please try again in a few seconds.';
+      } else if (error.message?.includes('user rejected')) {
+        errorMsg = 'Transaction rejected by user';
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+      
+      setMessage('❌ Error: ' + errorMsg);
     } finally {
       setLoading(false);
     }
@@ -291,9 +342,14 @@ export default function TestPage() {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const pet = new ethers.Contract(petAddress, PET_ABI, provider);
       
-      const name = await pet.petName();
-      const owner = await pet.owner();
-      const stats = await pet.getStats();
+      // Fetch pet details with retry
+      const [name, owner, stats] = await retryWithBackoff(async () => {
+        return await Promise.all([
+          pet.petName(),
+          pet.owner(),
+          pet.getStats()
+        ]);
+      });
       
       setSelectedPet({
         address: petAddress,
@@ -308,7 +364,7 @@ export default function TestPage() {
       });
     } catch (error) {
       console.error('Error viewing pet:', error);
-      setMessage('❌ Error loading pet details');
+      setMessage('❌ Error loading pet details: ' + error.message);
     }
   };
 
@@ -345,7 +401,10 @@ export default function TestPage() {
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const registry = new ethers.Contract(REGISTRY_ADDRESS.address, REGISTRY_ABI, provider);
-      const address = await registry.getPetByName(name);
+      
+      const address = await retryWithBackoff(async () => {
+        return await registry.getPetByName(name);
+      });
       
       if (address === ethers.ZeroAddress || address === '0x0000000000000000000000000000000000000000') {
         setMessage(`❌ Pet "${name}" not found in registry`);
@@ -883,14 +942,17 @@ export default function TestPage() {
         
         <h4 style={{ marginTop: '20px' }}>⚠️ Troubleshooting:</h4>
         <ul style={{ lineHeight: '1.8' }}>
-          <li>If you see "could not decode result data", check:
+          <li>If you see "could not decode result data" or "missing revert data":
             <ul>
               <li>✅ You're on PetPet Testnet (Chain ID: 2403)</li>
               <li>✅ The contract exists at the address (click Blockscout link above)</li>
               <li>✅ Browser console shows "Contract code length: &gt; 2"</li>
+              <li>🔄 <strong>The app will automatically retry 3 times</strong> with exponential backoff</li>
+              <li>⏱️ If RPC is slow, wait a few seconds - retries happen automatically</li>
             </ul>
           </li>
           <li>Get testnet tokens from the PetPet faucet</li>
+          <li><strong>Network Instability:</strong> The PetPet testnet RPC can be unstable. All contract calls now retry automatically up to 3 times.</li>
         </ul>
       </div>
     </div>
