@@ -1,0 +1,56 @@
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Clock } from "lucide-react";
+
+/**
+ * ActivityTimelineCard Component
+ * Displays recent activity events for the pet
+ */
+export default function ActivityTimelineCard({ events }) {
+  return (
+    <Card className="bg-white/60 backdrop-blur-md border-[#E8E4F0]/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-in fade-in slide-in-from-right-4 duration-700 overflow-hidden group">
+      {/* Background gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#FFE4E8]/10 via-transparent to-[#F8F5FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      <CardHeader className="relative">
+        <CardTitle className="flex items-center gap-2 text-[#4A4458] font-semibold">
+          Recent Activity Timeline
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 relative">
+        {events.map((event, i) => (
+          <div
+            key={i}
+            className="p-4 bg-gradient-to-r from-white/70 to-[#F6F3F9]/60 backdrop-blur-sm rounded-xl hover:shadow-md hover:scale-[1.02] transition-all duration-200 border border-[#E8E4F0]/50 cursor-pointer group/event relative overflow-hidden"
+          >
+            {/* Subtle hover effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#FFE4E8]/10 to-[#F8F5FF]/10 opacity-0 group-hover/event:opacity-100 transition-opacity duration-300" />
+            
+            <div className="flex items-start gap-3 relative">
+              <div className="relative">
+                <div className="p-2.5 bg-white rounded-lg shadow-sm border border-[#E8E4F0]/30">
+                  <event.icon className="w-4 h-4 text-[#F85BB4]" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-[#6B6B6B] uppercase tracking-wide">{event.date}</span>
+                  {event.time && (
+                    <span className="text-xs font-semibold text-[#F85BB4] bg-gradient-to-r from-[#FFE4E8] to-[#FFD4E5] px-3 py-1 rounded-full border border-pink-100 shadow-sm">
+                      <Clock className="w-3 h-3 inline mr-1" />
+                      {event.time}
+                    </span>
+                  )}
+                </div>
+                <p className="font-bold text-[#4A4458] text-sm">
+                  {event.type}{" "}
+                  <span className="font-medium text-[#6B6B6B]">({event.details})</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+

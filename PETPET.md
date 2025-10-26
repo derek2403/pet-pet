@@ -39,10 +39,23 @@
 ## Key Features
 
 ### 1. Pet Creation & Identity
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 81c2e0e90eeac2d7f5347bfa85d612b800413d66
 - **Named Smart Contract:** Each pet gets a uniquely named smart contract (e.g., `Buddy_The_Dog`) deployed on-chain as their identifier upon creation.
 - **Contract Address:** Each pet is assigned a unique contract address that can be searched by name in the Blockscout explorer.
 - **Name Registry:** A central registry contract prevents duplicate pet names and maintains a searchable directory.
 - **Sensor Device Binding:** Link camera and GPS-enabled devices (owner's iPhone or IoT camera) to the pet's contract for verified data submissions.
+<<<<<<< HEAD
+=======
+- **ENS Naming:** Each pet gets a human-readable ENS name (e.g., `shibaba.petpet.eth`) as their on-chain identifier upon creation.
+- **Wallet Address:** Each pet is assigned a unique wallet address linked to their ENS name.
+- **GPS Device Binding:** Link GPS-enabled device (collar or owner's phone for demo purposes) to the pet's identity.
+- **Device Registration:** Register device public key with the pet's on-chain profile for signature verification.
+>>>>>>> 8a0967dfbdb37ce711ca7fd990b6baae5d027109
+=======
+>>>>>>> 81c2e0e90eeac2d7f5347bfa85d612b800413d66
 
 **Why Not ENS?**  
 We initially planned to use ENS for pet naming, but deploying a custom ENS resolver and running our own subgraph to index ENS records would add significant complexity. Instead, we leverage Blockscout's native ability to search verified smart contracts by name — each pet contract is verified and searchable directly in the explorer, providing the same human-readable benefits without the additional infrastructure.
@@ -108,6 +121,10 @@ We initially explored zero-knowledge proofs for privacy, but ZK circuits cannot 
 3. **TEE Fusion:** Both data streams processed in Phala Network TEE, cross-validated, and submitted as unified activity events on-chain.
 
 ### 5. Verifiability & Trust
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 81c2e0e90eeac2d7f5347bfa85d612b800413d66
 - **TEE Attestations:** All sensitive activity data (camera feeds, GPS coordinates) processed within Phala Network TEE — no raw data exposed publicly.
 - **Device Binding:** Camera and GPS devices registered to pet's smart contract; TEE verifies data source authenticity.
 - **Named Contract Identity:** Human-readable pet names (e.g., `Buddy_The_Dog`) searchable directly in Blockscout explorer.
@@ -115,6 +132,18 @@ We initially explored zero-knowledge proofs for privacy, but ZK circuits cannot 
 - **Immutable Event Log:** All verified activities recorded on-chain to pet's contract, viewable in Blockscout.
 - **Privacy Preservation:** Raw video and precise GPS coordinates remain in TEE; only activity summaries published on-chain.
 - **Explorer Verification:** Anyone can verify TEE attestations through Blockscout without accessing sensitive raw data.
+<<<<<<< HEAD
+=======
+- **Zero-Knowledge Proofs:** All sensitive activity data (GPS, movement, consumption) verified via ZKP — no raw data on-chain.
+- **Device Binding:** Bind device public key or NFC UID to the pet's on-chain identity; contracts verify event signatures and ZK proofs.
+- **ENS Identity:** Human-readable pet names (e.g., `shibaba.petpet.eth`) make verification and sharing easier.
+- **Attestations:** Whitelisted vets/boarders add signed care attestations with cryptographic verification.
+- **Challenge Prompts:** Random challenges (e.g., "scan collar in 5 minutes") deter spoofing and ensure device authenticity.
+- **Proof References:** Content hashes for photos/weights stored off-chain; decryptable only by authorized parties.
+- **Explorer Verification:** Anyone can verify ZK proofs through the Explorer without accessing private data.
+>>>>>>> 8a0967dfbdb37ce711ca7fd990b6baae5d027109
+=======
+>>>>>>> 81c2e0e90eeac2d7f5347bfa85d612b800413d66
 
 ---
 
