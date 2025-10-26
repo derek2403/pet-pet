@@ -70,10 +70,8 @@ export default function Dashboard() {
   const [selectedDevice, setSelectedDevice] = useState(null);
   
   const [activityHistory, setActivityHistory] = useState([
-    { petName: "NuNa", activity: "Eat", timestamp: 1730006400000 },
-    { petName: "NuNa", activity: "Walk", timestamp: 1730005500000 },
-    { petName: "NuNa", activity: "Walk", timestamp: 1720006000000 }, // ~7:35 PM
-    { petName: "NuNa", activity: "Rest", timestamp: 1720006100000 }, // ~7:30 PM
+    { petName: "NuNa", activity: "Eat", timestamp: 1730006400000 },   // 8:00 PM
+    { petName: "NuNa", activity: "Walk", timestamp: 1730005500000 },  // 7:45 PM
   ]);
   const [currentPets, setCurrentPets] = useState([]);
   
