@@ -1,6 +1,6 @@
 // PetPet Registry Contract Configuration
 export const REGISTRY_ADDRESS = {
-  address: "0x863Ec8506C15D056F43d9BBA811ccB819c3DDFE9",
+  address: "0x518CB77A10D7AF6611F3BA0d84Ef8E2B0c29D45f",
   chainId: 2403, // PetPet Testnet
   abi: [
     {
