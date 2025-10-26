@@ -193,22 +193,29 @@ Blockscout Indexer → Event Logs → Dashboard Display
 
 ### Partner Technologies & Benefits
 
-**Phala Network TEE:**
-- Eliminates the "trusted third party" problem — even we (developers) can't access raw data
-- Enables complex computation (computer vision) with privacy guarantees that ZKP cannot provide
-- Cryptographic attestations build trust without exposing sensitive information
-
 **Blockscout Autoscout:**
 - Saved weeks of development time — no need to build custom blockchain explorer from scratch
 - Self-service deployment via deploy.blockscout.com was remarkably smooth
 - Contract verification system enabled human-readable pet names without ENS complexity
 - Provides public explorer for viewing pet contract events and transaction history
+- **Explorer Link:** [PetPet Blockscout Explorer](https://c2e90a7139bb5f5fe1c6deab725ee1a45631b952.dstack-prod5.phala.network/) (Chain ID: 2403)
 
-**ESP32:**
-- Low-cost ($5-10), low-power microcontroller perfect for pet collars
-- Built-in WiFi for data transmission
-- GPIO pins for GPS module integration
-- Arduino ecosystem makes firmware development accessible
+**PayPal USD (PYUSD):**
+- Enables stablecoin payments for pet care services with predictable, fiat-pegged pricing globally
+- Powers automated stray animal feeding stations where users pay in PYUSD to dispense food with verified proof-of-impact
+- Facilitates conditional smart contract payments to vets and shelters that auto-release when care is cryptographically verified
+- Cross-border micropayment capabilities allow global communities to support local animal welfare instantly
+- Programmable payment features enable subscription-based pet care and transparent crowdfunding with on-chain accountability
+- **Resources:** [PYUSD Developer Documentation](https://linktr.ee/pyusd_dev)
+
+**Hardhat 3:**
+- Industry-standard development environment for compiling, testing, and deploying Solidity smart contracts
+- Hardhat 3's Ignition deployment system provides reproducible, modular deployments for our factory pattern architecture
+- TypeScript integration generates type-safe contract bindings enabling seamless frontend-backend communication
+- Comprehensive testing framework validates pet identity creation, activity logging, and payment escrow logic
+- Local network capabilities with Anvil accelerated development cycles for TEE integration testing
+- Built-in contract verification tools streamlined the Blockscout verification process
+- **Documentation:** [Hardhat Official Docs](https://hardhat.org/docs)
 
 ### Particularly Notable Hacks
 
