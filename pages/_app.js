@@ -5,6 +5,14 @@ import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
 import { mainnet, polygon, optimism, arbitrum, base, baseSepolia } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { Poppins } from "next/font/google";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-geist-sans",
+  display: "swap",
+});
 
 const petPetTestnet = {
   id: 2403,
@@ -36,7 +44,9 @@ export default function App({ Component, pageProps }) {
         <RainbowKitProvider>
           <NotificationProvider>
             <TransactionPopupProvider>
-              <Component {...pageProps} />
+              <main className={poppins.variable}>
+                <Component {...pageProps} />
+              </main>
             </TransactionPopupProvider>
           </NotificationProvider>
         </RainbowKitProvider>
