@@ -184,45 +184,6 @@ export default function DogCamera() {
             </div>
           </div>
 
-          {/* Keyboard Shortcuts Guide */}
-          <Card className="mb-4 p-4 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
-            <h3 className="font-semibold text-purple-900 mb-2">⌨️ Keyboard Shortcuts:</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
-              <div className="flex items-center gap-2">
-                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">1</kbd>
-                <span className="text-purple-800">🚶 Walk</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">2</kbd>
-                <span className="text-purple-800">🏃 Run</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">3</kbd>
-                <span className="text-purple-800">😴 Rest</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">4</kbd>
-                <span className="text-purple-800">🍖 Eat</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">5</kbd>
-                <span className="text-purple-800">💧 Drink</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">6</kbd>
-                <span className="text-purple-800">🤝 Interact</span>
-              </div>
-            </div>
-            <div className="mt-2 pt-2 border-t border-purple-200">
-              <div className="flex items-center gap-2 text-sm">
-                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">0</kbd>
-                <span className="text-purple-700">or</span>
-                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">A</kbd>
-                <span className="text-purple-800">🤖 Auto Detection Mode</span>
-              </div>
-            </div>
-          </Card>
-
           {/* Debug: Show detected objects */}
           {cameraActive && detectedObjects.length > 0 && (
             <div className="mb-4 p-3 bg-gray-50 rounded-lg">
