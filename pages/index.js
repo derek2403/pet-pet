@@ -1,26 +1,26 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
+import { useRouter } from 'next/router';
+import Head from 'next/head';
 import Iridescence from "@/components/Iridescence";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
+  const router = useRouter();
+
+  const handleGetStarted = () => {
+    router.push('/dashboard');
+  };
+
   return (
     <>
-      {/* Iridescence Background - aligned with dashboard/room pink-purple theme */}
-      <Iridescence
-        color={[0.97, 0.36, 0.71]} // Pink theme color #F85BB4
-        mouseReact={true}
-        amplitude={0.15}
-        speed={0.8}
+      <Head>
+        <title>PetPet - Your Pet's Digital Home</title>
+        <meta name="description" content="Track your pet's activities with blockchain technology" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      {/* Iridescence Background + Theme Overlay (match dashboard colors) */}
+      <div
         style={{
           position: 'fixed',
           top: 0,
@@ -28,109 +28,61 @@ export default function Home() {
           width: '100%',
           height: '100%',
           zIndex: 0,
-          pointerEvents: 'none'
         }}
-      />
+      >
+        <Iridescence
+          color={[1, 1, 1]} // keep neutral base so overlay defines palette
+          mouseReact={true}
+          amplitude={0.16}
+          speed={0.75}
+        />
+        {/* Pastel gradient overlay using dashboard palette */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            // Base linear gradient from dashboard
+            background:
+              'linear-gradient(120deg, #FFE3EA 0%, #C9D4FF 100%), ' +
+              // Soft blobs using the five dashboard accent colors
+              'radial-gradient(40% 50% at 20% 25%, rgba(221,214,254,0.35) 0%, rgba(221,214,254,0) 60%), ' +
+              'radial-gradient(40% 50% at 80% 30%, rgba(254,215,170,0.30) 0%, rgba(254,215,170,0) 60%), ' +
+              'radial-gradient(45% 55% at 30% 75%, rgba(190,242,234,0.30) 0%, rgba(190,242,234,0) 60%), ' +
+              'radial-gradient(45% 55% at 75% 80%, rgba(255,183,197,0.30) 0%, rgba(255,183,197,0) 60%)',
+            backgroundBlendMode: 'overlay, normal, normal, normal, normal',
+            opacity: 0.85,
+          }}
+        />
+      </div>
+
       {/* Content Layer */}
-      <div
-        className={`${geistSans.className} ${geistMono.className} font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 relative z-10`}
+      <main 
+        className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6"
         style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}
       >
-        <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-          <Image
-            className="dark:invert"
-            src="/next.svg"
-            alt="Next.js logo"
-            width={180}
-            height={38}
-            priority
-          />
-          <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-            <li className="mb-2 tracking-[-.01em]">
-              Get started by editing{" "}
-              <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-                pages/index.js
-              </code>
-              .
-            </li>
-            <li className="tracking-[-.01em]">
-              Save and see your changes instantly.
-            </li>
-          </ol>
-          <div className="flex gap-4 items-center flex-col sm:flex-row">
-            <a
-              className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-              href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
+        <div className="max-w-4xl w-full text-center space-y-8">
+          {/* PetPet Title */}
+          <h1 className="text-7xl md:text-9xl font-bold text-white mb-6 drop-shadow-2xl">
+            PetPet
+          </h1>
+
+          {/* Description */}
+          <p className="text-xl md:text-2xl text-[#3D3D3D] max-w-2xl mx-auto leading-relaxed font-medium drop-shadow-md">
+            Your pet's digital home on the blockchain. </p>
+
+          {/* Get Started Button */}
+          <div className="pt-8">
+            <Button
+              onClick={handleGetStarted}
+              className="px-10 py-7 rounded-2xl bg-[#F85BB4] hover:bg-[#E14CA4] text-white font-bold text-xl shadow-2xl hover:shadow-[#F85BB4]/50 transform hover:scale-105 transition-all duration-300"
+              size="lg"
             >
-              <Image
-                className="dark:invert"
-                src="/vercel.svg"
-                alt="Vercel logomark"
-                width={20}
-                height={20}
-              />
-              Deploy now
-            </a>
-            <a
-              className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-              href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Read our docs
-            </a>
+              Get Started
+            </Button>
           </div>
-        </main>
-        <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-          <a
-            className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              aria-hidden
-              src="/file.svg"
-              alt="File icon"
-              width={16}
-              height={16}
-            />
-            Learn
-          </a>
-          <a
-            className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              aria-hidden
-              src="/window.svg"
-              alt="Window icon"
-              width={16}
-              height={16}
-            />
-            Examples
-          </a>
-          <a
-            className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-            href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              aria-hidden
-              src="/globe.svg"
-              alt="Globe icon"
-              width={16}
-              height={16}
-            />
-            Go to nextjs.org →
-          </a>
-        </footer>
-      </div>
+        </div>
+      </main>
     </>
   );
 }
