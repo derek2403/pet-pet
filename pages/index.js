@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Iridescence from "@/components/Iridescence";
 import { Button } from "@/components/ui/button";
+import { PawPrint } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
@@ -61,21 +62,30 @@ export default function Home() {
         className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6"
         style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}
       >
-        <div className="max-w-4xl w-full text-center space-y-8">
-          {/* PetPet Title */}
-          <h1 className="text-7xl md:text-9xl font-bold text-[#F85BB4] mb-6 drop-shadow-lg">
-            PetPet
-          </h1>
+        <div className="max-w-4xl w-full text-center space-y-9">
+          {/* PetPet Title with Icon */}
+          <div className="flex items-center justify-center gap-4 md:gap-6 mb-6">
+            {/* Paw Print Icon */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-[#FF2D95]/10 rounded-3xl blur-lg" />
+              <div className="relative p-4 md:p-6 bg-gradient-to-br from-[#FFE4E8]/80 to-[#FFD4E5]/80 rounded-3xl shadow-2xl">
+                <PawPrint className="w-12 h-12 md:w-20 md:h-20 text-[#F85BB4]" />
+              </div>
+            </div>
+            <h1 className="text-7xl md:text-[9rem] font-bold text-[#F85BB4] drop-shadow-lg">
+              PetPet
+            </h1>
+          </div>
 
           {/* Description */}
-          <p className="text-xl md:text-2xl text-white max-w-2xl mx-auto leading-relaxed font-medium drop-shadow-md">
+          <p className="text-2xl md:text-3xl text-white max-w-2xl mx-auto leading-relaxed font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
             Your pet's digital home on chain. </p>
 
           {/* Get Started Button */}
-          <div className="pt-8">
+          <div className="pt-9">
             <Button
               onClick={handleGetStarted}
-              className="px-10 py-7 rounded-2xl bg-[#F85BB4] hover:bg-[#E14CA4] text-white font-bold text-xl shadow-2xl hover:shadow-[#F85BB4]/50 transform hover:scale-105 transition-all duration-300"
+              className="px-12 py-7 rounded-2xl bg-[#F85BB4] hover:bg-[#E14CA4] text-white font-bold text-2xl shadow-2xl hover:shadow-[#F85BB4]/50 transform hover:scale-105 transition-all duration-300"
               size="lg"
             >
               Get Started
