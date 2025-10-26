@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-8d5c9bf24ce23cbddf298b4d15eddd81b3af4611",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/PetRegistry.sol": "project/contracts/PetRegistry.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/PetRegistry.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.28;\r\n\r\n/**\r\n * @title PetRegistry\r\n * @notice Central registry that tracks all deployed pet contracts\r\n * @dev Maps pet names to their deployed contract addresses\r\n */\r\ncontract PetRegistry {\r\n    // Mapping from pet name (lowercase) to pet contract address\r\n    mapping(string => address) public petsByName;\r\n    \r\n    // Array of all deployed pet contracts\r\n    address[] public allPets;\r\n    \r\n    // Mapping from owner address to their pet contracts\r\n    mapping(address => address[]) public petsByOwner;\r\n    \r\n    // Events\r\n    event PetRegistered(\r\n        string indexed petName,\r\n        address indexed petContract,\r\n        address indexed owner,\r\n        uint256 timestamp\r\n    );\r\n\r\n    /**\r\n     * @notice Register a newly deployed pet contract\r\n     * @param petName The unique name for the pet (case-insensitive)\r\n     * @param petContract The address of the deployed pet contract\r\n     * @param owner The address of the pet owner\r\n     */\r\n    function registerPet(\r\n        string memory petName,\r\n        address petContract,\r\n        address owner\r\n    ) external {\r\n        require(bytes(petName).length > 0, \"Pet name cannot be empty\");\r\n        require(petContract != address(0), \"Invalid contract address\");\r\n        require(owner != address(0), \"Invalid owner address\");\r\n        \r\n        // Convert to lowercase for uniqueness check\r\n        string memory nameLower = _toLower(petName);\r\n        require(petsByName[nameLower] == address(0), \"Pet name already exists\");\r\n        \r\n        // Store references\r\n        petsByName[nameLower] = petContract;\r\n        allPets.push(petContract);\r\n        petsByOwner[owner].push(petContract);\r\n        \r\n        emit PetRegistered(petName, petContract, owner, block.timestamp);\r\n    }\r\n\r\n    /**\r\n     * @notice Check if a pet name is available\r\n     * @param petName The name to check\r\n     * @return available True if the name is available, false otherwise\r\n     */\r\n    function isPetNameAvailable(string memory petName) external view returns (bool available) {\r\n        string memory nameLower = _toLower(petName);\r\n        return petsByName[nameLower] == address(0);\r\n    }\r\n\r\n    /**\r\n     * @notice Get pet contract address by name\r\n     * @param petName The name of the pet\r\n     * @return petContract The address of the pet's contract (0x0 if not found)\r\n     */\r\n    function getPetByName(string memory petName) external view returns (address petContract) {\r\n        string memory nameLower = _toLower(petName);\r\n        return petsByName[nameLower];\r\n    }\r\n\r\n    /**\r\n     * @notice Get all pets owned by a specific address\r\n     * @param owner The owner's address\r\n     * @return pets Array of pet contract addresses\r\n     */\r\n    function getPetsByOwner(address owner) external view returns (address[] memory pets) {\r\n        return petsByOwner[owner];\r\n    }\r\n\r\n    /**\r\n     * @notice Get all deployed pet contracts\r\n     * @return pets Array of all pet contract addresses\r\n     */\r\n    function getAllPets() external view returns (address[] memory pets) {\r\n        return allPets;\r\n    }\r\n\r\n    /**\r\n     * @notice Get total number of pets registered\r\n     * @return count Total number of pets\r\n     */\r\n    function getPetCount() external view returns (uint256 count) {\r\n        return allPets.length;\r\n    }\r\n\r\n    /**\r\n     * @notice Internal function to convert string to lowercase\r\n     * @param str Input string\r\n     * @return Lowercase version of the string\r\n     */\r\n    function _toLower(string memory str) internal pure returns (string memory) {\r\n        bytes memory bStr = bytes(str);\r\n        bytes memory bLower = new bytes(bStr.length);\r\n        \r\n        for (uint256 i = 0; i < bStr.length; i++) {\r\n            // If uppercase character, convert to lowercase\r\n            if ((uint8(bStr[i]) >= 65) && (uint8(bStr[i]) <= 90)) {\r\n                bLower[i] = bytes1(uint8(bStr[i]) + 32);\r\n            } else {\r\n                bLower[i] = bStr[i];\r\n            }\r\n        }\r\n        \r\n        return string(bLower);\r\n    }\r\n}\r\n\r\n"
+      }
+    }
+  }
+}
