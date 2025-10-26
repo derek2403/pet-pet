@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { io } from 'socket.io-client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,9 +11,9 @@ import PetProfileCard from '@/components/dashboard/PetProfileCard';
 import FeaturedRoomCard from '@/components/dashboard/FeaturedRoomCard';
 import RealTimePetStatus from '@/components/dashboard/RealTimePetStatus';
 import MonthlySummaryCard from '@/components/dashboard/MonthlySummaryCard';
-import UpcomingVetCard from '@/components/dashboard/UpcomingVetCard';
 import ActivityTimelineCard from '@/components/dashboard/ActivityTimelineCard';
 import PrivacyControlsCard from '@/components/dashboard/PrivacyControlsCard';
+import LocationMap from '@/components/LocationMap';
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
 import {
   AlertCircle,
@@ -55,6 +56,11 @@ export default function Dashboard() {
   const tabRefs = useRef({});
   const tabsListRef = useRef(null);
   
+  // Location tracking state
+  const [devices, setDevices] = useState([]);
+  const [selectedDevice, setSelectedDevice] = useState(null);
+  const socketRef = useRef(null);
+  
   // Tab order for direction-based animations
   const tabOrder = ["dashboard", "timeline", "insights", "settings"];
   const getTabDirection = (newTab) => {
@@ -64,6 +70,44 @@ export default function Dashboard() {
   };
 
   // No persistence - fresh upload required each session
+
+  // Set up socket connection for location tracking
+  useEffect(() => {
+    socketRef.current = io();
+
+    socketRef.current.on('connect', () => {
+      console.log('Connected to location tracking server');
+    });
+
+    socketRef.current.on('location-update', (locationData) => {
+      setDevices(prevDevices => {
+        const existingIndex = prevDevices.findIndex(d => d.id === locationData.name || d.name === locationData.name);
+        const deviceData = {
+          id: locationData.name,
+          name: locationData.name,
+          latitude: locationData.latitude,
+          longitude: locationData.longitude,
+          accuracy: locationData.accuracy,
+          timestamp: locationData.timestamp,
+          speed: locationData.speed || 0,
+        };
+
+        if (existingIndex >= 0) {
+          const updated = [...prevDevices];
+          updated[existingIndex] = deviceData;
+          return updated;
+        } else {
+          return [...prevDevices, deviceData];
+        }
+      });
+    });
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
+  }, []);
 
   // Handle image file selection and upload to server
   const handleImageChange = async (e) => {
@@ -213,14 +257,6 @@ export default function Dashboard() {
     meals: 56,
     medicationCompliance: "90%",
     vetVisits: 1,
-  };
-
-  const nextVetVisit = {
-    date: "25 Oct 2025",
-    time: "2:30 PM",
-    clinic: "Happy Paws Veterinary Center",
-    purpose: "Annual vaccination",
-    status: "Pending verification",
   };
 
   const recentEvents = [
@@ -509,10 +545,41 @@ export default function Dashboard() {
             {/* Featured 3D Room Card */}
             <FeaturedRoomCard />
 
-            {/* Real-Time Pet Status & Upcoming Vet Appointment Row */}
+            {/* Real-Time Pet Status & Location Map Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <RealTimePetStatus currentActivity={currentActivity} />
-              <UpcomingVetCard appointment={nextVetVisit} />
+              
+              {/* Location Map Card */}
+              <Card className="bg-white/90 backdrop-blur-md border border-[#E8E4F0]/50 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold text-[#F85BB4]">
+                    📍 Live Location
+                  </CardTitle>
+                  <CardDescription>
+                    {devices.length > 0 
+                      ? `Tracking ${devices.length} device${devices.length > 1 ? 's' : ''}`
+                      : 'No devices tracking yet'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="w-full h-[300px] rounded-lg overflow-hidden border border-gray-200">
+                    {devices.length > 0 ? (
+                      <LocationMap
+                        devices={devices}
+                        selectedDevice={selectedDevice}
+                        onDeviceSelect={setSelectedDevice}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-50">
+                        <div className="text-center text-gray-500">
+                          <p className="text-lg mb-2">No location data</p>
+                          <p className="text-sm">Start tracking your pet!</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
                 </motion.div>
               </TabsContent>
