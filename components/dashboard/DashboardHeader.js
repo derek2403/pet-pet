@@ -1,4 +1,3 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Button } from "@/components/ui/button";
 import { AuroraText } from "@/components/ui/aurora-text";
 import {
@@ -9,21 +8,20 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Link from 'next/link';
-import { PawPrint, ExternalLink, Bell } from "lucide-react";
+import { PawPrint, Boxes, ExternalLink, Bell } from "lucide-react";
 import { useState } from 'react';
 
 /**
- * Header Component
- * Displays the dashboard header with title, RainbowKit wallet, navigation buttons, and alerts popup
+ * DashboardHeader Component
+ * Displays the dashboard header with title, wallet info, navigation buttons, and alerts popup
  */
-export default function Header({ alerts = [] }) {
+export default function DashboardHeader({ alerts = [] }) {
   // State to control the alerts dialog
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
-  
   return (
     <div className="flex items-center justify-between mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
       {/* Dashboard Title with enhanced styling */}
-      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4">
         <div className="relative">
           <div className="absolute inset-0 bg-[#FF2D95]/12 rounded-2xl blur-md" />
           <div className="relative p-3 bg-gradient-to-br from-[#FFE4E8]/70 to-[#FFD4E5]/70 rounded-2xl shadow-md">
@@ -44,8 +42,15 @@ export default function Header({ alerts = [] }) {
 
       {/* Navigation & Wallet Info with enhanced styling */}
       <div className="flex items-center gap-3">
+        {/* Visit 3D Room Button with solid pink */}
+        <Link href="/room">
+          <Button className="bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 transition-all duration-300 text-white font-semibold rounded-full shadow-lg px-6">
+            Visit Room
+          </Button>
+        </Link>
+
         {/* Explorer Button with better styling */}
-        <Link href="https://petpet.cloud.blockscout.com/" target="_blank" rel="noopener noreferrer">
+        <Link href="/petpet">
           <Button variant="outline" className="rounded-full bg-white/80 backdrop-blur-md border-[#E8E4F0]/50 text-[#6B6B6B] font-semibold hover:bg-white hover:border-[#FF2D95] hover:shadow-lg hover:text-[#F85BB4] transition-all duration-200 shadow-md group">
             <ExternalLink className="w-4 h-4 mr-2 text-[#6B6B6B] group-hover:text-[#F85BB4] group-hover:scale-110 transition-all duration-200" />
             Explorer
@@ -126,8 +131,11 @@ export default function Header({ alerts = [] }) {
           </DialogContent>
         </Dialog>
 
-        {/* RainbowKit Connect Button */}
-        <ConnectButton />
+        {/* Wallet Address Display with improved design */}
+        <div className="px-5 py-2.5 bg-white/80 backdrop-blur-md rounded-full text-sm border border-[#E8E4F0]/50 shadow-lg hover:shadow-xl transition-shadow duration-200">
+          <span className="text-[#6B6B6B] font-medium">Wallet:</span>{" "}
+          <span className="font-bold text-[#FF2D95]">0x1234...5678</span>
+        </div>
       </div>
     </div>
   );
