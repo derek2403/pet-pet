@@ -72,8 +72,8 @@ export default function Dashboard() {
   const [activityHistory, setActivityHistory] = useState([
     { petName: "NuNa", activity: "Eat", timestamp: 1730006400000 },
     { petName: "NuNa", activity: "Walk", timestamp: 1730005500000 },
-    { petName: "NuNa", activity: "Run", timestamp: 1730004600000 },
-    { petName: "NuNa", activity: "Walk", timestamp: 1730004000000 },
+    { petName: "NuNa", activity: "Walk", timestamp: 1720006000000 }, // ~7:35 PM
+    { petName: "NuNa", activity: "Rest", timestamp: 1720006100000 }, // ~7:30 PM
   ]);
   const [currentPets, setCurrentPets] = useState([]);
   
@@ -490,7 +490,7 @@ export default function Dashboard() {
   const liveCount = Math.max(0, reversedHistory.length - 2);
   const liveEntries = reversedHistory.slice(0, liveCount).map(activity => {
     const date = new Date(activity.timestamp);
-    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const dateStr = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
     const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     
     return {
@@ -498,7 +498,6 @@ export default function Dashboard() {
       time: timeStr,
       type: activity.activity,
       details: activity.petName,
-      status: "verified",
       icon: getActivityIcon(activity.activity),
     };
   });
@@ -507,11 +506,10 @@ export default function Dashboard() {
   if (reversedHistory.length > 1) {
     const lastIndex = reversedHistory.length - 1;
     hardcodedEntries.push({
-      date: "Oct 26",
+      date: "October 26",
       time: "07:18 PM",
       type: reversedHistory[lastIndex].activity,
       details: reversedHistory[lastIndex].petName,
-      status: "verified",
       icon: getActivityIcon(reversedHistory[lastIndex].activity),
     });
   }
@@ -519,11 +517,10 @@ export default function Dashboard() {
     const secondLastIndex = Math.max(0, reversedHistory.length - 2);
     if (reversedHistory[secondLastIndex]) {
       hardcodedEntries.push({
-        date: "Oct 26",
+        date: "October 26",
         time: "07:15 PM",
         type: reversedHistory[secondLastIndex].activity,
         details: reversedHistory[secondLastIndex].petName,
-        status: "verified",
         icon: getActivityIcon(reversedHistory[secondLastIndex].activity),
       });
     }
