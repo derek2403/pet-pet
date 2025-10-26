@@ -4,8 +4,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
-  calculateMovement, 
-  classifyActivity, 
   getActivityColor,
   getActivityEmoji 
 } from '@/lib/dogActivityHelpers';
@@ -14,6 +12,15 @@ import {
   drawDetectedObject, 
   drawZone 
 } from '@/lib/canvasDrawing';
+import {
+  loadModel as loadCameraModel,
+  startCamera as initializeCamera,
+  stopCamera as terminateCamera,
+  runDetection,
+  setupKeyboardControls,
+  createActivityData,
+  setupZoneSetting,
+} from '@/lib/dogCameraHelpers';
 
 export default function DogCamera() {
   const [cameraActive, setCameraActive] = useState(false);
@@ -34,6 +41,8 @@ export default function DogCamera() {
     water: null,
     bed: null,
   });
+  const [manualMode, setManualMode] = useState(false);
+  const [manualActivity, setManualActivity] = useState(null);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -43,6 +52,9 @@ export default function DogCamera() {
   const lastPositionRef = useRef(null);
   const activityHistoryRef = useRef([]);
   const fpsCounterRef = useRef({ frames: 0, lastTime: Date.now(), fps: 0 });
+  const manualModeRef = useRef(false);
+  const manualActivityRef = useRef(null);
+  const lastLoggedActivityRef = useRef(null);
 
   useEffect(() => {
     // Initialize socket connection
@@ -58,7 +70,7 @@ export default function DogCamera() {
     });
 
     return () => {
-      stopCamera();
+      terminateCamera(videoRef, animationRef);
       if (socketRef.current) {
         socketRef.current.disconnect();
       }
@@ -66,59 +78,41 @@ export default function DogCamera() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Keyboard controls for manual activity override
+  useEffect(() => {
+    const cleanup = setupKeyboardControls(
+      setManualMode,
+      setManualActivity,
+      manualModeRef,
+      manualActivityRef
+    );
+    return cleanup;
+  }, []);
+
   const loadModel = async () => {
     try {
-      console.log('Loading TensorFlow.js...');
-      const tf = await import('@tensorflow/tfjs');
-      await tf.ready();
-      console.log('TensorFlow.js backend ready:', tf.getBackend());
-
-      console.log('Loading COCO-SSD model...');
-      const cocoSsd = await import('@tensorflow-models/coco-ssd');
-      modelRef.current = await cocoSsd.load();
+      modelRef.current = await loadCameraModel();
       setModelLoaded(true);
-      console.log('Model loaded successfully!');
     } catch (error) {
-      console.error('Error loading model:', error);
-      alert('Failed to load AI model. Check console for details.');
+      alert(error.message);
     }
   };
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          facingMode: 'environment',
-        },
-      });
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play();
-          setCameraActive(true);
-          if (!modelLoaded) {
-            loadModel();
-          }
-          detectObjects();
-        };
+      await initializeCamera(videoRef);
+      setCameraActive(true);
+      if (!modelLoaded) {
+        await loadModel();
       }
+      detectObjects();
     } catch (error) {
-      console.error('Error accessing camera:', error);
-      alert('Could not access camera. Please grant camera permissions.');
+      alert(error.message);
     }
   };
 
   const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-      videoRef.current.srcObject = null;
-    }
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-    }
+    terminateCamera(videoRef, animationRef);
     setCameraActive(false);
   };
 
@@ -132,113 +126,84 @@ export default function DogCamera() {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
-    // Set canvas size to match video
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    const refs = {
+      lastPositionRef,
+      fpsCounterRef,
+      manualModeRef,
+      manualActivityRef,
+      lastLoggedActivityRef,
+    };
 
-    try {
-      // Run detection
-      const predictions = await modelRef.current.detect(video);
+    const detectionResult = await runDetection({
+      model: modelRef.current,
+      video,
+      canvas,
+      refs,
+      zones,
+      onDetection: (result) => {
+        // Update detected objects for debugging
+        setDetectedObjects(result.predictions.map((p) => ({ class: p.class, score: p.score })));
+        
+        if (result.dogDetected) {
+          setDogDetected(true);
+          setCurrentActivity(result.activity);
+          setStats({
+            movement: result.movement,
+            confidence: Math.round(result.confidence * 100),
+            fps: fpsCounterRef.current.fps,
+          });
 
-      // Clear canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+          // Send to server
+          if (socketRef.current && connected) {
+            const activityData = createActivityData(
+              petName,
+              result.activity,
+              result.confidence,
+              result.movement,
+              result.position
+            );
 
-      // Update detected objects for debugging
-      setDetectedObjects(predictions.map((p) => ({ class: p.class, score: p.score })));
+            socketRef.current.emit('pet-activity', activityData);
 
-      // Find dog/cat/bird/person (pets)
-      const dog = predictions.find(
-        (p) => p.class === 'dog' || p.class === 'cat' || p.class === 'bird' || p.class === 'person'
-      );
+            // Store in history
+            activityHistoryRef.current.push(activityData);
+            if (activityHistoryRef.current.length > 1000) {
+              activityHistoryRef.current.shift();
+            }
+          }
 
-      if (dog) {
-        setDogDetected(true);
+          // Draw dog bounding box with activity label
+          drawPetWithActivity(
+            ctx,
+            result.dog,
+            `${getActivityEmoji(result.activity)} ${result.activity}`,
+            getActivityColor(result.activity)
+          );
+        } else {
+          setDogDetected(false);
+          setCurrentActivity('No dog detected');
+        }
 
-        const currentBox = {
-          centerX: (dog.bbox[0] + dog.bbox[2]) / 2,
-          centerY: (dog.bbox[1] + dog.bbox[3]) / 2,
-        };
-
-        const movement = calculateMovement(currentBox, lastPositionRef.current);
-        lastPositionRef.current = currentBox;
-
-        const { activity, confidence } = classifyActivity(dog, predictions, movement, zones);
-
-        setCurrentActivity(activity);
-        setStats({
-          movement: Number(movement.toFixed(1)),
-          confidence: Math.round(confidence * 100),
-          fps: fpsCounterRef.current.fps,
+        // Draw other objects (bowls, etc.)
+        result.predictions.forEach((prediction) => {
+          if (prediction.class === 'bowl' || prediction.class === 'cup' || prediction.class === 'bottle') {
+            drawDetectedObject(ctx, prediction, 'object');
+          }
         });
 
-        // Send to server
-        if (socketRef.current && connected) {
-          const activityData = {
-            petName,
-            activity,
-            confidence,
-            movement,
-            timestamp: Date.now(),
-            position: currentBox,
-          };
-
-          socketRef.current.emit('pet-activity', activityData);
-
-          // Store in history
-          activityHistoryRef.current.push(activityData);
-          if (activityHistoryRef.current.length > 1000) {
-            activityHistoryRef.current.shift();
-          }
-        }
-
-        // Draw dog bounding box with activity label
-        drawPetWithActivity(ctx, dog, `${getActivityEmoji(activity)} ${activity}`, getActivityColor(activity));
-      } else {
-        setDogDetected(false);
-        setCurrentActivity('No dog detected');
-      }
-
-      // Draw other objects (bowls, etc.)
-      predictions.forEach((prediction) => {
-        if (prediction.class === 'bowl' || prediction.class === 'cup' || prediction.class === 'bottle') {
-          drawDetectedObject(ctx, prediction, 'object');
-        }
-      });
-
-      // Draw zones
-      Object.entries(zones).forEach(([name, zone]) => {
-        drawZone(ctx, zone, name);
-      });
-
-      // Calculate FPS
-      fpsCounterRef.current.frames++;
-      const now = Date.now();
-      if (now - fpsCounterRef.current.lastTime >= 1000) {
-        fpsCounterRef.current.fps = fpsCounterRef.current.frames;
-        fpsCounterRef.current.frames = 0;
-        fpsCounterRef.current.lastTime = now;
-      }
-    } catch (error) {
-      console.error('Detection error:', error);
-    }
+        // Draw zones
+        Object.entries(zones).forEach(([name, zone]) => {
+          drawZone(ctx, zone, name);
+        });
+      },
+      onFpsUpdate: (fps) => {
+        setStats((prev) => ({ ...prev, fps }));
+      },
+    });
 
     animationRef.current = requestAnimationFrame(detectObjects);
   };
 
-  const handleCanvasClick = (e, zoneName) => {
-    if (!canvasRef.current) return;
-
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * canvasRef.current.width;
-    const y = ((e.clientY - rect.top) / rect.height) * canvasRef.current.height;
-
-    setZones((prev) => ({
-      ...prev,
-      [zoneName]: { x, y },
-    }));
-
-    alert(`${zoneName.charAt(0).toUpperCase() + zoneName.slice(1)} zone set!`);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 p-4">
@@ -279,6 +244,61 @@ export default function DogCamera() {
               <div className="text-sm font-semibold">{stats.fps}</div>
             </div>
           </div>
+
+          {/* Manual Control Mode Indicator */}
+          {manualMode && (
+            <div className="mb-4 p-3 bg-orange-100 border border-orange-300 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-semibold text-orange-800">
+                    🎮 Manual Mode Active
+                  </div>
+                  <div className="text-xs text-orange-700">
+                    Current: {manualActivity} | Press 0 or A to return to auto detection
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Keyboard Shortcuts Guide */}
+          <Card className="mb-4 p-4 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+            <h3 className="font-semibold text-purple-900 mb-2">⌨️ Keyboard Shortcuts:</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">1</kbd>
+                <span className="text-purple-800">🚶 Walk</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">2</kbd>
+                <span className="text-purple-800">🏃 Run</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">3</kbd>
+                <span className="text-purple-800">😴 Rest</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">4</kbd>
+                <span className="text-purple-800">🍖 Eat</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">5</kbd>
+                <span className="text-purple-800">💧 Drink</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">6</kbd>
+                <span className="text-purple-800">🤝 Interact</span>
+              </div>
+            </div>
+            <div className="mt-2 pt-2 border-t border-purple-200">
+              <div className="flex items-center gap-2 text-sm">
+                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">0</kbd>
+                <span className="text-purple-700">or</span>
+                <kbd className="px-2 py-1 bg-white rounded border border-purple-300 font-mono text-xs">A</kbd>
+                <span className="text-purple-800">🤖 Auto Detection Mode</span>
+              </div>
+            </div>
+          </Card>
 
           {/* Debug: Show detected objects */}
           {cameraActive && detectedObjects.length > 0 && (
@@ -359,43 +379,21 @@ export default function DogCamera() {
           {cameraActive && (
             <div className="mb-4 flex gap-2 flex-wrap">
               <Button
-                onClick={() => {
-                  const zoneName = prompt('Click on camera to set zone. Enter zone name:', 'food');
-                  if (!zoneName || !canvasRef.current) return;
-                  const handler = (ev) => {
-                    handleCanvasClick(ev, zoneName);
-                    canvasRef.current.removeEventListener('click', handler);
-                  };
-                  canvasRef.current.addEventListener('click', handler);
-                }}
+                onClick={() => setupZoneSetting('food', canvasRef, setZones)}
                 variant="outline"
                 className="text-sm"
               >
                 📍 Set Food Zone
               </Button>
               <Button
-                onClick={() => {
-                  if (!canvasRef.current) return;
-                  const handler = (ev) => {
-                    handleCanvasClick(ev, 'water');
-                    canvasRef.current.removeEventListener('click', handler);
-                  };
-                  canvasRef.current.addEventListener('click', handler);
-                }}
+                onClick={() => setupZoneSetting('water', canvasRef, setZones)}
                 variant="outline"
                 className="text-sm"
               >
                 💧 Set Water Zone
               </Button>
               <Button
-                onClick={() => {
-                  if (!canvasRef.current) return;
-                  const handler = (ev) => {
-                    handleCanvasClick(ev, 'bed');
-                    canvasRef.current.removeEventListener('click', handler);
-                  };
-                  canvasRef.current.addEventListener('click', handler);
-                }}
+                onClick={() => setupZoneSetting('bed', canvasRef, setZones)}
                 variant="outline"
                 className="text-sm"
               >
