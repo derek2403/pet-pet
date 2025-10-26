@@ -31,6 +31,10 @@ import {
   Plus,
   Wallet,
   X,
+  Stethoscope,
+  AlertCircle,
+  Pill,
+  Calendar,
 } from "lucide-react";
 
 const REGISTRY_ABI = REGISTRY_ADDRESS.abi;
