@@ -39,7 +39,7 @@
 ## Key Features
 
 ### 1. Pet Creation & Identity
-- **ENS Naming:** Each pet gets a human-readable ENS name (e.g., `buddy.petpet.eth`) as their on-chain identifier upon creation.
+- **ENS Naming:** Each pet gets a human-readable ENS name (e.g., `shibaba.petpet.eth`) as their on-chain identifier upon creation.
 - **Wallet Address:** Each pet is assigned a unique wallet address linked to their ENS name.
 - **GPS Device Binding:** Link GPS-enabled device (collar or owner's phone for demo purposes) to the pet's identity.
 - **Device Registration:** Register device public key with the pet's on-chain profile for signature verification.
@@ -107,7 +107,7 @@
 ### 5. Verifiability & Trust
 - **Zero-Knowledge Proofs:** All sensitive activity data (GPS, movement, consumption) verified via ZKP — no raw data on-chain.
 - **Device Binding:** Bind device public key or NFC UID to the pet's on-chain identity; contracts verify event signatures and ZK proofs.
-- **ENS Identity:** Human-readable pet names (e.g., `buddy.petpet.eth`) make verification and sharing easier.
+- **ENS Identity:** Human-readable pet names (e.g., `shibaba.petpet.eth`) make verification and sharing easier.
 - **Attestations:** Whitelisted vets/boarders add signed care attestations with cryptographic verification.
 - **Challenge Prompts:** Random challenges (e.g., "scan collar in 5 minutes") deter spoofing and ensure device authenticity.
 - **Proof References:** Content hashes for photos/weights stored off-chain; decryptable only by authorized parties.
