@@ -3,6 +3,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { NotificationProvider, TransactionPopupProvider } from "@blockscout/app-sdk";
 import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
+import { mainnet, polygon, optimism, arbitrum, base, baseSepolia } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { Poppins } from "next/font/google";
 
@@ -30,7 +31,7 @@ const petPetTestnet = {
 const config = getDefaultConfig({
   appName: 'PetPet App',
   projectId: 'YOUR_PROJECT_ID', // Get your project ID at https://cloud.walletconnect.com
-  chains: [petPetTestnet],
+  chains: [mainnet, polygon, optimism, arbitrum, base, baseSepolia, petPetTestnet],
   ssr: true, // Enable server-side rendering for Next.js
 });
 

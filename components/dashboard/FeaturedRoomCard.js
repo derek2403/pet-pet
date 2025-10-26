@@ -1,13 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from 'next/link';
 import Image from 'next/image';
 
 /**
  * FeaturedRoomCard Component
  * Displays a promotional card for the 3D room feature
  */
-export default function FeaturedRoomCard() {
+export default function FeaturedRoomCard({ onEnterRoom }) {
   return (
     <Card className="relative bg-gradient-to-r from-[#FFF9E6] via-[#FFE4E8] via-[#F5E8FF] to-[#E8F0FF] border-0 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:scale-[1.01] transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700 group">
       {/* Animated gradient overlay */}
@@ -26,11 +25,12 @@ export default function FeaturedRoomCard() {
             <p className="text-[#6B6B6B] mb-6 leading-relaxed max-w-lg">
               View and interact with your pet's cozy space in real-time.
             </p>
-            <Link href="/room">
-              <Button className="bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl transition-all duration-300 text-white font-bold text-lg rounded-full px-10 py-6 shadow-lg">
-                Enter Room
-              </Button>
-            </Link>
+            <Button 
+              onClick={onEnterRoom}
+              className="bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl transition-all duration-300 text-white font-bold text-lg rounded-full px-10 py-6 shadow-lg"
+            >
+              Enter Room
+            </Button>
           </div>
           <div className="hidden md:block relative">
             <div className="absolute inset-0 bg-[#FF2D95]/20 rounded-2xl blur-xl" />

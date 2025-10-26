@@ -23,31 +23,50 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
+    hardhatMainnet: {
+      type: "edr-simulated",
+      chainType: "l1",
+    },
+    hardhatOp: {
+      type: "edr-simulated",
+      chainType: "op",
+    },
+    sepolia: {
+      type: "http",
+      chainType: "l1",
+      url: configVariable("SEPOLIA_RPC_URL"),
+      accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
+    },
+    baseSepolia: {
+      type: "http",
+      chainType: "op",
+      url: configVariable("BASE_RPC_URL"),
+      accounts: [configVariable("PRIVATE_KEY")],
+      chainId: 84532,
+    },
     petPetTestnet: {
       type: "http",
       chainType: "l1",
-      url: process.env.PETPET_TESTNET_RPC_URL || "https://c2e90a7139bb5f5fe1c6deab725ee1a45631b952-8545.dstack-prod5.phala.network/",
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      url: configVariable("PETPET_TESTNET_RPC_URL"),
+      accounts: [configVariable("PRIVATE_KEY")],
       chainId: 2403,
     },
   },
-  // @ts-ignore - etherscan config for verification
   etherscan: {
     apiKey: {
-      petPetTestnet: "abc123abc123abc123abc123abc123abc1", // Blockscout doesn't need real key, just non-empty
+      baseSepolia: "abc123abc123abc123abc123abc123abc1", // Blockscout doesn't need real key, just non-empty
     },
     customChains: [
       {
-        network: "petPetTestnet",
-        chainId: 2403,
+        network: "baseSepolia",
+        chainId: 84532,
         urls: {
-          apiURL: "https://petpet.cloud.blockscout.com/api",
-          browserURL: "https://petpet.cloud.blockscout.com",
+          apiURL: "https://base-sepolia.blockscout.com/api",
+          browserURL: "https://base-sepolia.blockscout.com",
         },
       },
     ],
   },
-  // @ts-ignore - sourcify config
   sourcify: {
     enabled: false,
   },

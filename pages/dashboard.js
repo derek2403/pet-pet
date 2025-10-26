@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { io } from 'socket.io-client';
 import { ethers } from 'ethers';
@@ -13,9 +13,10 @@ import PetProfileCard from '@/components/dashboard/PetProfileCard';
 import FeaturedRoomCard from '@/components/dashboard/FeaturedRoomCard';
 import RealTimePetStatus from '@/components/dashboard/RealTimePetStatus';
 import MonthlySummaryCard from '@/components/dashboard/MonthlySummaryCard';
+import UpcomingVetCard from '@/components/dashboard/UpcomingVetCard';
 import ActivityTimelineCard from '@/components/dashboard/ActivityTimelineCard';
 import PrivacyControlsCard from '@/components/dashboard/PrivacyControlsCard';
-import LocationMap from '@/components/LocationMap';
+import SplineViewer from '@/components/room/SplineViewer';
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
 import { REGISTRY_ADDRESS, PET_ABI } from '@/config/contracts';
 import {
@@ -29,6 +30,7 @@ import {
   Upload,
   Plus,
   Wallet,
+  X,
 } from "lucide-react";
 
 const REGISTRY_ABI = REGISTRY_ADDRESS.abi;
@@ -67,14 +69,11 @@ export default function Dashboard() {
   const tabRefs = useRef({});
   const tabsListRef = useRef(null);
   
-  // Location tracking state
-  const [devices, setDevices] = useState([]);
-  const [selectedDevice, setSelectedDevice] = useState(null);
-  const socketRef = useRef(null);
+  // State for room viewer
+  const [showRoomViewer, setShowRoomViewer] = useState(false);
   
-  // Activity tracking state
-  const [activityHistory, setActivityHistory] = useState([]);
-  const [currentPets, setCurrentPets] = useState([]);
+  // Cache-busting parameter forces browser to fetch updated scene with dog
+  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=33";
   
   // Selected pet state for switching between pets
   const [selectedPetId, setSelectedPetId] = useState(1);
@@ -160,6 +159,7 @@ export default function Dashboard() {
       }
     };
   }, []);
+  // No persistence - fresh upload required each session
 
   // Handle image file selection and upload to server
   const handleImageChange = async (e) => {
@@ -247,154 +247,22 @@ export default function Dashboard() {
       return;
     }
 
-    // Check if wallet is connected
-    if (!isConnected || !account) {
-      alert('Please connect your wallet first using the button in the header');
-      return;
-    }
+    // Set pet data for current session
+    setPetName(newPetName.trim());
+    setHasPet(true);
+    
+    // Clear form
+    setNewPetName("");
+  };
 
-    if (!walletClient) {
-      alert('Wallet client not ready. Please try again.');
-      return;
-    }
+  // Handle entering the room
+  const handleEnterRoom = () => {
+    setShowRoomViewer(true);
+  };
 
-    try {
-      setIsLoading(true);
-      
-      setStatusMessage('🔍 Checking name availability...');
-
-      // Use wagmi's wallet client to get ethers signer
-      const provider = new ethers.BrowserProvider(walletClient);
-      const signer = await provider.getSigner();
-      
-      // Check current network
-      const network = await provider.getNetwork();
-      console.log('Current network:', network.chainId);
-      console.log('Expected network:', REGISTRY_ADDRESS.chainId);
-      
-      if (Number(network.chainId) !== REGISTRY_ADDRESS.chainId) {
-        alert(`Wrong network! Please switch to PetPet Testnet (Chain ID: ${REGISTRY_ADDRESS.chainId}). You're currently on chain ${network.chainId}`);
-        setIsLoading(false);
-        return;
-      }
-      
-      // Verify contract exists at address
-      const code = await provider.getCode(REGISTRY_ADDRESS.address);
-      console.log('Contract code length:', code.length);
-      if (code === '0x') {
-        alert(`No contract found at ${REGISTRY_ADDRESS.address} on this network. Please verify the contract address is correct.`);
-        setIsLoading(false);
-        return;
-      }
-      
-      const registry = new ethers.Contract(REGISTRY_ADDRESS.address, REGISTRY_ABI, signer);
-
-      // Check if name is available (case-insensitive check in registry)
-      const available = await registry.isPetNameAvailable(newPetName);
-      if (!available) {
-        setStatusMessage(`❌ Pet name "${newPetName}" already taken! (Names are case-insensitive)`);
-        alert(`Pet name "${newPetName}" already taken! Please choose another name.`);
-        setIsLoading(false);
-        return;
-      }
-      
-      console.log(`✅ Name "${newPetName}" is available`);
-      setStatusMessage('⏳ Compiling contract (this may take 10-20 seconds)...');
-
-      // Compile contract via backend API
-      const compileResponse = await fetch('/api/compile-pet', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ petName: newPetName }),
-      });
-
-      const compileResult = await compileResponse.json();
-      
-      if (!compileResult.success) {
-        throw new Error(compileResult.error || 'Compilation failed');
-      }
-
-      console.log('Contract compiled:', compileResult.contractName);
-      setStatusMessage(`✅ Compiled! Now deploying with your wallet...`);
-
-      // Deploy using user's wallet
-      const ContractFactory = new ethers.ContractFactory(
-        compileResult.abi,
-        compileResult.bytecode,
-        signer
-      );
-
-      setStatusMessage('⏳ Please confirm transaction in your wallet...');
-      
-      // Deploy contract
-      const contract = await ContractFactory.deploy(newPetName, account);
-      
-      setStatusMessage('⏳ Waiting for deployment confirmation...');
-      await contract.waitForDeployment();
-      
-      const petAddress = await contract.getAddress();
-      console.log('Pet deployed at:', petAddress);
-      setStatusMessage(`✅ Contract deployed! Registering in registry...`);
-
-      // Register the pet in the registry
-      try {
-        const tx = await registry.registerPet(newPetName, petAddress, account);
-        setStatusMessage('⏳ Registering pet in registry...');
-        await tx.wait();
-        console.log('Registration transaction:', tx.hash);
-      } catch (regError) {
-        // Handle race condition where name was taken between check and registration
-        if (regError.message && regError.message.includes('Pet name already exists')) {
-          setStatusMessage(`❌ Pet name was taken by someone else during deployment. Contract deployed at ${petAddress} but not registered.`);
-          alert('Pet name was taken during deployment. Please try again with a different name.');
-          setIsLoading(false);
-          return;
-        }
-        throw regError; // Re-throw if it's a different error
-      }
-
-      setStatusMessage(`✅ Pet "${newPetName}" created successfully!`);
-      
-      // Auto-verify then cleanup
-      setTimeout(async () => {
-        console.log('Starting auto-verification for:', petAddress, newPetName, account);
-        await verifyPetContract(petAddress, newPetName, account);
-        
-        // Delete temp files after verification
-        try {
-          await fetch('/api/cleanup-temp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contractName: compileResult.contractName
-            }),
-          });
-          console.log('Temp files cleaned up');
-        } catch (e) {
-          console.log('Cleanup error:', e);
-        }
-      }, 5000);
-      
-      // Set pet data (session only - not persisted)
-      const trimmedName = newPetName.trim();
-      setPetName(trimmedName);
-      setPetContractAddress(petAddress);
-      setHasPet(true);
-      
-      // Keep image path for this session
-      // Note: petImagePath stays in state for dashboard display
-      
-      // Clear form inputs
-      setNewPetName("");
-      setImagePreview(null);
-      
-    } catch (error) {
-      console.error(error);
-      setStatusMessage('❌ Error: ' + (error.message || 'Failed to create pet'));
-      alert('Error creating pet: ' + (error.message || 'Please try again'));
-    } finally {
-      setIsLoading(false);
-    }
+  // Handle exiting the room
+  const handleExitRoom = () => {
+    setShowRoomViewer(false);
   };
 
   // Move pill immediately on pointer down to reduce perceived white flash
@@ -410,8 +278,8 @@ export default function Dashboard() {
     });
   };
 
-  // Update pill position when active tab changes
-  useEffect(() => {
+  // Update pill position synchronously after layout (runs before paint)
+  useLayoutEffect(() => {
     const updatePillPosition = () => {
       const activeTabElement = tabRefs.current[activeTab];
       const tabsList = tabsListRef.current;
@@ -427,18 +295,30 @@ export default function Dashboard() {
       }
     };
 
-    // Use requestAnimationFrame to ensure DOM is fully laid out
-    requestAnimationFrame(() => {
-      updatePillPosition();
-    });
-    
-    // Add a small timeout as fallback for initial render
-    const timeout = setTimeout(updatePillPosition, 100);
+    // Immediate update - useLayoutEffect runs synchronously after DOM mutations
+    updatePillPosition();
+  }, [activeTab, hasPet]);
+
+  // Update pill position on window resize
+  useEffect(() => {
+    const updatePillPosition = () => {
+      const activeTabElement = tabRefs.current[activeTab];
+      const tabsList = tabsListRef.current;
+      
+      if (activeTabElement && tabsList) {
+        const tabsListRect = tabsList.getBoundingClientRect();
+        const activeTabRect = activeTabElement.getBoundingClientRect();
+        
+        setPillStyle({
+          left: activeTabRect.left - tabsListRect.left,
+          width: activeTabRect.width,
+        });
+      }
+    };
     
     window.addEventListener('resize', updatePillPosition);
     return () => {
       window.removeEventListener('resize', updatePillPosition);
-      clearTimeout(timeout);
     };
   }, [activeTab]);
 
@@ -489,70 +369,62 @@ export default function Dashboard() {
     vetVisits: 1,
   };
 
-  // Helper function to map activity to icon
-  const getActivityIcon = (activity) => {
-    const activityLower = activity?.toLowerCase() || '';
-    if (activityLower.includes('walk') || activityLower.includes('run')) return Footprints;
-    if (activityLower.includes('eat') || activityLower.includes('food')) return Heart;
-    if (activityLower.includes('play')) return Users;
-    if (activityLower.includes('sleep') || activityLower.includes('rest')) return Heart;
-    if (activityLower.includes('drink') || activityLower.includes('water')) return Heart;
-    return Footprints; // default icon
+  const nextVetVisit = {
+    date: "25 Oct 2025",
+    time: "2:30 PM",
+    clinic: "Happy Paws Veterinary Center",
+    purpose: "Annual vaccination",
+    status: "Pending verification",
   };
 
-  // Transform activity history into timeline events format
-  // Filter activities by selected pet
-  const filteredHistory = activityHistory.filter(activity => 
-    activity.petName === selectedPet?.name
-  );
-  const reversedHistory = filteredHistory.slice().reverse();
-  
-  // Create entries for live activities (starting from beginning, excluding last 2 for hardcoded)
-  const liveCount = Math.max(0, reversedHistory.length - 2);
-  const liveEntries = reversedHistory.slice(0, liveCount).map(activity => {
-    const date = new Date(activity.timestamp);
-    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    
-    return {
-      date: dateStr,
-      time: timeStr,
-      type: activity.activity,
-      details: activity.petName,
+  const recentEvents = [
+    {
+      date: "Oct 21",
+      type: "Running",
+      details: "5 mins",
       status: "verified",
-      icon: getActivityIcon(activity.activity),
-    };
-  });
-  
-  // Create hardcoded entries (7:18 PM above 7:15 PM) at the bottom using the last two activities
-  const hardcodedEntries = [];
-  if (reversedHistory.length > 1) {
-    const lastIndex = reversedHistory.length - 1;
-    hardcodedEntries.push({
-      date: "Oct 26",
-      time: "07:18 PM",
-      type: reversedHistory[lastIndex].activity,
-      details: reversedHistory[lastIndex].petName,
+      icon: Footprints,
+    },
+    {
+      date: "Oct 20",
+      type: "Feeding",
+      details: "80 g",
       status: "verified",
-      icon: getActivityIcon(reversedHistory[lastIndex].activity),
-    });
-  }
-  if (reversedHistory.length > 0) {
-    const secondLastIndex = Math.max(0, reversedHistory.length - 2);
-    if (reversedHistory[secondLastIndex]) {
-      hardcodedEntries.push({
-        date: "Oct 26",
-        time: "07:15 PM",
-        type: reversedHistory[secondLastIndex].activity,
-        details: reversedHistory[secondLastIndex].petName,
-        status: "verified",
-        icon: getActivityIcon(reversedHistory[secondLastIndex].activity),
-      });
-    }
-  }
-  
-  // Combine: live entries first, then hardcoded entries at bottom
-  const recentEvents = [...liveEntries, ...hardcodedEntries].slice(0, 20);
+      icon: Heart,
+    },
+    {
+      date: "Oct 18",
+      type: "Played",
+      details: "with luna.petpet.eth",
+      status: "verified",
+      icon: Users,
+    },
+    {
+      date: "Oct 15",
+      type: "Vet Visit",
+      details: "Annual checkup",
+      status: "pending",
+      icon: Stethoscope,
+    },
+  ];
+
+  const alerts = [
+    {
+      type: "warning",
+      message: "Shibaba missed his last meal window.",
+      icon: AlertCircle,
+    },
+    {
+      type: "info",
+      message: "Medication due in 3 hours.",
+      icon: Pill,
+    },
+    {
+      type: "reminder",
+      message: "Vet visit coming up in 4 days.",
+      icon: Calendar,
+    },
+  ];
 
   // Show loading state
   if (isLoading) {
@@ -761,6 +633,7 @@ export default function Dashboard() {
                 height: 'calc(100% - 8px)',
                 top: '4px',
                 zIndex: 0,
+                opacity: pillStyle.width > 0 ? 1 : 0,
               }}
             />
             
@@ -823,45 +696,45 @@ export default function Dashboard() {
             {/* Pet Profile Card */}
             <PetProfileCard pet={selectedPet} onPetNameChange={setPetName} />
 
-            {/* Featured 3D Room Card */}
-            <FeaturedRoomCard />
+            {/* Featured 3D Room Card or Spline Viewer */}
+            {!showRoomViewer ? (
+              <FeaturedRoomCard onEnterRoom={handleEnterRoom} />
+            ) : (
+              <div className="space-y-6">
+                {/* Exit Room Button */}
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold text-[#4A4458]">{petName}'s Room</h2>
+                  <Button
+                    onClick={handleExitRoom}
+                    variant="outline"
+                    className="rounded-full border-[#E8E4F0]/50 text-[#4A4458] hover:bg-white hover:border-[#F85BB4] hover:shadow-md transition-all shadow-sm font-semibold"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Exit Room
+                  </Button>
+                </div>
 
-            {/* Real-Time Pet Status & Location Map Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <RealTimePetStatus currentActivity={currentActivity} />
-              
-              {/* Location Map Card */}
-              <Card className="bg-white/90 backdrop-blur-md border border-[#E8E4F0]/50 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold text-[#F85BB4]">
-                    📍 Live Location
-                  </CardTitle>
-                  <CardDescription>
-                    {devices.length > 0 
-                      ? `Tracking ${devices.length} device${devices.length > 1 ? 's' : ''}`
-                      : 'No devices tracking yet'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="w-full h-[300px] rounded-lg overflow-hidden border border-gray-200">
-                    {devices.length > 0 ? (
-                      <LocationMap
-                        devices={devices}
-                        selectedDevice={selectedDevice}
-                        onDeviceSelect={setSelectedDevice}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-50">
-                        <div className="text-center text-gray-500">
-                          <p className="text-lg mb-2">No location data</p>
-                          <p className="text-sm">Start tracking your pet!</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                {/* 3D Spline Viewer */}
+                <SplineViewer 
+                  sceneUrl={sceneUrl} 
+                  maxStepDistance={36}
+                />
+
+                {/* Real-Time Pet Status & Upcoming Vet Appointment Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <RealTimePetStatus currentActivity={currentActivity} />
+                  <UpcomingVetCard appointment={nextVetVisit} />
+                </div>
+              </div>
+            )}
+
+            {/* Real-Time Pet Status & Upcoming Vet Appointment Row - Show when room is not open */}
+            {!showRoomViewer && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <RealTimePetStatus currentActivity={currentActivity} />
+                <UpcomingVetCard appointment={nextVetVisit} />
+              </div>
+            )}
                 </motion.div>
               </TabsContent>
             )}
