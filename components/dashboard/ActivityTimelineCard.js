@@ -42,8 +42,7 @@ export default function ActivityTimelineCard({ events }) {
                   )}
                 </div>
                 <p className="font-bold text-[#4A4458] text-sm">
-                  {event.type}{" "}
-                  <span className="font-medium text-[#6B6B6B]">({event.details})</span>
+                  {event.type}
                 </p>
               </div>
             </div>
