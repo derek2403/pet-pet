@@ -19,12 +19,8 @@ import LocationMap from '@/components/LocationMap';
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
 import { REGISTRY_ADDRESS, PET_ABI } from '@/config/contracts';
 import {
-  AlertCircle,
-  Pill,
-  Calendar,
   Footprints,
   Heart,
-  Stethoscope,
   Users,
   Settings,
   BarChart3,
@@ -537,24 +533,6 @@ export default function Dashboard() {
   // Combine: live entries first, then hardcoded entries at bottom
   const recentEvents = [...liveEntries, ...hardcodedEntries].slice(0, 20);
 
-  const alerts = [
-    {
-      type: "warning",
-      message: "Shibaba missed his last meal window.",
-      icon: AlertCircle,
-    },
-    {
-      type: "info",
-      message: "Medication due in 3 hours.",
-      icon: Pill,
-    },
-    {
-      type: "reminder",
-      message: "Vet visit coming up in 4 days.",
-      icon: Calendar,
-    },
-  ];
-
   // Show loading state
   if (isLoading) {
     return (
@@ -574,7 +552,7 @@ export default function Dashboard() {
           containerClassName="fixed inset-0 z-0 pointer-events-none"
         />
         <div className="relative z-10 min-h-screen flex items-center justify-center">
-          <div className="text-2xl text-gray-600">Loading...</div>
+          <div className="text-2xl text-gray-600">Registering your pet...</div>
         </div>
       </>
     );
@@ -600,7 +578,7 @@ export default function Dashboard() {
         />
         <div className="relative z-10">
           <div className="container mx-auto px-6 py-6" style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}>
-            <Header alerts={[]} />
+            <Header />
             
             <div className="min-h-[calc(100vh-200px)] flex items-center justify-center">
               <motion.div
@@ -742,9 +720,9 @@ export default function Dashboard() {
       />
       {/* Content wrapper above background */}
       <div className="relative z-10">
-        {/* Header with navigation and wallet - pass alerts to the header for the popup */}
+        {/* Header with navigation and wallet */}
         <div className="container mx-auto px-6 py-6" style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}>
-        <Header alerts={alerts} />
+        <Header />
 
         {/* Main Content with Tabs */}
         <Tabs 
