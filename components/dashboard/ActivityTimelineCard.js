@@ -1,6 +1,4 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Clock } from "lucide-react";
 
 /**
  * ActivityTimelineCard Component
@@ -35,17 +33,7 @@ export default function ActivityTimelineCard({ events }) {
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-[#6B6B6B] uppercase tracking-wide">{event.date}</span>
-                  {event.status === "verified" ? (
-                  <Badge className="bg-gradient-to-r from-[#FFE4E8] to-[#FFD4E5] text-[#F85BB4] hover:shadow-md border border-pink-100 shadow-sm font-semibold">
-                      <CheckCircle2 className="w-3 h-3 mr-1" />
-                      Verified
-                    </Badge>
-                  ) : (
-                    <Badge className="bg-gradient-to-r from-[#F8F5FF] to-[#F0E8FF] text-[#C5B5D4] hover:shadow-md border border-purple-100 shadow-sm font-semibold">
-                      <Clock className="w-3 h-3 mr-1" />
-                      Pending
-                    </Badge>
-                  )}
+                  <span className="text-xs font-medium text-[#9B7BB7]">{event.time}</span>
                 </div>
                 <p className="font-bold text-[#4A4458] text-sm">
                   {event.type}
