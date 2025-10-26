@@ -63,12 +63,12 @@ export default function Home() {
       >
         <div className="max-w-4xl w-full text-center space-y-8">
           {/* PetPet Title */}
-          <h1 className="text-7xl md:text-9xl font-bold text-white mb-6 drop-shadow-2xl">
+          <h1 className="text-7xl md:text-9xl font-bold text-[#F85BB4] mb-6 drop-shadow-lg">
             PetPet
           </h1>
 
           {/* Description */}
-          <p className="text-xl md:text-2xl text-[#3D3D3D] max-w-2xl mx-auto leading-relaxed font-medium drop-shadow-md">
+          <p className="text-xl md:text-2xl text-white max-w-2xl mx-auto leading-relaxed font-medium drop-shadow-md">
             Your pet's digital home on the blockchain. </p>
 
           {/* Get Started Button */}
