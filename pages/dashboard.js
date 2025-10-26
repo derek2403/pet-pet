@@ -560,10 +560,16 @@ export default function Dashboard() {
                   sceneUrl={sceneUrl} 
                   maxStepDistance={36}
                 />
+
+                {/* Real-Time Pet Status & Upcoming Vet Appointment Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <RealTimePetStatus currentActivity={currentActivity} />
+                  <UpcomingVetCard appointment={nextVetVisit} />
+                </div>
               </div>
             )}
 
-            {/* Real-Time Pet Status & Upcoming Vet Appointment Row - Only show when room is not open */}
+            {/* Real-Time Pet Status & Upcoming Vet Appointment Row - Show when room is not open */}
             {!showRoomViewer && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <RealTimePetStatus currentActivity={currentActivity} />
