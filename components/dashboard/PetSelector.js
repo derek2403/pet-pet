@@ -28,7 +28,7 @@ export default function PetSelector({ pets }) {
                 value={pet.id.toString()}
                 className="text-[#6B6B6B] focus:bg-[#F6F3F9] focus:text-[#4A4458] data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-[#FFE4E8] data-[state=checked]:to-[#FFD4E5] data-[state=checked]:text-[#FF2D95] data-[state=checked]:font-bold cursor-pointer"
               >
-                {pet.name} ({pet.ens})
+                {pet.name}
               </SelectItem>
             ))}
           </SelectContent>

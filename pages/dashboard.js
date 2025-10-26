@@ -446,9 +446,7 @@ export default function Dashboard() {
   // Get selected pet data (using uploaded image from public folder)
   const selectedPet = hasPet ? {
     name: petName,
-    ens: `${petName.toLowerCase().replace(/\s+/g, '')}.petpet.eth`,
-    species: "Dog",
-    breed: "Shiba Inu",
+    species: "Cat",
     status: "Active",
     deviceId: "Device #7892",
     deviceStatus: "connected",
@@ -458,7 +456,7 @@ export default function Dashboard() {
 
   // Mock pets array for PetSelector component
   const pets = hasPet ? [
-    { id: 1, name: petName, ens: `${petName.toLowerCase().replace(/\s+/g, '')}.petpet.eth` },
+    { id: 1, name: petName },
   ] : [];
 
   const currentActivity = {
