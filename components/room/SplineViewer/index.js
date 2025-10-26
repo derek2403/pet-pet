@@ -1,17 +1,15 @@
 import { Suspense, useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import InstructionsModal from "@/components/InstructionsModal";
 import { 
-  CircleCheck,
   Maximize2, 
   Minimize2, 
   RotateCcw, 
   Volume2,
   VolumeX,
   Loader2,
-  Smile,
   Heart
 } from "lucide-react";
 
@@ -530,19 +528,6 @@ export default function SplineViewer({
       
       <CardHeader className="pb-3 relative">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-[#F85BB4]/20 rounded-xl blur-lg" />
-              <div className="relative p-2 bg-gradient-to-br from-[#FFE4E8] to-[#FFD4E5] rounded-xl shadow-md">
-                <CircleCheck className="w-6 h-6 text-[#F85BB4]" />
-              </div>
-            </div>
-            <div>
-              <div className="text-sm font-semibold text-[#6B6B6B]">Room Status</div>
-              <div className="text-2xl font-bold text-[#4A4458]">Cozy & Clean</div>
-              <p className="text-xs text-[#B5B1C0] font-medium">Last updated: just now</p>
-            </div>
-          </div>
           <div className="flex items-center gap-2">
             {/* Instructions Modal */}
             <InstructionsModal 
@@ -614,14 +599,6 @@ export default function SplineViewer({
               className="w-full h-full"
             />
           </Suspense>
-          
-          {/* Selected Object Overlay */}
-          {selectedObject && (
-            <div className="absolute bottom-4 right-4 z-50 bg-white/95 backdrop-blur-md rounded-xl p-6 shadow-lg border border-[#E8E4F0]/50 min-w-[200px] pointer-events-none">
-              <p className="text-sm font-semibold text-[#6B6B6B] mb-2">Dog Status:</p>
-              <p className="text-3xl font-bold text-[#F85BB4]">{selectedObject}</p>
-            </div>
-          )}
 
           {/* Loading Status Badge */}
           {!isLoaded && (
