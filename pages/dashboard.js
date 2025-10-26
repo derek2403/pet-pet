@@ -35,13 +35,14 @@ import {
  * Main dashboard component that orchestrates all pet-related information
  */
 export default function Dashboard() {
-  // State for current session pet (not persisted)
+  // State for current session pet (not persisted - requires upload each time)
   const [hasPet, setHasPet] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   
   // State for add pet form
   const [newPetName, setNewPetName] = useState("");
-  const [petImage, setPetImage] = useState(null);
+  const [petImagePath, setPetImagePath] = useState(null); // Path to image in public folder
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
   
@@ -62,26 +63,10 @@ export default function Dashboard() {
     return newIndex > currentIndex ? 1 : -1;
   };
 
-  // Load pet image from localStorage on mount (only image persists)
-  useEffect(() => {
-    const loadPetImage = () => {
-      try {
-        const storedImage = localStorage.getItem('petpet_pet_image');
-        if (storedImage) {
-          setPetImage(storedImage);
-          setImagePreview(storedImage);
-        }
-      } catch (error) {
-        console.error('Error loading pet image from localStorage:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadPetImage();
-  }, []);
+  // No persistence - fresh upload required each session
 
-  // Handle image file selection and convert to base64
-  const handleImageChange = (e) => {
+  // Handle image file selection and upload to server
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       // Check file size (limit to 2MB)
@@ -96,32 +81,50 @@ export default function Dashboard() {
         return;
       }
 
+      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64String = reader.result;
-        setPetImage(base64String);
-        setImagePreview(base64String);
-        
-        // Save image to localStorage immediately
-        try {
-          localStorage.setItem('petpet_pet_image', base64String);
-        } catch (error) {
-          console.error('Error saving image to localStorage:', error);
-          alert('Error saving image. The image might be too large.');
-        }
+        setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
+
+      // Upload to server
+      setIsUploading(true);
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const response = await fetch('/api/upload-pet-image', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          setPetImagePath(data.path);
+        } else {
+          alert('Error uploading image: ' + (data.error || 'Unknown error'));
+          setImagePreview(null);
+        }
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Error uploading image. Please try again.');
+        setImagePreview(null);
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
-  // Add pet for current session only (pet data not persisted, only image)
+  // Add pet for current session only (no persistence)
   const handleAddPet = () => {
     if (!newPetName.trim()) {
       alert('Please enter a pet name');
       return;
     }
-    if (!petImage) {
-      alert('Please select a pet image');
+    if (!petImagePath) {
+      alert('Please upload a pet image');
       return;
     }
 
@@ -129,7 +132,7 @@ export default function Dashboard() {
     setPetName(newPetName.trim());
     setHasPet(true);
     
-    // Reset form name only (image persists in localStorage)
+    // Clear form
     setNewPetName("");
   };
 
@@ -178,7 +181,7 @@ export default function Dashboard() {
     };
   }, [activeTab]);
 
-  // Get selected pet data (using persisted image)
+  // Get selected pet data (using uploaded image from public folder)
   const selectedPet = hasPet ? {
     name: petName,
     ens: `${petName.toLowerCase().replace(/\s+/g, '')}.petpet.eth`,
@@ -187,7 +190,7 @@ export default function Dashboard() {
     status: "Active",
     deviceId: "Device #7892",
     deviceStatus: "connected",
-    avatar: petImage || "/shiba2.jpeg", // Use stored image or fallback
+    avatar: petImagePath || "/shiba2.jpeg", // Use uploaded image or fallback
   } : null;
 
   // Mock pets array for PetSelector component
@@ -327,7 +330,7 @@ export default function Dashboard() {
                   <CardHeader className="text-center">
                     <CardTitle className="text-3xl font-bold text-[#F85BB4]">Welcome to PetPet! 🐾</CardTitle>
                     <CardDescription className="text-lg">
-                      {petImage ? "Welcome back! Enter your pet's name to continue" : "Add your pet to get started"}
+                      Add your pet to get started
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -346,7 +349,9 @@ export default function Dashboard() {
                     {/* Image Upload */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-700">
-                        Pet Photo {petImage && <span className="text-xs text-green-600">(Saved)</span>}
+                        Pet Photo
+                        {isUploading && <span className="text-xs text-blue-600 ml-2">(Uploading...)</span>}
+                        {petImagePath && !isUploading && <span className="text-xs text-green-600 ml-2">(Uploaded)</span>}
                       </label>
                       <div className="flex flex-col items-center space-y-4">
                         {imagePreview ? (
@@ -373,10 +378,11 @@ export default function Dashboard() {
                           type="button"
                           variant="outline"
                           onClick={() => fileInputRef.current?.click()}
+                          disabled={isUploading}
                           className="w-full"
                         >
                           <Upload className="w-4 h-4 mr-2" />
-                          {imagePreview ? 'Change Photo' : 'Upload Photo'}
+                          {isUploading ? 'Uploading...' : imagePreview ? 'Change Photo' : 'Upload Photo'}
                         </Button>
                       </div>
                     </div>
@@ -384,6 +390,7 @@ export default function Dashboard() {
                     {/* Submit Button */}
                     <Button
                       onClick={handleAddPet}
+                      disabled={isUploading || !petImagePath}
                       className="w-full bg-[#F85BB4] hover:bg-[#F85BB4]/90 text-white"
                     >
                       <Plus className="w-4 h-4 mr-2" />
