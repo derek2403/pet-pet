@@ -76,6 +76,9 @@ export default function Dashboard() {
   const [activityHistory, setActivityHistory] = useState([]);
   const [currentPets, setCurrentPets] = useState([]);
   
+  // Selected pet state for switching between pets
+  const [selectedPetId, setSelectedPetId] = useState(1);
+  
   // Tab order for direction-based animations
   const tabOrder = ["dashboard", "timeline", "insights", "settings"];
   const getTabDirection = (newTab) => {
@@ -439,21 +442,35 @@ export default function Dashboard() {
     };
   }, [activeTab]);
 
-  // Get selected pet data (using uploaded image from public folder)
-  const selectedPet = hasPet ? {
-    name: petName,
-    species: "Cat",
-    status: "Active",
-    deviceId: "Device #7892",
-    deviceStatus: "connected",
-    avatar: petImagePath || "/shiba2.jpeg", // Use uploaded image or fallback
-    contractAddress: petContractAddress,
-  } : null;
-
-  // Mock pets array for PetSelector component
-  const pets = hasPet ? [
-    { id: 1, name: petName },
+  // Multiple pets data (including created pet and NuNa)
+  const allPetsData = hasPet ? [
+    {
+      id: 1,
+      name: petName,
+      species: "Cat",
+      status: "Active",
+      deviceId: "Device #7892",
+      deviceStatus: "connected",
+      avatar: petImagePath || "/shiba2.jpeg",
+      contractAddress: petContractAddress,
+    },
+    {
+      id: 2,
+      name: "NuNa",
+      species: "Cat",
+      status: "Active",
+      deviceId: "Device #5431",
+      deviceStatus: "connected",
+      avatar: "/shiba.jpg",
+      contractAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb1",
+    }
   ] : [];
+
+  // Get currently selected pet
+  const selectedPet = allPetsData.find(pet => pet.id === selectedPetId) || allPetsData[0];
+
+  // Pets array for PetSelector component
+  const pets = allPetsData.map(pet => ({ id: pet.id, name: pet.name }));
 
   const currentActivity = {
     type: "Running",
@@ -484,7 +501,11 @@ export default function Dashboard() {
   };
 
   // Transform activity history into timeline events format
-  const reversedHistory = activityHistory.slice().reverse();
+  // Filter activities by selected pet
+  const filteredHistory = activityHistory.filter(activity => 
+    activity.petName === selectedPet?.name
+  );
+  const reversedHistory = filteredHistory.slice().reverse();
   
   // Create entries for live activities (starting from beginning, excluding last 2 for hardcoded)
   const liveCount = Math.max(0, reversedHistory.length - 2);
@@ -797,7 +818,7 @@ export default function Dashboard() {
                   className="space-y-6"
                 >
             {/* Pet Selector */}
-            <PetSelector pets={pets} />
+            <PetSelector pets={pets} selectedPetId={selectedPetId} onPetChange={setSelectedPetId} />
 
             {/* Pet Profile Card */}
             <PetProfileCard pet={selectedPet} onPetNameChange={setPetName} />
@@ -857,6 +878,9 @@ export default function Dashboard() {
                   transition={{ duration: 0.3, ease: "easeOut" }}
                   className="space-y-6"
                 >
+                  {/* Pet Selector */}
+                  <PetSelector pets={pets} selectedPetId={selectedPetId} onPetChange={setSelectedPetId} />
+
                   {/* Activity Timeline */}
                   <ActivityTimelineCard events={recentEvents} />
                 </motion.div>
