@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -149,8 +149,8 @@ export default function Dashboard() {
     });
   };
 
-  // Update pill position when active tab changes
-  useEffect(() => {
+  // Update pill position synchronously after layout (runs before paint)
+  useLayoutEffect(() => {
     const updatePillPosition = () => {
       const activeTabElement = tabRefs.current[activeTab];
       const tabsList = tabsListRef.current;
@@ -166,18 +166,30 @@ export default function Dashboard() {
       }
     };
 
-    // Use requestAnimationFrame to ensure DOM is fully laid out
-    requestAnimationFrame(() => {
-      updatePillPosition();
-    });
-    
-    // Add a small timeout as fallback for initial render
-    const timeout = setTimeout(updatePillPosition, 100);
+    // Immediate update - useLayoutEffect runs synchronously after DOM mutations
+    updatePillPosition();
+  }, [activeTab, hasPet]);
+
+  // Update pill position on window resize
+  useEffect(() => {
+    const updatePillPosition = () => {
+      const activeTabElement = tabRefs.current[activeTab];
+      const tabsList = tabsListRef.current;
+      
+      if (activeTabElement && tabsList) {
+        const tabsListRect = tabsList.getBoundingClientRect();
+        const activeTabRect = activeTabElement.getBoundingClientRect();
+        
+        setPillStyle({
+          left: activeTabRect.left - tabsListRect.left,
+          width: activeTabRect.width,
+        });
+      }
+    };
     
     window.addEventListener('resize', updatePillPosition);
     return () => {
       window.removeEventListener('resize', updatePillPosition);
-      clearTimeout(timeout);
     };
   }, [activeTab]);
 
@@ -444,6 +456,7 @@ export default function Dashboard() {
                 height: 'calc(100% - 8px)',
                 top: '4px',
                 zIndex: 0,
+                opacity: pillStyle.width > 0 ? 1 : 0,
               }}
             />
             
