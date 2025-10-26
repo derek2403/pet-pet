@@ -13,7 +13,7 @@ import { useState } from "react";
  * PetSelector Component
  * Displays the pet selection dropdown, "Add Pet" button, and camera button
  */
-export default function PetSelector({ pets }) {
+export default function PetSelector({ pets, selectedPetId, onPetChange }) {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
 
   const handleOpenCamera = async () => {
@@ -33,7 +33,10 @@ export default function PetSelector({ pets }) {
     <div className="flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500">
       <div className="flex items-center gap-4">
         {/* Pet Dropdown with enhanced styling */}
-        <Select defaultValue="1">
+        <Select 
+          value={selectedPetId?.toString()} 
+          onValueChange={(value) => onPetChange(parseInt(value))}
+        >
           <SelectTrigger className="w-[280px] bg-white/80 backdrop-blur-md border-[#E8E4F0]/50 rounded-2xl shadow-lg text-[#4A4458] font-semibold hover:bg-white hover:border-[#FF2D95] hover:shadow-xl transition-all duration-200">
             <SelectValue placeholder="Select a pet" />
           </SelectTrigger>
