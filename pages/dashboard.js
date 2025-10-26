@@ -74,6 +74,13 @@ export default function Dashboard() {
   
   // Cache-busting parameter forces browser to fetch updated scene with dog
   const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=33";
+  const [activityHistory, setActivityHistory] = useState([
+    { petName: "NuNa", activity: "Eat", timestamp: 1730006400000 },  // Oct 26, 2024 8:00 PM
+    { petName: "NuNa", activity: "Walk", timestamp: 1730005500000 },   // Oct 26, 2024 7:45 PM
+    { petName: "NuNa", activity: "Run", timestamp: 1730004600000 },    // Oct 26, 2024 7:30 PM
+    { petName: "NuNa", activity: "Walk", timestamp: 1730004000000 }, // Oct 26, 2024 7:20 PM    // Oct 26, 2024 7:18 PM - will show as hardcoded
+  ]);
+  const [currentPets, setCurrentPets] = useState([]);
   
   // Selected pet state for switching between pets
   const [selectedPetId, setSelectedPetId] = useState(1);
@@ -150,7 +157,13 @@ export default function Dashboard() {
         }
       }
       
-      setActivityHistory(filteredHistory);
+      // Merge socket data with existing activities (preserve NuNa's mock data)
+      setActivityHistory(prevHistory => {
+        // Combine socket activities with existing NuNa activities
+        const nunaActivities = prevHistory.filter(activity => activity.petName === "NuNa");
+        const socketActivities = filteredHistory.filter(activity => activity.petName !== "NuNa");
+        return [...nunaActivities, ...socketActivities];
+      });
     });
 
     return () => {
