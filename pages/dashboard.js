@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { io } from 'socket.io-client';
+import { ethers } from 'ethers';
+import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +17,7 @@ import ActivityTimelineCard from '@/components/dashboard/ActivityTimelineCard';
 import PrivacyControlsCard from '@/components/dashboard/PrivacyControlsCard';
 import LocationMap from '@/components/LocationMap';
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
+import { REGISTRY_ADDRESS, PET_ABI } from '@/config/contracts';
 import {
   AlertCircle,
   Pill,
@@ -29,17 +32,29 @@ import {
   Home as HomeIcon,
   Upload,
   Plus,
+  Wallet,
 } from "lucide-react";
+
+const REGISTRY_ABI = REGISTRY_ADDRESS.abi;
 
 /**
  * Dashboard Page
  * Main dashboard component that orchestrates all pet-related information
  */
 export default function Dashboard() {
+  // Wagmi hooks for wallet connection (RainbowKit)
+  const { address: account, isConnected } = useAccount();
+  const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
+  
+  // Pet contract state
+  const [petContractAddress, setPetContractAddress] = useState(null);
+  
   // State for current session pet (not persisted - requires upload each time)
   const [hasPet, setHasPet] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
   
   // State for add pet form
   const [newPetName, setNewPetName] = useState("");
@@ -75,22 +90,27 @@ export default function Dashboard() {
 
   // No persistence - fresh upload required each session
 
-  // Load pet name from localStorage on mount
+  // Load pet data from localStorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedPetName = localStorage.getItem('petName');
-      if (savedPetName) {
+      const savedPetAddress = localStorage.getItem('petContractAddress');
+      
+      if (savedPetName && savedPetAddress) {
         setPetName(savedPetName);
+        setPetContractAddress(savedPetAddress);
+        setHasPet(true);
       }
     }
   }, []);
 
-  // Save pet name to localStorage whenever it changes
+  // Save pet data to localStorage whenever it changes
   useEffect(() => {
-    if (petName && typeof window !== 'undefined') {
+    if (petName && petContractAddress && typeof window !== 'undefined') {
       localStorage.setItem('petName', petName);
+      localStorage.setItem('petContractAddress', petContractAddress);
     }
-  }, [petName]);
+  }, [petName, petContractAddress]);
 
   // Set up socket connection for location tracking and activity monitoring
   useEffect(() => {
@@ -207,8 +227,31 @@ export default function Dashboard() {
     }
   };
 
-  // Add pet for current session only (no persistence)
-  const handleAddPet = () => {
+  // Verify pet contract on Blockscout
+  const verifyPetContract = async (petAddress, petName, ownerAddress) => {
+    try {
+      console.log('🔍 Verifying contract on Blockscout...');
+      
+      const response = await fetch('/api/verify-pet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ petAddress, petName, ownerAddress }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log(`✅ Contract verified! ${result.explorerUrl}`);
+      } else {
+        console.log(`⚠️ ${result.error || 'Verification failed. Contract may already be verified.'}`);
+      }
+    } catch (error) {
+      console.error('Verification error:', error);
+    }
+  };
+
+  // Create a new pet on the blockchain
+  const handleAddPet = async () => {
     if (!newPetName.trim()) {
       alert('Please enter a pet name');
       return;
@@ -218,18 +261,158 @@ export default function Dashboard() {
       return;
     }
 
-    // Set pet data for current session
-    const trimmedName = newPetName.trim();
-    setPetName(trimmedName);
-    setHasPet(true);
-    
-    // Save pet name to localStorage for use in other pages
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('petName', trimmedName);
+    // Check if wallet is connected
+    if (!isConnected || !account) {
+      alert('Please connect your wallet first using the button in the header');
+      return;
     }
-    
-    // Clear form
-    setNewPetName("");
+
+    if (!walletClient) {
+      alert('Wallet client not ready. Please try again.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      
+      setStatusMessage('🔍 Checking name availability...');
+
+      // Use wagmi's wallet client to get ethers signer
+      const provider = new ethers.BrowserProvider(walletClient);
+      const signer = await provider.getSigner();
+      
+      // Check current network
+      const network = await provider.getNetwork();
+      console.log('Current network:', network.chainId);
+      console.log('Expected network:', REGISTRY_ADDRESS.chainId);
+      
+      if (Number(network.chainId) !== REGISTRY_ADDRESS.chainId) {
+        alert(`Wrong network! Please switch to PetPet Testnet (Chain ID: ${REGISTRY_ADDRESS.chainId}). You're currently on chain ${network.chainId}`);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Verify contract exists at address
+      const code = await provider.getCode(REGISTRY_ADDRESS.address);
+      console.log('Contract code length:', code.length);
+      if (code === '0x') {
+        alert(`No contract found at ${REGISTRY_ADDRESS.address} on this network. Please verify the contract address is correct.`);
+        setIsLoading(false);
+        return;
+      }
+      
+      const registry = new ethers.Contract(REGISTRY_ADDRESS.address, REGISTRY_ABI, signer);
+
+      // Check if name is available (case-insensitive check in registry)
+      const available = await registry.isPetNameAvailable(newPetName);
+      if (!available) {
+        setStatusMessage(`❌ Pet name "${newPetName}" already taken! (Names are case-insensitive)`);
+        alert(`Pet name "${newPetName}" already taken! Please choose another name.`);
+        setIsLoading(false);
+        return;
+      }
+      
+      console.log(`✅ Name "${newPetName}" is available`);
+      setStatusMessage('⏳ Compiling contract (this may take 10-20 seconds)...');
+
+      // Compile contract via backend API
+      const compileResponse = await fetch('/api/compile-pet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ petName: newPetName }),
+      });
+
+      const compileResult = await compileResponse.json();
+      
+      if (!compileResult.success) {
+        throw new Error(compileResult.error || 'Compilation failed');
+      }
+
+      console.log('Contract compiled:', compileResult.contractName);
+      setStatusMessage(`✅ Compiled! Now deploying with your wallet...`);
+
+      // Deploy using user's wallet
+      const ContractFactory = new ethers.ContractFactory(
+        compileResult.abi,
+        compileResult.bytecode,
+        signer
+      );
+
+      setStatusMessage('⏳ Please confirm transaction in your wallet...');
+      
+      // Deploy contract
+      const contract = await ContractFactory.deploy(newPetName, account);
+      
+      setStatusMessage('⏳ Waiting for deployment confirmation...');
+      await contract.waitForDeployment();
+      
+      const petAddress = await contract.getAddress();
+      console.log('Pet deployed at:', petAddress);
+      setStatusMessage(`✅ Contract deployed! Registering in registry...`);
+
+      // Register the pet in the registry
+      try {
+        const tx = await registry.registerPet(newPetName, petAddress, account);
+        setStatusMessage('⏳ Registering pet in registry...');
+        await tx.wait();
+        console.log('Registration transaction:', tx.hash);
+      } catch (regError) {
+        // Handle race condition where name was taken between check and registration
+        if (regError.message && regError.message.includes('Pet name already exists')) {
+          setStatusMessage(`❌ Pet name was taken by someone else during deployment. Contract deployed at ${petAddress} but not registered.`);
+          alert('Pet name was taken during deployment. Please try again with a different name.');
+          setIsLoading(false);
+          return;
+        }
+        throw regError; // Re-throw if it's a different error
+      }
+
+      setStatusMessage(`✅ Pet "${newPetName}" created successfully!`);
+      
+      // Auto-verify then cleanup
+      setTimeout(async () => {
+        console.log('Starting auto-verification for:', petAddress, newPetName, account);
+        await verifyPetContract(petAddress, newPetName, account);
+        
+        // Delete temp files after verification
+        try {
+          await fetch('/api/cleanup-temp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contractName: compileResult.contractName
+            }),
+          });
+          console.log('Temp files cleaned up');
+        } catch (e) {
+          console.log('Cleanup error:', e);
+        }
+      }, 5000);
+      
+      // Set pet data
+      const trimmedName = newPetName.trim();
+      setPetName(trimmedName);
+      setPetContractAddress(petAddress);
+      setHasPet(true);
+      
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('petName', trimmedName);
+        localStorage.setItem('petContractAddress', petAddress);
+      }
+      
+      // Clear form
+      setNewPetName("");
+      setImagePreview(null);
+      setPetImagePath(null);
+      
+    } catch (error) {
+      console.error(error);
+      setStatusMessage('❌ Error: ' + (error.message || 'Failed to create pet'));
+      alert('Error creating pet: ' + (error.message || 'Please try again'));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Move pill immediately on pointer down to reduce perceived white flash
@@ -287,6 +470,7 @@ export default function Dashboard() {
     deviceId: "Device #7892",
     deviceStatus: "connected",
     avatar: petImagePath || "/shiba2.jpeg", // Use uploaded image or fallback
+    contractAddress: petContractAddress,
   } : null;
 
   // Mock pets array for PetSelector component
@@ -414,20 +598,55 @@ export default function Dashboard() {
                   <CardHeader className="text-center">
                     <CardTitle className="text-3xl font-bold text-[#F85BB4]">Welcome to PetPet! 🐾</CardTitle>
                     <CardDescription className="text-lg">
-                      Add your pet to get started
+                      Add your pet to get started - this will create a blockchain contract
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
+                    {/* Wallet Connection Status */}
+                    {!isConnected || !account ? (
+                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="flex items-center gap-2 text-yellow-800">
+                          <Wallet className="w-5 h-5" />
+                          <span className="text-sm font-medium">Wallet connection required</span>
+                        </div>
+                        <p className="text-xs text-yellow-700 mt-1">
+                          Please connect your wallet using the "Connect Wallet" button in the header
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="flex items-center gap-2 text-green-800">
+                          <Wallet className="w-5 h-5" />
+                          <span className="text-sm font-medium">
+                            Connected: {account.substring(0, 6)}...{account.substring(38)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Status Message */}
+                    {statusMessage && (
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm text-blue-800">{statusMessage}</p>
+                      </div>
+                    )}
+
                     {/* Pet Name Input */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Pet Name</label>
+                      <label className="text-sm font-medium text-gray-700">
+                        Pet Name <span className="text-red-500">*</span>
+                      </label>
                       <Input
                         type="text"
-                        placeholder="Enter your pet's name"
+                        placeholder="Enter your pet's name (e.g., Buddy, Max, Luna)"
                         value={newPetName}
                         onChange={(e) => setNewPetName(e.target.value)}
+                        disabled={isLoading}
                         className="w-full"
                       />
+                      <p className="text-xs text-gray-500">
+                        Pet names are case-insensitive and must be unique on the blockchain
+                      </p>
                     </div>
 
                     {/* Image Upload */}
@@ -474,12 +693,26 @@ export default function Dashboard() {
                     {/* Submit Button */}
                     <Button
                       onClick={handleAddPet}
-                      disabled={isUploading || !petImagePath}
+                      disabled={isUploading || !petImagePath || isLoading}
                       className="w-full bg-[#F85BB4] hover:bg-[#F85BB4]/90 text-white"
                     >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Pet
+                      {isLoading ? (
+                        <>
+                          <span className="animate-spin mr-2">⏳</span>
+                          Creating Pet Contract...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create Pet on Blockchain
+                        </>
+                      )}
                     </Button>
+                    
+                    <p className="text-xs text-gray-500 text-center">
+                      This will create a unique smart contract for your pet. You'll need to sign 2 transactions:
+                      one to deploy the contract and one to register it.
+                    </p>
                   </CardContent>
                 </Card>
               </motion.div>
