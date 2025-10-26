@@ -69,7 +69,7 @@ export default function Home() {
 
           {/* Description */}
           <p className="text-xl md:text-2xl text-white max-w-2xl mx-auto leading-relaxed font-medium drop-shadow-md">
-            Your pet's digital home on the blockchain. </p>
+            Your pet's digital home on chain. </p>
 
           {/* Get Started Button */}
           <div className="pt-8">
