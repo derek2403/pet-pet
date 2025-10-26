@@ -22,7 +22,7 @@ import { handleFeedDog } from './dogFeeding';
 import { handlePlayDog } from './dogPlaying';
 
 // Dynamically import Spline component for better performance
-const Spline = dynamic(() => import('@splinetool/react-spline/dist/react-spline'), {
+const Spline = dynamic(() => import('@splinetool/react-spline'), {
   ssr: false,
   loading: () => (
     <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#FFF5F7] to-[#F8F5FF]">

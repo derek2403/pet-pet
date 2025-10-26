@@ -13,6 +13,7 @@ import MonthlySummaryCard from '@/components/dashboard/MonthlySummaryCard';
 import UpcomingVetCard from '@/components/dashboard/UpcomingVetCard';
 import ActivityTimelineCard from '@/components/dashboard/ActivityTimelineCard';
 import PrivacyControlsCard from '@/components/dashboard/PrivacyControlsCard';
+import SplineViewer from '@/components/room/SplineViewer';
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
 import {
   AlertCircle,
@@ -28,6 +29,9 @@ import {
   Home as HomeIcon,
   Upload,
   Plus,
+  UtensilsCrossed,
+  Gamepad2,
+  X,
 } from "lucide-react";
 
 /**
@@ -54,6 +58,18 @@ export default function Dashboard() {
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0 });
   const tabRefs = useRef({});
   const tabsListRef = useRef(null);
+  
+  // State for room viewer
+  const [showRoomViewer, setShowRoomViewer] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [feedDogFunction, setFeedDogFunction] = useState(null);
+  const [playDogFunction, setPlayDogFunction] = useState(null);
+  const [walkDogFunction, setWalkDogFunction] = useState(null);
+  const [runDogFunction, setRunDogFunction] = useState(null);
+  
+  // Cache-busting parameter forces browser to fetch updated scene with dog
+  const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=33";
   
   // Tab order for direction-based animations
   const tabOrder = ["dashboard", "timeline", "insights", "settings"];
@@ -134,6 +150,26 @@ export default function Dashboard() {
     
     // Clear form
     setNewPetName("");
+  };
+
+  // Helper function to show popup notification with auto-fade
+  const showPopupNotification = (message) => {
+    setNotificationMessage(message);
+    setShowNotification(true);
+    // Auto-hide after 2 seconds
+    setTimeout(() => {
+      setShowNotification(false);
+    }, 2000);
+  };
+
+  // Handle entering the room
+  const handleEnterRoom = () => {
+    setShowRoomViewer(true);
+  };
+
+  // Handle exiting the room
+  const handleExitRoom = () => {
+    setShowRoomViewer(false);
   };
 
   // Move pill immediately on pointer down to reduce perceived white flash
@@ -519,14 +555,133 @@ export default function Dashboard() {
             {/* Pet Profile Card */}
             <PetProfileCard pet={selectedPet} onPetNameChange={setPetName} />
 
-            {/* Featured 3D Room Card */}
-            <FeaturedRoomCard />
+            {/* Featured 3D Room Card or Spline Viewer */}
+            {!showRoomViewer ? (
+              <FeaturedRoomCard onEnterRoom={handleEnterRoom} />
+            ) : (
+              <div className="space-y-6">
+                {/* Exit Room Button */}
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold text-[#4A4458]">{petName}'s Room</h2>
+                  <Button
+                    onClick={handleExitRoom}
+                    variant="outline"
+                    className="rounded-full border-[#E8E4F0]/50 text-[#4A4458] hover:bg-white hover:border-[#F85BB4] hover:shadow-md transition-all shadow-sm font-semibold"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Exit Room
+                  </Button>
+                </div>
 
-            {/* Real-Time Pet Status & Upcoming Vet Appointment Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <RealTimePetStatus currentActivity={currentActivity} />
-              <UpcomingVetCard appointment={nextVetVisit} />
-            </div>
+                {/* 3D Spline Viewer */}
+                <SplineViewer 
+                  sceneUrl={sceneUrl} 
+                  maxStepDistance={36} 
+                  showNotification={showNotification}
+                  notificationMessage={notificationMessage}
+                  onFeedReady={(feedFunc) => setFeedDogFunction(() => feedFunc)}
+                  onPlayReady={(playFunc) => setPlayDogFunction(() => playFunc)}
+                  onWalkReady={(walkFunc) => setWalkDogFunction(() => walkFunc)}
+                  onRunReady={(runFunc) => setRunDogFunction(() => runFunc)}
+                />
+
+                {/* Pet Action Buttons */}
+                <div className="grid grid-cols-5 gap-4">
+                  {/* Feed Button */}
+                  <Button
+                    onClick={() => {
+                      console.log('Feed action triggered');
+                      if (feedDogFunction) {
+                        feedDogFunction();
+                      } else {
+                        console.log('Feed function not ready yet');
+                      }
+                    }}
+                    className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
+                    title="Press 4 or 5"
+                  >
+                    <UtensilsCrossed className="w-10 h-10 text-white" />
+                    <div className="text-base font-bold text-white">Feed</div>
+                    <div className="text-xs text-white/70">Press 4/5</div>
+                  </Button>
+
+                  {/* Play Button */}
+                  <Button
+                    onClick={() => {
+                      console.log('Play action triggered');
+                      if (playDogFunction) {
+                        playDogFunction();
+                      } else {
+                        console.log('Play function not ready yet');
+                      }
+                    }}
+                    className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
+                    title="Press 6"
+                  >
+                    <Gamepad2 className="w-10 h-10 text-white" />
+                    <div className="text-base font-bold text-white">Play</div>
+                    <div className="text-xs text-white/70">Press 6</div>
+                  </Button>
+
+                  {/* Walk Button */}
+                  <Button
+                    onClick={() => {
+                      console.log('Walk action triggered');
+                      if (walkDogFunction) {
+                        walkDogFunction();
+                      } else {
+                        console.log('Walk function not ready yet');
+                      }
+                    }}
+                    className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
+                    title="Press 1"
+                  >
+                    <Footprints className="w-10 h-10 text-white" />
+                    <div className="text-base font-bold text-white">Walk</div>
+                    <div className="text-xs text-white/70">Press 1</div>
+                  </Button>
+
+                  {/* Run Button */}
+                  <Button
+                    onClick={() => {
+                      console.log('Run action triggered');
+                      if (runDogFunction) {
+                        runDogFunction();
+                      } else {
+                        console.log('Run function not ready yet');
+                      }
+                    }}
+                    className="w-full h-auto py-6 px-6 bg-[#9F7AEA] hover:bg-[#8B5CF6] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
+                    title="Press 2"
+                  >
+                    <Footprints className="w-10 h-10 text-white transform scale-125" />
+                    <div className="text-base font-bold text-white">Run</div>
+                    <div className="text-xs text-white/70">Press 2</div>
+                  </Button>
+
+                  {/* Pet Button */}
+                  <Button
+                    onClick={() => {
+                      console.log('Pet action');
+                      showPopupNotification('Pet affection increased!');
+                    }}
+                    className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
+                  >
+                    <Heart className="w-10 h-10 text-white" />
+                    <div className="text-base font-bold text-white">Pet</div>
+                    <div className="text-xs text-white/70 opacity-0">-</div>
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Real-Time Pet Status & Upcoming Vet Appointment Row - Only show when room is not open */}
+            {!showRoomViewer && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <RealTimePetStatus currentActivity={currentActivity} />
+                <UpcomingVetCard appointment={nextVetVisit} />
+              </div>
+            )}
                 </motion.div>
               </TabsContent>
             )}
