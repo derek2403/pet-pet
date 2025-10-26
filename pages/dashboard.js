@@ -111,7 +111,24 @@ export default function Dashboard() {
     socketRef.current.on('pet-activities-update', (data) => {
       console.log('Pet activities update:', data);
       setCurrentPets(data.current || []);
-      setActivityHistory(data.history || []);
+      
+      // Filter activity history to only include activities when there's a change
+      const history = data.history || [];
+      const filteredHistory = [];
+      
+      for (let i = 0; i < history.length; i++) {
+        const currentActivity = history[i];
+        const lastFiltered = filteredHistory[filteredHistory.length - 1];
+        
+        // Add activity if it's the first one or if activity type or pet name changed
+        if (!lastFiltered || 
+            currentActivity.activity !== lastFiltered.activity ||
+            currentActivity.petName !== lastFiltered.petName) {
+          filteredHistory.push(currentActivity);
+        }
+      }
+      
+      setActivityHistory(filteredHistory);
     });
 
     return () => {
@@ -286,9 +303,11 @@ export default function Dashboard() {
   const recentEvents = activityHistory.slice().reverse().slice(0, 20).map(activity => {
     const date = new Date(activity.timestamp);
     const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     
     return {
       date: dateStr,
+      time: timeStr,
       type: activity.activity,
       details: activity.petName,
       status: "verified",
