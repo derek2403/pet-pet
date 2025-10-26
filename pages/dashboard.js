@@ -490,21 +490,14 @@ export default function Dashboard() {
   };
 
   // Transform activity history into timeline events format
-  const recentEvents = activityHistory.slice().reverse().slice(0, 20).map((activity, index) => {
-    let dateStr, timeStr;
-    
-    // Hardcode times for first two entries
-    if (index === 0) {
-      dateStr = "Oct 26";
-      timeStr = "07:15 PM";
-    } else if (index === 1) {
-      dateStr = "Oct 26";
-      timeStr = "07:18 PM";
-    } else {
-      const date = new Date(activity.timestamp);
-      dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    }
+  const reversedHistory = activityHistory.slice().reverse();
+  
+  // Create entries for live activities (starting from beginning, excluding last 2 for hardcoded)
+  const liveCount = Math.max(0, reversedHistory.length - 2);
+  const liveEntries = reversedHistory.slice(0, liveCount).map(activity => {
+    const date = new Date(activity.timestamp);
+    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     
     return {
       date: dateStr,
@@ -515,6 +508,36 @@ export default function Dashboard() {
       icon: getActivityIcon(activity.activity),
     };
   });
+  
+  // Create hardcoded entries (7:18 PM above 7:15 PM) at the bottom using the last two activities
+  const hardcodedEntries = [];
+  if (reversedHistory.length > 1) {
+    const lastIndex = reversedHistory.length - 1;
+    hardcodedEntries.push({
+      date: "Oct 26",
+      time: "07:18 PM",
+      type: reversedHistory[lastIndex].activity,
+      details: reversedHistory[lastIndex].petName,
+      status: "verified",
+      icon: getActivityIcon(reversedHistory[lastIndex].activity),
+    });
+  }
+  if (reversedHistory.length > 0) {
+    const secondLastIndex = Math.max(0, reversedHistory.length - 2);
+    if (reversedHistory[secondLastIndex]) {
+      hardcodedEntries.push({
+        date: "Oct 26",
+        time: "07:15 PM",
+        type: reversedHistory[secondLastIndex].activity,
+        details: reversedHistory[secondLastIndex].petName,
+        status: "verified",
+        icon: getActivityIcon(reversedHistory[secondLastIndex].activity),
+      });
+    }
+  }
+  
+  // Combine: live entries first, then hardcoded entries at bottom
+  const recentEvents = [...liveEntries, ...hardcodedEntries].slice(0, 20);
 
   const alerts = [
     {
