@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import Header from '@/components/Header';
 import PetSelector from '@/components/dashboard/PetSelector';
 import PetProfileCard from '@/components/dashboard/PetProfileCard';
@@ -19,12 +20,8 @@ import LocationMap from '@/components/LocationMap';
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
 import { REGISTRY_ADDRESS, PET_ABI } from '@/config/contracts';
 import {
-  AlertCircle,
-  Pill,
-  Calendar,
   Footprints,
   Heart,
-  Stethoscope,
   Users,
   Settings,
   BarChart3,
@@ -33,6 +30,7 @@ import {
   Upload,
   Plus,
   Wallet,
+  X,
 } from "lucide-react";
 
 const REGISTRY_ABI = REGISTRY_ADDRESS.abi;
@@ -47,23 +45,18 @@ export default function Dashboard() {
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
   
-  // Pet contract state
-  const [petContractAddress, setPetContractAddress] = useState(null);
-  
-  // State for current session pet (not persisted - requires upload each time)
-  const [hasPet, setHasPet] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [statusMessage, setStatusMessage] = useState('');
+  // Pet creation modal state
+  const [showAddPetModal, setShowAddPetModal] = useState(false);
+  const [createdPets, setCreatedPets] = useState([]); // Array of created pets
   
   // State for add pet form
   const [newPetName, setNewPetName] = useState("");
-  const [petImagePath, setPetImagePath] = useState(null); // Path to image in public folder
+  const [petImagePath, setPetImagePath] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
   const fileInputRef = useRef(null);
-  
-  // State for pet name editing
-  const [petName, setPetName] = useState("");
   
   // Track active tab for animations
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -71,14 +64,21 @@ export default function Dashboard() {
   const tabRefs = useRef({});
   const tabsListRef = useRef(null);
   
-  // Location tracking state
+  // Socket and device tracking state
+  const socketRef = useRef(null);
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState(null);
-  const socketRef = useRef(null);
   
-  // Activity tracking state
-  const [activityHistory, setActivityHistory] = useState([]);
+  const [activityHistory, setActivityHistory] = useState([
+    { petName: "NuNa", activity: "Eat", timestamp: 1730006400000 },
+    { petName: "NuNa", activity: "Walk", timestamp: 1730005500000 },
+    { petName: "NuNa", activity: "Run", timestamp: 1730004600000 },
+    { petName: "NuNa", activity: "Walk", timestamp: 1730004000000 },
+  ]);
   const [currentPets, setCurrentPets] = useState([]);
+  
+  // Selected pet state - default to NuNa (id: 1)
+  const [selectedPetId, setSelectedPetId] = useState(1);
   
   // Tab order for direction-based animations
   const tabOrder = ["dashboard", "timeline", "insights", "settings"];
@@ -88,24 +88,12 @@ export default function Dashboard() {
     return newIndex > currentIndex ? 1 : -1;
   };
 
-  // Always start fresh - no localStorage persistence
-  // Each page load shows the "Create Pet" card
-  useEffect(() => {
-    // Clear any old persisted data on mount
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('petName');
-      localStorage.removeItem('petContractAddress');
-      localStorage.removeItem('petImagePath');
-    }
-  }, []);
-
   // Set up socket connection for location tracking and activity monitoring
   useEffect(() => {
     socketRef.current = io();
 
     socketRef.current.on('connect', () => {
       console.log('Connected to server');
-      // Request current pet activities
       socketRef.current.emit('request-pet-activities');
     });
 
@@ -136,7 +124,6 @@ export default function Dashboard() {
       console.log('Pet activities update:', data);
       setCurrentPets(data.current || []);
       
-      // Filter activity history to only include activities when there's a change
       const history = data.history || [];
       const filteredHistory = [];
       
@@ -144,7 +131,6 @@ export default function Dashboard() {
         const currentActivity = history[i];
         const lastFiltered = filteredHistory[filteredHistory.length - 1];
         
-        // Add activity if it's the first one or if activity type or pet name changed
         if (!lastFiltered || 
             currentActivity.activity !== lastFiltered.activity ||
             currentActivity.petName !== lastFiltered.petName) {
@@ -152,7 +138,11 @@ export default function Dashboard() {
         }
       }
       
-      setActivityHistory(filteredHistory);
+      setActivityHistory(prevHistory => {
+        const nunaActivities = prevHistory.filter(activity => activity.petName === "NuNa");
+        const socketActivities = filteredHistory.filter(activity => activity.petName !== "NuNa");
+        return [...nunaActivities, ...socketActivities];
+      });
     });
 
     return () => {
@@ -166,26 +156,22 @@ export default function Dashboard() {
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Check file size (limit to 2MB)
       if (file.size > 2 * 1024 * 1024) {
         alert('Image size should be less than 2MB');
         return;
       }
       
-      // Check file type
       if (!file.type.startsWith('image/')) {
         alert('Please select an image file');
         return;
       }
 
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
 
-      // Upload to server
       setIsUploading(true);
       try {
         const formData = new FormData();
@@ -248,7 +234,6 @@ export default function Dashboard() {
       return;
     }
 
-    // Check if wallet is connected
     if (!isConnected || !account) {
       alert('Please connect your wallet first using the button in the header');
       return;
@@ -264,36 +249,30 @@ export default function Dashboard() {
       
       setStatusMessage('🔍 Checking name availability...');
 
-      // Use wagmi's wallet client to get ethers signer
       const provider = new ethers.BrowserProvider(walletClient);
       const signer = await provider.getSigner();
       
-      // Check current network
       const network = await provider.getNetwork();
       console.log('Current network:', network.chainId);
-      console.log('Expected network:', REGISTRY_ADDRESS.chainId);
       
       if (Number(network.chainId) !== REGISTRY_ADDRESS.chainId) {
-        alert(`Wrong network! Please switch to PetPet Testnet (Chain ID: ${REGISTRY_ADDRESS.chainId}). You're currently on chain ${network.chainId}`);
+        alert(`Wrong network! Please switch to PetPet Testnet (Chain ID: ${REGISTRY_ADDRESS.chainId})`);
         setIsLoading(false);
         return;
       }
       
-      // Verify contract exists at address
       const code = await provider.getCode(REGISTRY_ADDRESS.address);
-      console.log('Contract code length:', code.length);
       if (code === '0x') {
-        alert(`No contract found at ${REGISTRY_ADDRESS.address} on this network. Please verify the contract address is correct.`);
+        alert(`No contract found at ${REGISTRY_ADDRESS.address} on this network.`);
         setIsLoading(false);
         return;
       }
       
       const registry = new ethers.Contract(REGISTRY_ADDRESS.address, REGISTRY_ABI, signer);
 
-      // Check if name is available (case-insensitive check in registry)
       const available = await registry.isPetNameAvailable(newPetName);
       if (!available) {
-        setStatusMessage(`❌ Pet name "${newPetName}" already taken! (Names are case-insensitive)`);
+        setStatusMessage(`❌ Pet name "${newPetName}" already taken!`);
         alert(`Pet name "${newPetName}" already taken! Please choose another name.`);
         setIsLoading(false);
         return;
@@ -302,7 +281,6 @@ export default function Dashboard() {
       console.log(`✅ Name "${newPetName}" is available`);
       setStatusMessage('⏳ Compiling contract (this may take 10-20 seconds)...');
 
-      // Compile contract via backend API
       const compileResponse = await fetch('/api/compile-pet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -318,7 +296,6 @@ export default function Dashboard() {
       console.log('Contract compiled:', compileResult.contractName);
       setStatusMessage(`✅ Compiled! Now deploying with your wallet...`);
 
-      // Deploy using user's wallet
       const ContractFactory = new ethers.ContractFactory(
         compileResult.abi,
         compileResult.bytecode,
@@ -327,7 +304,6 @@ export default function Dashboard() {
 
       setStatusMessage('⏳ Please confirm transaction in your wallet...');
       
-      // Deploy contract
       const contract = await ContractFactory.deploy(newPetName, account);
       
       setStatusMessage('⏳ Waiting for deployment confirmation...');
@@ -337,31 +313,27 @@ export default function Dashboard() {
       console.log('Pet deployed at:', petAddress);
       setStatusMessage(`✅ Contract deployed! Registering in registry...`);
 
-      // Register the pet in the registry
       try {
         const tx = await registry.registerPet(newPetName, petAddress, account);
         setStatusMessage('⏳ Registering pet in registry...');
         await tx.wait();
         console.log('Registration transaction:', tx.hash);
       } catch (regError) {
-        // Handle race condition where name was taken between check and registration
         if (regError.message && regError.message.includes('Pet name already exists')) {
-          setStatusMessage(`❌ Pet name was taken by someone else during deployment. Contract deployed at ${petAddress} but not registered.`);
+          setStatusMessage(`❌ Pet name was taken during deployment.`);
           alert('Pet name was taken during deployment. Please try again with a different name.');
           setIsLoading(false);
           return;
         }
-        throw regError; // Re-throw if it's a different error
+        throw regError;
       }
 
       setStatusMessage(`✅ Pet "${newPetName}" created successfully!`);
       
       // Auto-verify then cleanup
       setTimeout(async () => {
-        console.log('Starting auto-verification for:', petAddress, newPetName, account);
         await verifyPetContract(petAddress, newPetName, account);
         
-        // Delete temp files after verification
         try {
           await fetch('/api/cleanup-temp', {
             method: 'POST',
@@ -370,24 +342,32 @@ export default function Dashboard() {
               contractName: compileResult.contractName
             }),
           });
-          console.log('Temp files cleaned up');
         } catch (e) {
           console.log('Cleanup error:', e);
         }
       }, 5000);
       
-      // Set pet data (session only - not persisted)
-      const trimmedName = newPetName.trim();
-      setPetName(trimmedName);
-      setPetContractAddress(petAddress);
-      setHasPet(true);
+      // Add new pet to the list
+      const newPet = {
+        id: createdPets.length + 2, // NuNa is 1
+        name: newPetName.trim(),
+        species: "Dog",
+        status: "Active",
+        deviceId: `Device #${Math.floor(Math.random() * 9000) + 1000}`,
+        deviceStatus: "connected",
+        avatar: petImagePath,
+        contractAddress: petAddress,
+      };
       
-      // Keep image path for this session
-      // Note: petImagePath stays in state for dashboard display
+      setCreatedPets(prev => [...prev, newPet]);
+      setSelectedPetId(newPet.id);
       
-      // Clear form inputs
+      // Close modal and reset form
+      setShowAddPetModal(false);
       setNewPetName("");
       setImagePreview(null);
+      setPetImagePath(null);
+      setStatusMessage('');
       
     } catch (error) {
       console.error(error);
@@ -398,7 +378,7 @@ export default function Dashboard() {
     }
   };
 
-  // Move pill immediately on pointer down to reduce perceived white flash
+  // Move pill immediately on pointer down
   const movePillToTab = (tabKey) => {
     const target = tabRefs.current[tabKey];
     const tabsList = tabsListRef.current;
@@ -428,12 +408,10 @@ export default function Dashboard() {
       }
     };
 
-    // Use requestAnimationFrame to ensure DOM is fully laid out
     requestAnimationFrame(() => {
       updatePillPosition();
     });
     
-    // Add a small timeout as fallback for initial render
     const timeout = setTimeout(updatePillPosition, 100);
     
     window.addEventListener('resize', updatePillPosition);
@@ -441,23 +419,28 @@ export default function Dashboard() {
       window.removeEventListener('resize', updatePillPosition);
       clearTimeout(timeout);
     };
-  }, [activeTab]);
+  }, [activeTab, createdPets]);
 
-  // Get selected pet data (using uploaded image from public folder)
-  const selectedPet = hasPet ? {
-    name: petName,
-    species: "Cat",
-    status: "Active",
-    deviceId: "Device #7892",
-    deviceStatus: "connected",
-    avatar: petImagePath || "/shiba2.jpeg", // Use uploaded image or fallback
-    contractAddress: petContractAddress,
-  } : null;
+  // All pets data (NuNa + created pets)
+  const allPetsData = [
+    {
+      id: 1,
+      name: "NuNa",
+      species: "Cat",
+      status: "Active",
+      deviceId: "Device #5431",
+      deviceStatus: "connected",
+      avatar: "/NuNa.jpeg",
+      contractAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb1",
+    },
+    ...createdPets
+  ];
 
-  // Mock pets array for PetSelector component
-  const pets = hasPet ? [
-    { id: 1, name: petName },
-  ] : [];
+  // Get currently selected pet
+  const selectedPet = allPetsData.find(pet => pet.id === selectedPetId) || allPetsData[0];
+
+  // Pets array for PetSelector component
+  const pets = allPetsData.map(pet => ({ id: pet.id, name: pet.name }));
 
   const currentActivity = {
     type: "Running",
@@ -484,13 +467,15 @@ export default function Dashboard() {
     if (activityLower.includes('play')) return Users;
     if (activityLower.includes('sleep') || activityLower.includes('rest')) return Heart;
     if (activityLower.includes('drink') || activityLower.includes('water')) return Heart;
-    return Footprints; // default icon
+    return Footprints;
   };
 
   // Transform activity history into timeline events format
-  const reversedHistory = activityHistory.slice().reverse();
+  const filteredHistory = activityHistory.filter(activity => 
+    activity.petName === selectedPet?.name
+  );
+  const reversedHistory = filteredHistory.slice().reverse();
   
-  // Create entries for live activities (starting from beginning, excluding last 2 for hardcoded)
   const liveCount = Math.max(0, reversedHistory.length - 2);
   const liveEntries = reversedHistory.slice(0, liveCount).map(activity => {
     const date = new Date(activity.timestamp);
@@ -507,7 +492,6 @@ export default function Dashboard() {
     };
   });
   
-  // Create hardcoded entries (7:18 PM above 7:15 PM) at the bottom using the last two activities
   const hardcodedEntries = [];
   if (reversedHistory.length > 1) {
     const lastIndex = reversedHistory.length - 1;
@@ -534,226 +518,35 @@ export default function Dashboard() {
     }
   }
   
-  // Combine: live entries first, then hardcoded entries at bottom
   const recentEvents = [...liveEntries, ...hardcodedEntries].slice(0, 20);
-
-  const alerts = [
-    {
-      type: "warning",
-      message: "Shibaba missed his last meal window.",
-      icon: AlertCircle,
-    },
-    {
-      type: "info",
-      message: "Medication due in 3 hours.",
-      icon: Pill,
-    },
-    {
-      type: "reminder",
-      message: "Vet visit coming up in 4 days.",
-      icon: Calendar,
-    },
-  ];
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <>
-        <BackgroundGradientAnimation
-          gradientBackgroundStart="#FFE3EA"
-          gradientBackgroundEnd="#C9D4FF"
-          firstColor="rgb(221, 214, 254)"
-          secondColor="254, 215, 170"
-          thirdColor="190, 242, 234"
-          fourthColor="199, 210, 254"
-          fifthColor="255, 183, 197"
-          pointerColor="255, 236, 244"
-          size="120%"
-          blendingValue="normal"
-          interactive={true}
-          containerClassName="fixed inset-0 z-0 pointer-events-none"
-        />
-        <div className="relative z-10 min-h-screen flex items-center justify-center">
-          <div className="text-2xl text-gray-600">Loading...</div>
-        </div>
-      </>
-    );
-  }
-
-  // Show "Add Pet" screen if no pet added for this session
-  if (!hasPet) {
-    return (
-      <>
-        <BackgroundGradientAnimation
-          gradientBackgroundStart="#FFE3EA"
-          gradientBackgroundEnd="#C9D4FF"
-          firstColor="rgb(221, 214, 254)"
-          secondColor="254, 215, 170"
-          thirdColor="190, 242, 234"
-          fourthColor="199, 210, 254"
-          fifthColor="255, 183, 197"
-          pointerColor="255, 236, 244"
-          size="120%"
-          blendingValue="normal"
-          interactive={true}
-          containerClassName="fixed inset-0 z-0 pointer-events-none"
-        />
-        <div className="relative z-10">
-          <div className="container mx-auto px-6 py-6" style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}>
-            <Header alerts={[]} />
-            
-            <div className="min-h-[calc(100vh-200px)] flex items-center justify-center">
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="w-full max-w-2xl px-4"
-              >
-                <Card className="w-full bg-white/90 backdrop-blur-md border border-[#E8E4F0]/50 shadow-xl">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-3xl font-bold text-[#F85BB4]">Welcome to PetPet! 🐾</CardTitle>
-                    <CardDescription className="text-lg">
-                      Add your pet to get started - this will create a blockchain contract
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Wallet Connection Status */}
-                    {(!isConnected || !account) && (
-                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <div className="flex items-center gap-2 text-yellow-800">
-                          <Wallet className="w-5 h-5" />
-                          <span className="text-sm font-medium">Wallet connection required</span>
-                        </div>
-                        <p className="text-xs text-yellow-700 mt-1">
-                          Please connect your wallet using the "Connect Wallet" button in the header
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Status Message */}
-                    {statusMessage && (
-                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p className="text-sm text-blue-800">{statusMessage}</p>
-                      </div>
-                    )}
-
-                    {/* Pet Name Input */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">
-                        Pet Name <span className="text-red-500">*</span>
-                      </label>
-                      <Input
-                        type="text"
-                        placeholder="Enter your pet's name (e.g., Buddy, Max, Luna)"
-                        value={newPetName}
-                        onChange={(e) => setNewPetName(e.target.value)}
-                        disabled={isLoading}
-                        className="w-full"
-                      />
-                      <p className="text-xs text-gray-500">
-                        Pet names are case-insensitive and must be unique on the blockchain
-                      </p>
-                    </div>
-
-                    {/* Image Upload */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">
-                        Pet Photo
-                        {isUploading && <span className="text-xs text-blue-600 ml-2">(Uploading...)</span>}
-                        {petImagePath && !isUploading && <span className="text-xs text-green-600 ml-2">(Uploaded)</span>}
-                      </label>
-                      <div className="flex flex-col items-center space-y-4">
-                        {imagePreview ? (
-                          <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-[#F85BB4]/30">
-                            <img
-                              src={imagePreview}
-                              alt="Pet preview"
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-32 h-32 rounded-full bg-gray-100 border-4 border-dashed border-gray-300 flex items-center justify-center">
-                            <Upload className="w-12 h-12 text-gray-400" />
-                          </div>
-                        )}
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          onChange={handleImageChange}
-                          accept="image/*"
-                          className="hidden"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => fileInputRef.current?.click()}
-                          disabled={isUploading}
-                          className="w-full"
-                        >
-                          <Upload className="w-4 h-4 mr-2" />
-                          {isUploading ? 'Uploading...' : imagePreview ? 'Change Photo' : 'Upload Photo'}
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Submit Button */}
-                    <Button
-                      onClick={handleAddPet}
-                      disabled={isUploading || !petImagePath || isLoading}
-                      className="w-full bg-[#F85BB4] hover:bg-[#F85BB4]/90 text-white"
-                    >
-                      {isLoading ? (
-                        <>
-                          <span className="animate-spin mr-2">⏳</span>
-                          Creating Pet Contract...
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="w-4 h-4 mr-2" />
-                          Create Pet on Blockchain
-                        </>
-                      )}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
       <BackgroundGradientAnimation
-        gradientBackgroundStart="#FFE3EA" /* soft pink like screenshot left */
-        gradientBackgroundEnd="#C9D4FF" /* pastel lavender/blue like screenshot right */
-        firstColor="rgb(221, 214, 254)" /* soft purple */
-        secondColor="254, 215, 170" /* peach */
-        thirdColor="190, 242, 234" /* mint/teal */
-        fourthColor="199, 210, 254" /* periwinkle */
-        fifthColor="255, 183, 197" /* soft rose blob */
-        pointerColor="255, 236, 244" /* very light pink pointer */
+        gradientBackgroundStart="#FFE3EA"
+        gradientBackgroundEnd="#C9D4FF"
+        firstColor="rgb(221, 214, 254)"
+        secondColor="254, 215, 170"
+        thirdColor="190, 242, 234"
+        fourthColor="199, 210, 254"
+        fifthColor="255, 183, 197"
+        pointerColor="255, 236, 244"
         size="120%"
         blendingValue="normal"
         interactive={true}
         containerClassName="fixed inset-0 z-0 pointer-events-none"
       />
-      {/* Content wrapper above background */}
+      
       <div className="relative z-10">
-        {/* Header with navigation and wallet - pass alerts to the header for the popup */}
         <div className="container mx-auto px-6 py-6" style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}>
-        <Header alerts={alerts} />
+        <Header />
 
-        {/* Main Content with Tabs */}
         <Tabs 
           value={activeTab} 
           onValueChange={setActiveTab} 
           className="space-y-6"
         >
           <TabsList ref={tabsListRef} className="relative bg-white/80 backdrop-blur-md border border-[#E8E4F0]/50 p-1.5 rounded-2xl shadow-lg overflow-hidden">
-            {/* Sliding Pill Background with solid pink */}
             <div
               className="absolute rounded-xl bg-[#F85BB4] shadow-md transition-all duration-300 ease-out"
               style={{
@@ -818,20 +611,20 @@ export default function Dashboard() {
                   transition={{ duration: 0.3, ease: "easeOut" }}
                   className="space-y-6"
                 >
-            {/* Pet Selector */}
-            <PetSelector pets={pets} />
+            <PetSelector 
+              pets={pets} 
+              selectedPetId={selectedPetId} 
+              onPetChange={setSelectedPetId}
+              onAddPet={() => setShowAddPetModal(true)}
+            />
 
-            {/* Pet Profile Card */}
-            <PetProfileCard pet={selectedPet} onPetNameChange={setPetName} />
+            <PetProfileCard pet={selectedPet} />
 
-            {/* Featured 3D Room Card */}
             <FeaturedRoomCard />
 
-            {/* Real-Time Pet Status & Location Map Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <RealTimePetStatus currentActivity={currentActivity} />
               
-              {/* Location Map Card */}
               <Card className="bg-white/90 backdrop-blur-md border border-[#E8E4F0]/50 shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-xl font-bold text-[#F85BB4]">
@@ -879,7 +672,13 @@ export default function Dashboard() {
                   transition={{ duration: 0.3, ease: "easeOut" }}
                   className="space-y-6"
                 >
-                  {/* Activity Timeline */}
+                  <PetSelector 
+                    pets={pets} 
+                    selectedPetId={selectedPetId} 
+                    onPetChange={setSelectedPetId}
+                    onAddPet={() => setShowAddPetModal(true)}
+                  />
+
                   <ActivityTimelineCard events={recentEvents} />
                 </motion.div>
               </TabsContent>
@@ -897,7 +696,6 @@ export default function Dashboard() {
                   transition={{ duration: 0.3, ease: "easeOut" }}
                   className="space-y-6"
                 >
-                  {/* Monthly Summary & Analytics */}
                   <MonthlySummaryCard stats={monthlyStats} />
                 </motion.div>
               </TabsContent>
@@ -915,7 +713,6 @@ export default function Dashboard() {
                   transition={{ duration: 0.3, ease: "easeOut" }}
                   className="space-y-6"
                 >
-                  {/* Privacy & Sharing Controls */}
                   <PrivacyControlsCard />
                 </motion.div>
               </TabsContent>
@@ -924,7 +721,110 @@ export default function Dashboard() {
         </Tabs>
         </div>
       </div>
+
+      {/* Add Pet Modal */}
+      <Dialog open={showAddPetModal} onOpenChange={setShowAddPetModal}>
+        <DialogContent className="max-w-2xl bg-white/95 backdrop-blur-md border-2 border-[#E8E4F0]">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-bold text-[#F85BB4]">Welcome to PetPet! 🐾</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {(!isConnected || !account) && (
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-center gap-2 text-yellow-800">
+                  <Wallet className="w-5 h-5" />
+                  <span className="text-sm font-medium">Wallet connection required</span>
+                </div>
+                <p className="text-xs text-yellow-700 mt-1">
+                  Please connect your wallet using the "Connect Wallet" button in the header
+                </p>
+              </div>
+            )}
+
+            {statusMessage && (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">{statusMessage}</p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Pet Name <span className="text-red-500">*</span>
+              </label>
+              <Input
+                type="text"
+                placeholder="Enter your pet's name (e.g., Buddy, Max, Luna)"
+                value={newPetName}
+                onChange={(e) => setNewPetName(e.target.value)}
+                disabled={isLoading}
+                className="w-full"
+              />
+              <p className="text-xs text-gray-500">
+                Pet names are case-insensitive and must be unique on the blockchain
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Pet Photo
+                {isUploading && <span className="text-xs text-blue-600 ml-2">(Uploading...)</span>}
+                {petImagePath && !isUploading && <span className="text-xs text-green-600 ml-2">(Uploaded)</span>}
+              </label>
+              <div className="flex flex-col items-center space-y-4">
+                {imagePreview ? (
+                  <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-[#F85BB4]/30">
+                    <img
+                      src={imagePreview}
+                      alt="Pet preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-32 h-32 rounded-full bg-gray-100 border-4 border-dashed border-gray-300 flex items-center justify-center">
+                    <Upload className="w-12 h-12 text-gray-400" />
+                  </div>
+                )}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="w-full"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  {isUploading ? 'Uploading...' : imagePreview ? 'Change Photo' : 'Upload Photo'}
+                </Button>
+              </div>
+            </div>
+
+            <Button
+              onClick={handleAddPet}
+              disabled={isUploading || !petImagePath || isLoading}
+              className="w-full bg-[#F85BB4] hover:bg-[#F85BB4]/90 text-white"
+            >
+              {isLoading ? (
+                <>
+                  <span className="animate-spin mr-2">⏳</span>
+                  Creating Pet Contract...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Pet on Blockchain
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
-

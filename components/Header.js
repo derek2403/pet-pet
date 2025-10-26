@@ -44,13 +44,6 @@ export default function Header({ alerts = [] }) {
 
       {/* Navigation & Wallet Info with enhanced styling */}
       <div className="flex items-center gap-3">
-        {/* Visit 3D Room Button with solid pink */}
-        <Link href="/room">
-          <Button className="bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 transition-all duration-300 text-white font-semibold rounded-full shadow-lg px-6">
-            Visit Room
-          </Button>
-        </Link>
-
         {/* Explorer Button with better styling */}
         <Link href="https://petpet.cloud.blockscout.com/" target="_blank" rel="noopener noreferrer">
           <Button variant="outline" className="rounded-full bg-white/80 backdrop-blur-md border-[#E8E4F0]/50 text-[#6B6B6B] font-semibold hover:bg-white hover:border-[#FF2D95] hover:shadow-lg hover:text-[#F85BB4] transition-all duration-200 shadow-md group">
