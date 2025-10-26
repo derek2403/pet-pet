@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import Header from '@/components/Header';
 import PetSelector from '@/components/dashboard/PetSelector';
 import PetProfileCard from '@/components/dashboard/PetProfileCard';
 import FeaturedRoomCard from '@/components/dashboard/FeaturedRoomCard';
@@ -203,7 +203,7 @@ export default function Dashboard() {
       <div className="relative z-10">
         {/* Header with navigation and wallet - pass alerts to the header for the popup */}
         <div className="container mx-auto px-6 py-6" style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}>
-        <DashboardHeader alerts={alerts} />
+        <Header alerts={alerts} />
 
         {/* Main Content with Tabs */}
         <Tabs 
