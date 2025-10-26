@@ -1,0 +1,15 @@
+services:
+  anvil-node:
+    image: cedricctf11a/anvil-node:latest
+    platform: linux/amd64
+    container_name: anvil-testnet
+    ports:
+      - "8545:8545"
+    restart: unless-stopped
+    networks:
+      - anvil-network
+
+networks:
+  anvil-network:
+    driver: bridge
+
