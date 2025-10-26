@@ -6,13 +6,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, Camera } from "lucide-react";
+import { useState } from "react";
 
 /**
  * PetSelector Component
- * Displays the pet selection dropdown and "Add Pet" button
+ * Displays the pet selection dropdown, "Add Pet" button, and camera button
  */
 export default function PetSelector({ pets }) {
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+
+  const handleOpenCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } 
+      });
+      // For now, just open in a new window or redirect
+      window.open('/dog-camera', '_blank');
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      alert('Unable to access camera. Please check permissions.');
+    }
+  };
+
   return (
     <div className="flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500">
       <div className="flex items-center gap-4">
@@ -38,6 +54,16 @@ export default function PetSelector({ pets }) {
         <Button className="bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 transition-all duration-300 text-white font-semibold rounded-2xl shadow-lg px-6">
           <Plus className="w-4 h-4 mr-2" />
           Add Pet
+        </Button>
+
+        {/* Camera Button */}
+        <Button 
+          onClick={handleOpenCamera}
+          variant="outline" 
+          className="rounded-2xl bg-white/80 backdrop-blur-md border-[#E8E4F0]/50 text-[#6B6B6B] font-semibold hover:bg-white hover:border-[#F85BB4] hover:shadow-xl hover:scale-105 transition-all duration-300 shadow-lg px-6 group"
+        >
+          <Camera className="w-4 h-4 mr-2 text-[#6B6B6B] group-hover:text-[#F85BB4] transition-colors" />
+          Camera
         </Button>
       </div>
     </div>
