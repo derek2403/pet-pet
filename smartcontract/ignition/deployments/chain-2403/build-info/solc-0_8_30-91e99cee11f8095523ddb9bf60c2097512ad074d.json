@@ -1,15 +1,15 @@
 {
   "_format": "hh3-sol-build-info-1",
-  "id": "solc-0_8_28-8d5c9bf24ce23cbddf298b4d15eddd81b3af4611",
-  "solcVersion": "0.8.28",
-  "solcLongVersion": "0.8.28+commit.7893614a",
+  "id": "solc-0_8_30-91e99cee11f8095523ddb9bf60c2097512ad074d",
+  "solcVersion": "0.8.30",
+  "solcLongVersion": "0.8.30+commit.73712a01",
   "userSourceNameMap": {
     "contracts/PetRegistry.sol": "project/contracts/PetRegistry.sol"
   },
   "input": {
     "language": "Solidity",
     "settings": {
-      "evmVersion": "cancun",
+      "evmVersion": "prague",
       "optimizer": {
         "enabled": true,
         "runs": 200
