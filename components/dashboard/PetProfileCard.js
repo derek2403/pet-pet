@@ -196,11 +196,13 @@ export default function PetProfileCard({ pet, onPetNameChange }) {
                     <Pencil className="w-4 h-4 text-[#D4A5A5] opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 )}
-                <div className="flex items-center gap-2 mt-1">
-                  <p className="text-[#D4A5A5] font-medium">{pet.ens}</p>
-                </div>
+                {pet.ens && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-[#D4A5A5] font-medium">{pet.ens}</p>
+                  </div>
+                )}
                 <p className="text-[#5A5A5A] mt-1">
-                  {pet.breed} • {pet.species}
+                  {pet.species}
                 </p>
               </div>
               <Badge className="bg-[#F85BB4] text-white font-semibold hover:shadow-lg border-none px-4 py-2 shadow-md transition-all duration-200 hover:scale-105">

@@ -15,7 +15,7 @@ import {
 export default function DogCamera() {
   const [cameraActive, setCameraActive] = useState(false);
   const [connected, setConnected] = useState(false);
-  const [currentActivity, setCurrentActivity] = useState('Unknown');
+  const [currentActivity, setCurrentActivity] = useState('Rest');
   const [modelLoaded, setModelLoaded] = useState(false);
   const [dogDetected, setDogDetected] = useState(false);
   const [petName, setPetName] = useState('My Dog');
@@ -31,13 +31,13 @@ export default function DogCamera() {
     water: null,
     bed: null,
   });
-  const [manualMode, setManualMode] = useState(false);
-  const [manualActivity, setManualActivity] = useState(null);
+  const [manualMode, setManualMode] = useState(true);
+  const [manualActivity, setManualActivity] = useState("Walk");
 
   const socketRef = useRef(null);
   const modelRef = useRef(null);
-  const manualModeRef = useRef(false);
-  const manualActivityRef = useRef(null);
+  const manualModeRef = useRef(true);
+  const manualActivityRef = useRef("Walk");
   
   // Refs for DetectionCamera component (video, canvas, animation refs)
   const cameraRefsRef = useRef({
@@ -130,7 +130,7 @@ export default function DogCamera() {
           confidence: Math.round(data.confidence * 100),
         }));
       } else {
-        setCurrentActivity('No dog detected');
+        setCurrentActivity('Rest');
       }
     }
     

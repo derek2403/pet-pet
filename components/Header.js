@@ -52,7 +52,7 @@ export default function Header({ alerts = [] }) {
         </Link>
 
         {/* Explorer Button with better styling */}
-        <Link href="/petpet">
+        <Link href="https://petpet.cloud.blockscout.com/" target="_blank" rel="noopener noreferrer">
           <Button variant="outline" className="rounded-full bg-white/80 backdrop-blur-md border-[#E8E4F0]/50 text-[#6B6B6B] font-semibold hover:bg-white hover:border-[#FF2D95] hover:shadow-lg hover:text-[#F85BB4] transition-all duration-200 shadow-md group">
             <ExternalLink className="w-4 h-4 mr-2 text-[#6B6B6B] group-hover:text-[#F85BB4] group-hover:scale-110 transition-all duration-200" />
             Explorer
