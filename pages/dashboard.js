@@ -82,7 +82,7 @@ export default function Dashboard() {
   
   // Pet-specific activity state
   const [petActivities, setPetActivities] = useState({
-    1: { type: "Running", duration: "12 mins", location: "Proof verified" } // NuNa default
+    1: { type: "Idle", duration: "40 mins", location: "Proof verified" } // NuNa default
   });
   
   // Pet-specific device setup state
