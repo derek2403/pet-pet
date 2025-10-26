@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Header from '@/components/Header';
 import PetSelector from '@/components/dashboard/PetSelector';
 import PetProfileCard from '@/components/dashboard/PetProfileCard';
@@ -23,6 +26,8 @@ import {
   BarChart3,
   ScrollText,
   Home as HomeIcon,
+  Upload,
+  Plus,
 } from "lucide-react";
 
 /**
@@ -30,8 +35,18 @@ import {
  * Main dashboard component that orchestrates all pet-related information
  */
 export default function Dashboard() {
+  // State for current session pet (not persisted)
+  const [hasPet, setHasPet] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // State for add pet form
+  const [newPetName, setNewPetName] = useState("");
+  const [petImage, setPetImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
+  
   // State for pet name editing
-  const [petName, setPetName] = useState("Shibaba");
+  const [petName, setPetName] = useState("");
   
   // Track active tab for animations
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -45,6 +60,77 @@ export default function Dashboard() {
     const currentIndex = tabOrder.indexOf(activeTab);
     const newIndex = tabOrder.indexOf(newTab);
     return newIndex > currentIndex ? 1 : -1;
+  };
+
+  // Load pet image from localStorage on mount (only image persists)
+  useEffect(() => {
+    const loadPetImage = () => {
+      try {
+        const storedImage = localStorage.getItem('petpet_pet_image');
+        if (storedImage) {
+          setPetImage(storedImage);
+          setImagePreview(storedImage);
+        }
+      } catch (error) {
+        console.error('Error loading pet image from localStorage:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadPetImage();
+  }, []);
+
+  // Handle image file selection and convert to base64
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Check file size (limit to 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('Image size should be less than 2MB');
+        return;
+      }
+      
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        setPetImage(base64String);
+        setImagePreview(base64String);
+        
+        // Save image to localStorage immediately
+        try {
+          localStorage.setItem('petpet_pet_image', base64String);
+        } catch (error) {
+          console.error('Error saving image to localStorage:', error);
+          alert('Error saving image. The image might be too large.');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Add pet for current session only (pet data not persisted, only image)
+  const handleAddPet = () => {
+    if (!newPetName.trim()) {
+      alert('Please enter a pet name');
+      return;
+    }
+    if (!petImage) {
+      alert('Please select a pet image');
+      return;
+    }
+
+    // Set pet data for current session
+    setPetName(newPetName.trim());
+    setHasPet(true);
+    
+    // Reset form name only (image persists in localStorage)
+    setNewPetName("");
   };
 
   // Move pill immediately on pointer down to reduce perceived white flash
@@ -92,22 +178,22 @@ export default function Dashboard() {
     };
   }, [activeTab]);
 
-  // Mock data
-  const pets = [
-    { id: 1, name: "Shibaba", ens: "shibaba.petpet.eth" },
-    { id: 2, name: "Luna", ens: "luna.petpet.eth" },
-  ];
-
-  const selectedPet = {
+  // Get selected pet data (using persisted image)
+  const selectedPet = hasPet ? {
     name: petName,
-    ens: "shibaba.petpet.eth",
+    ens: `${petName.toLowerCase().replace(/\s+/g, '')}.petpet.eth`,
     species: "Dog",
     breed: "Shiba Inu",
     status: "Active",
     deviceId: "Device #7892",
     deviceStatus: "connected",
-    avatar: "/shiba2.jpeg",
-  };
+    avatar: petImage || "/shiba2.jpeg", // Use stored image or fallback
+  } : null;
+
+  // Mock pets array for PetSelector component
+  const pets = hasPet ? [
+    { id: 1, name: petName, ens: `${petName.toLowerCase().replace(/\s+/g, '')}.petpet.eth` },
+  ] : [];
 
   const currentActivity = {
     type: "Running",
@@ -182,6 +268,136 @@ export default function Dashboard() {
       icon: Calendar,
     },
   ];
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <>
+        <BackgroundGradientAnimation
+          gradientBackgroundStart="#FFE3EA"
+          gradientBackgroundEnd="#C9D4FF"
+          firstColor="rgb(221, 214, 254)"
+          secondColor="254, 215, 170"
+          thirdColor="190, 242, 234"
+          fourthColor="199, 210, 254"
+          fifthColor="255, 183, 197"
+          pointerColor="255, 236, 244"
+          size="120%"
+          blendingValue="normal"
+          interactive={true}
+          containerClassName="fixed inset-0 z-0 pointer-events-none"
+        />
+        <div className="relative z-10 min-h-screen flex items-center justify-center">
+          <div className="text-2xl text-gray-600">Loading...</div>
+        </div>
+      </>
+    );
+  }
+
+  // Show "Add Pet" screen if no pet added for this session
+  if (!hasPet) {
+    return (
+      <>
+        <BackgroundGradientAnimation
+          gradientBackgroundStart="#FFE3EA"
+          gradientBackgroundEnd="#C9D4FF"
+          firstColor="rgb(221, 214, 254)"
+          secondColor="254, 215, 170"
+          thirdColor="190, 242, 234"
+          fourthColor="199, 210, 254"
+          fifthColor="255, 183, 197"
+          pointerColor="255, 236, 244"
+          size="120%"
+          blendingValue="normal"
+          interactive={true}
+          containerClassName="fixed inset-0 z-0 pointer-events-none"
+        />
+        <div className="relative z-10">
+          <div className="container mx-auto px-6 py-6" style={{ fontFamily: "'Inter', 'Poppins', 'Helvetica Neue', Arial, sans-serif" }}>
+            <Header alerts={[]} />
+            
+            <div className="min-h-[calc(100vh-200px)] flex items-center justify-center">
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="w-full max-w-2xl px-4"
+              >
+                <Card className="w-full bg-white/90 backdrop-blur-md border border-[#E8E4F0]/50 shadow-xl">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-3xl font-bold text-[#F85BB4]">Welcome to PetPet! 🐾</CardTitle>
+                    <CardDescription className="text-lg">
+                      {petImage ? "Welcome back! Enter your pet's name to continue" : "Add your pet to get started"}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Pet Name Input */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Pet Name</label>
+                      <Input
+                        type="text"
+                        placeholder="Enter your pet's name"
+                        value={newPetName}
+                        onChange={(e) => setNewPetName(e.target.value)}
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Image Upload */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">
+                        Pet Photo {petImage && <span className="text-xs text-green-600">(Saved)</span>}
+                      </label>
+                      <div className="flex flex-col items-center space-y-4">
+                        {imagePreview ? (
+                          <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-[#F85BB4]/30">
+                            <img
+                              src={imagePreview}
+                              alt="Pet preview"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-32 h-32 rounded-full bg-gray-100 border-4 border-dashed border-gray-300 flex items-center justify-center">
+                            <Upload className="w-12 h-12 text-gray-400" />
+                          </div>
+                        )}
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleImageChange}
+                          accept="image/*"
+                          className="hidden"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-full"
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          {imagePreview ? 'Change Photo' : 'Upload Photo'}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Submit Button */}
+                    <Button
+                      onClick={handleAddPet}
+                      className="w-full bg-[#F85BB4] hover:bg-[#F85BB4]/90 text-white"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Pet
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
