@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { io } from 'socket.io-client';
 import { ethers } from 'ethers';
 import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
+import dynamic from 'next/dynamic';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,9 +17,20 @@ import RealTimePetStatus from '@/components/dashboard/RealTimePetStatus';
 import MonthlySummaryCard from '@/components/dashboard/MonthlySummaryCard';
 import ActivityTimelineCard from '@/components/dashboard/ActivityTimelineCard';
 import PrivacyControlsCard from '@/components/dashboard/PrivacyControlsCard';
-import LocationMap from '@/components/LocationMap';
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
 import { REGISTRY_ADDRESS, PET_ABI } from '@/config/contracts';
+
+// Dynamically import LocationMap to avoid SSR issues with Leaflet
+const LocationMap = dynamic(() => import('@/components/LocationMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-gray-50">
+      <div className="text-center text-gray-500">
+        <p className="text-sm">Loading map...</p>
+      </div>
+    </div>
+  ),
+});
 import {
   Footprints,
   Heart,
@@ -100,31 +112,18 @@ export default function Dashboard() {
     socketRef.current = io();
 
     socketRef.current.on('connect', () => {
-      console.log('Connected to server');
+      console.log('📱 Dashboard connected to server');
       socketRef.current.emit('request-pet-activities');
+      socketRef.current.emit('request-devices');
     });
 
-    socketRef.current.on('location-update', (locationData) => {
-      setDevices(prevDevices => {
-        const existingIndex = prevDevices.findIndex(d => d.id === locationData.name || d.name === locationData.name);
-        const deviceData = {
-          id: locationData.name,
-          name: locationData.name,
-          latitude: locationData.latitude,
-          longitude: locationData.longitude,
-          accuracy: locationData.accuracy,
-          timestamp: locationData.timestamp,
-          speed: locationData.speed || 0,
-        };
-
-        if (existingIndex >= 0) {
-          const updated = [...prevDevices];
-          updated[existingIndex] = deviceData;
-          return updated;
-        } else {
-          return [...prevDevices, deviceData];
-        }
-      });
+    // Listen for devices-update event (server broadcasts full device array)
+    socketRef.current.on('devices-update', (devicesArray) => {
+      console.log('📍 Dashboard received devices update, count:', devicesArray.length);
+      if (devicesArray.length > 0) {
+        console.log('First device:', devicesArray[0]);
+      }
+      setDevices(devicesArray);
     });
 
     socketRef.current.on('pet-activities-update', (data) => {
