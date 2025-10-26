@@ -1,10 +1,10 @@
 import { run } from "hardhat";
 
 /**
- * Script to verify a Pet contract on Base Sepolia Blockscout
+ * Script to verify a Pet contract on PetPet Testnet Blockscout
  * 
  * Usage:
- * npx hardhat run scripts/verify-pet.ts --network baseSepolia
+ * npx hardhat run scripts/verify-pet.ts --network petPetTestnet
  * 
  * Or programmatically:
  * verifyPetContract(petAddress, petName, ownerAddress)
@@ -28,7 +28,7 @@ export async function verifyPetContract(
     });
     
     console.log("✅ Pet contract verified successfully!");
-    console.log(`View at: https://base-sepolia.blockscout.com/address/${petAddress}`);
+    console.log(`View at: https://petpet.cloud.blockscout.com/address/${petAddress}`);
     return true;
   } catch (error: any) {
     if (error.message.includes("Already Verified")) {
@@ -50,7 +50,7 @@ async function main() {
   
   if (!PET_ADDRESS || !OWNER_ADDRESS) {
     console.error("❌ Please provide PET_ADDRESS and OWNER_ADDRESS");
-    console.log("Usage: PET_ADDRESS=0x... OWNER_ADDRESS=0x... PET_NAME=Buddy npx hardhat run scripts/verify-pet.ts --network baseSepolia");
+    console.log("Usage: PET_ADDRESS=0x... OWNER_ADDRESS=0x... PET_NAME=Buddy npx hardhat run scripts/verify-pet.ts --network petPetTestnet");
     process.exit(1);
   }
   

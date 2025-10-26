@@ -6,7 +6,7 @@ const OWNER_ADDRESS = process.argv[4] || "";
 
 async function main() {
   if (!OWNER_ADDRESS) {
-    console.error("Usage: npx hardhat run scripts/verify-single-pet.ts --network baseSepolia <petAddress> <petName> <ownerAddress>");
+    console.error("Usage: npx hardhat run scripts/verify-single-pet.ts --network petPetTestnet <petAddress> <petName> <ownerAddress>");
     process.exit(1);
   }
 
@@ -23,11 +23,11 @@ async function main() {
     });
     
     console.log("✅ Verified!");
-    console.log(`https://base-sepolia.blockscout.com/address/${PET_ADDRESS}#code`);
+    console.log(`https://petpet.cloud.blockscout.com/address/${PET_ADDRESS}#code`);
   } catch (error: any) {
     if (error.message.includes("Already Verified") || error.message.includes("already been verified")) {
       console.log("✅ Already verified!");
-      console.log(`https://base-sepolia.blockscout.com/address/${PET_ADDRESS}#code`);
+      console.log(`https://petpet.cloud.blockscout.com/address/${PET_ADDRESS}#code`);
     } else {
       console.error("❌ Error:", error.message);
       throw error;

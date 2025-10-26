@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { ethers } from 'ethers';
 import { REGISTRY_ADDRESS, PET_ABI } from '../config/contracts';
-import { useTransactionToast } from '../hooks/useTransactionToast';
-import { useTransactionHistory } from '../hooks/useTransactionHistory';
 
 const REGISTRY_ABI = REGISTRY_ADDRESS.abi;
 
-// Base Sepolia RPC URL (fallback)
-const BASE_SEPOLIA_RPC = 'https://sepolia.base.org';
+// PetPet Testnet RPC URL (fallback)
+const PETPET_RPC = 'https://c2e90a7139bb5f5fe1c6deab725ee1a45631b952-8545.dstack-prod5.phala.network/';
 
 export default function TestPage() {
   const [account, setAccount] = useState(null);
@@ -21,10 +19,6 @@ export default function TestPage() {
   const [interactPetName, setInteractPetName] = useState(''); // For searching pet by name
   const [interactAddress, setInteractAddress] = useState(''); // For direct address entry
   const [interactDuration, setInteractDuration] = useState(600); // Default 10 minutes
-
-  // Initialize transaction hooks with Base Sepolia chain ID
-  const { showTransactionToast, handleTransactionWithNotification } = useTransactionToast("84532");
-  const { showAddressTransactions, openTransactionPopup } = useTransactionHistory("84532");
 
   // Connect wallet
   const connectWallet = async () => {
@@ -40,14 +34,14 @@ export default function TestPage() {
       const network = await provider.getNetwork();
       console.log('Connected to network:', network.chainId.toString());
       
-      if (network.chainId !== 84532n) {
-        setMessage('⚠️ Please switch MetaMask to Base Sepolia (Chain ID: 84532)');
+      if (network.chainId !== 2403n) {
+        setMessage('⚠️ Please switch MetaMask to PetPet Testnet (Chain ID: 2403)');
         
         // Try to switch network automatically
         try {
           await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0x14a34' }], // 84532 in hex
+            params: [{ chainId: '0x963' }], // 2403 in hex
           });
         } catch (switchError) {
           // If network doesn't exist, add it
@@ -56,15 +50,15 @@ export default function TestPage() {
               await window.ethereum.request({
                 method: 'wallet_addEthereumChain',
                 params: [{
-                  chainId: '0x14a34',
-                  chainName: 'Base Sepolia',
+                  chainId: '0x963',
+                  chainName: 'PetPet Testnet',
                   nativeCurrency: {
-                    name: 'Ethereum',
-                    symbol: 'ETH',
+                    name: 'PetPet',
+                    symbol: 'PETPET',
                     decimals: 18
                   },
-                  rpcUrls: ['https://sepolia.base.org'],
-                  blockExplorerUrls: ['https://sepolia.basescan.org']
+                  rpcUrls: ['https://c2e90a7139bb5f5fe1c6deab725ee1a45631b952-8545.dstack-prod5.phala.network/'],
+                  blockExplorerUrls: ['https://petpet.cloud.blockscout.com/']
                 }]
               });
             } catch (addError) {
@@ -93,7 +87,7 @@ export default function TestPage() {
       const code = await provider.getCode(REGISTRY_ADDRESS.address);
       console.log('Contract code length:', code.length);
       if (code === '0x') {
-        throw new Error('No contract found at this address on Base Sepolia');
+        throw new Error('No contract found at this address on PetPet Testnet');
       }
       return true;
     } catch (error) {
@@ -124,19 +118,19 @@ export default function TestPage() {
         const network = await provider.getNetwork();
         console.log('MetaMask network:', network.chainId.toString());
         
-        if (network.chainId !== 84532n) {
-          setMessage(`⚠️ Wrong network! Please switch to Base Sepolia (Chain ID: 84532). Current: ${network.chainId}`);
+        if (network.chainId !== 2403n) {
+          setMessage(`⚠️ Wrong network! Please switch to PetPet Testnet (Chain ID: 2403). Current: ${network.chainId}`);
           return;
         }
       } catch (err) {
         console.warn('MetaMask provider issue, using fallback RPC');
-        provider = new ethers.JsonRpcProvider(BASE_SEPOLIA_RPC);
+        provider = new ethers.JsonRpcProvider(PETPET_RPC);
       }
       
       // Verify contract exists
       const contractExists = await verifyContract(provider);
       if (!contractExists) {
-        setMessage('❌ Contract not found! Make sure you deployed to Base Sepolia at: ' + REGISTRY_ADDRESS.address);
+        setMessage('❌ Contract not found! Make sure you deployed to PetPet Testnet at: ' + REGISTRY_ADDRESS.address);
         return;
       }
       
@@ -235,12 +229,6 @@ export default function TestPage() {
       
       // Deploy contract
       const contract = await ContractFactory.deploy(petName, account);
-      const deployTx = contract.deploymentTransaction();
-      
-      // Show deployment toast
-      if (deployTx && deployTx.hash) {
-        showTransactionToast(deployTx.hash);
-      }
       
       setMessage('⏳ Waiting for deployment confirmation...');
       await contract.waitForDeployment();
@@ -249,22 +237,12 @@ export default function TestPage() {
       console.log('Pet deployed at:', petAddress);
       setMessage(`✅ Contract deployed! Registering in registry...`);
 
-      // Register the pet in the registry with transaction toast
+      // Register the pet in the registry
       try {
-        await handleTransactionWithNotification(
-          async () => {
-            const tx = await registry.registerPet(petName, petAddress, account);
-            setMessage('⏳ Registering pet in registry...');
-            await tx.wait();
-            return tx;
-          },
-          {
-            onSuccess: (result, txHash) => {
-              console.log('Registration transaction:', txHash);
-            },
-            showToast: true
-          }
-        );
+        const tx = await registry.registerPet(petName, petAddress, account);
+        setMessage('⏳ Registering pet in registry...');
+        await tx.wait();
+        console.log('Registration transaction:', tx.hash);
       } catch (regError) {
         // Handle race condition where name was taken between check and registration
         if (regError.message && regError.message.includes('Pet name already exists')) {
@@ -416,29 +394,17 @@ export default function TestPage() {
       const signer = await provider.getSigner();
       const pet = new ethers.Contract(selectedPet.address, PET_ABI, signer);
       
-      // Execute interaction with toast
-      await handleTransactionWithNotification(
-        async () => {
-          const tx = await pet.interact(targetAddress, interactDuration);
-          setMessage('⏳ Recording interaction...');
-          await tx.wait();
-          return tx;
-        },
-        {
-          onSuccess: () => {
-            setMessage(`✅ Interaction successful! Both pets recorded the interaction (contract-to-contract call)`);
-            // Clear input fields
-            setInteractPetName('');
-            setInteractAddress('');
-            // Refresh pet stats
-            viewPet(selectedPet.address);
-          },
-          onError: (error) => {
-            setMessage('❌ Error: ' + (error.reason || error.message));
-          },
-          showToast: true
-        }
-      );
+      // Execute interaction
+      const tx = await pet.interact(targetAddress, interactDuration);
+      setMessage('⏳ Recording interaction...');
+      await tx.wait();
+      
+      setMessage(`✅ Interaction successful! Both pets recorded the interaction (contract-to-contract call)`);
+      // Clear input fields
+      setInteractPetName('');
+      setInteractAddress('');
+      // Refresh pet stats
+      viewPet(selectedPet.address);
     } catch (error) {
       console.error(error);
       setMessage('❌ Error: ' + (error.reason || error.message));
@@ -455,31 +421,19 @@ export default function TestPage() {
       const signer = await provider.getSigner();
       const pet = new ethers.Contract(selectedPet.address, PET_ABI, signer);
       
-      // Execute transaction with toast
-      await handleTransactionWithNotification(
-        async () => {
-          let tx;
-          if (type === 'walk') tx = await pet.walk(value);
-          else if (type === 'run') tx = await pet.run(value);
-          else if (type === 'eat') tx = await pet.eat(value);
-          else if (type === 'drink') tx = await pet.drink(value);
-          
-          setMessage('⏳ Logging activity...');
-          await tx.wait();
-          return tx;
-        },
-        {
-          onSuccess: () => {
-            setMessage(`✅ Activity logged!`);
-            // Refresh pet stats
-            viewPet(selectedPet.address);
-          },
-          onError: (error) => {
-            setMessage('❌ Error: ' + (error.reason || error.message));
-          },
-          showToast: true
-        }
-      );
+      // Execute transaction
+      let tx;
+      if (type === 'walk') tx = await pet.walk(value);
+      else if (type === 'run') tx = await pet.run(value);
+      else if (type === 'eat') tx = await pet.eat(value);
+      else if (type === 'drink') tx = await pet.drink(value);
+      
+      setMessage('⏳ Logging activity...');
+      await tx.wait();
+      
+      setMessage(`✅ Activity logged!`);
+      // Refresh pet stats
+      viewPet(selectedPet.address);
     } catch (error) {
       console.error(error);
       setMessage('❌ Error: ' + (error.reason || error.message));
@@ -492,7 +446,7 @@ export default function TestPage() {
     <div style={{ padding: '40px', fontFamily: 'system-ui', maxWidth: '1200px', margin: '0 auto' }}>
       <h1 style={{ fontSize: '48px', marginBottom: '10px' }}>🐾 PetPet Test Page</h1>
       <p style={{ color: '#666', marginBottom: '30px' }}>
-        Connected to Base Sepolia | Registry: <code>{REGISTRY_ADDRESS.address}</code>
+        Connected to PetPet Testnet (Chain ID: 2403) | Registry: <code>{REGISTRY_ADDRESS.address}</code>
       </p>
 
       {/* Connect Wallet */}
@@ -516,20 +470,6 @@ export default function TestPage() {
         <div style={{ marginBottom: '40px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <p style={{ color: 'green', margin: 0 }}>{message}</p>
-            <button
-              onClick={() => showAddressTransactions(account)}
-              style={{
-                padding: '10px 20px',
-                fontSize: '14px',
-                background: '#6366f1',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer'
-              }}
-            >
-              📜 View My Transaction History
-            </button>
           </div>
           
           {/* Create Pet Section */}
@@ -586,22 +526,6 @@ export default function TestPage() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h2 style={{ margin: 0 }}>🐕 My Pets ({myPets.length})</h2>
-              {myPets.length > 0 && (
-                <button
-                  onClick={() => showAddressTransactions(account)}
-                  style={{
-                    padding: '8px 16px',
-                    fontSize: '13px',
-                    background: '#8b5cf6',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  📊 View All Pet Transactions
-                </button>
-              )}
             </div>
             {myPets.length === 0 ? (
               <p style={{ color: '#666' }}>You haven't created any pets yet.</p>
@@ -643,20 +567,6 @@ export default function TestPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2 style={{ margin: 0 }}>🐾 {selectedPet.name}</h2>
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  <button
-                    onClick={() => showAddressTransactions(selectedPet.address)}
-                    style={{
-                      padding: '10px 20px',
-                      background: '#3b82f6',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      fontSize: '14px'
-                    }}
-                  >
-                    📜 Pet History
-                  </button>
                   <button
                     onClick={() => verifyPetContract(selectedPet.address, selectedPet.name, selectedPet.owner)}
                     disabled={loading}
@@ -938,12 +848,12 @@ export default function TestPage() {
         borderRadius: '8px'
       }}>
         <h3>🔗 Contract Information:</h3>
-        <p><strong>Network:</strong> Base Sepolia (Chain ID: 84532)</p>
+        <p><strong>Network:</strong> PetPet Testnet (Chain ID: 2403)</p>
         <p><strong>Registry Address:</strong> <code>{REGISTRY_ADDRESS.address}</code></p>
         <p><strong>System:</strong> Dynamic pet contracts (each pet = unique contract name)</p>
         <p>
           <a 
-            href={`https://base-sepolia.blockscout.com/address/${REGISTRY_ADDRESS.address}`} 
+            href={`https://petpet.cloud.blockscout.com/address/${REGISTRY_ADDRESS.address}`} 
             target="_blank" 
             rel="noopener noreferrer"
             style={{ color: '#0070f3' }}
@@ -963,7 +873,7 @@ export default function TestPage() {
       }}>
         <h3>📖 Instructions:</h3>
         <ol style={{ lineHeight: '1.8' }}>
-          <li>Make sure you're connected to <strong>Base Sepolia</strong> network in MetaMask</li>
+          <li>Make sure you're connected to <strong>PetPet Testnet</strong> network in MetaMask</li>
           <li>Click "Connect Wallet" to connect your wallet</li>
           <li>Open browser console (F12) to see debug logs</li>
           <li>Enter a unique pet name and click "Create Pet"</li>
@@ -975,12 +885,12 @@ export default function TestPage() {
         <ul style={{ lineHeight: '1.8' }}>
           <li>If you see "could not decode result data", check:
             <ul>
-              <li>✅ You're on Base Sepolia (not Ethereum Sepolia or other network)</li>
-              <li>✅ The contract exists at the address (click BaseScan link above)</li>
+              <li>✅ You're on PetPet Testnet (Chain ID: 2403)</li>
+              <li>✅ The contract exists at the address (click Blockscout link above)</li>
               <li>✅ Browser console shows "Contract code length: &gt; 2"</li>
             </ul>
           </li>
-          <li>Get testnet ETH: <a href="https://www.coinbase.com/faucets/base-ethereum-goerli-faucet" target="_blank" rel="noopener noreferrer" style={{ color: '#0070f3' }}>Base Sepolia Faucet</a></li>
+          <li>Get testnet tokens from the PetPet faucet</li>
         </ul>
       </div>
     </div>

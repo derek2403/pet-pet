@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     // Sanitize pet name for contract name
     const contractName = petName.replace(/[^a-zA-Z0-9]/g, '');
     
-    const command = `npx hardhat verify --network baseSepolia --contract "contracts/${contractName}.sol:${contractName}" ${petAddress} "${petName}" ${ownerAddress}`;
+    const command = `npx hardhat verify --network petPetTestnet --contract "contracts/${contractName}.sol:${contractName}" ${petAddress} "${petName}" ${ownerAddress}`;
     
     console.log('Running command:', command);
     console.log('In directory:', smartcontractPath);
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
       return res.status(200).json({
         success: true,
         message: 'Contract verified successfully',
-        explorerUrl: `https://base-sepolia.blockscout.com/address/${petAddress}#code`,
+        explorerUrl: `https://petpet.cloud.blockscout.com/address/${petAddress}#code`,
       });
     }
     
@@ -61,7 +61,7 @@ export default async function handler(req, res) {
       return res.status(200).json({
         success: true,
         message: 'Contract already verified',
-        explorerUrl: `https://base-sepolia.blockscout.com/address/${petAddress}#code`,
+        explorerUrl: `https://petpet.cloud.blockscout.com/address/${petAddress}#code`,
       });
     }
     
