@@ -1,12 +1,14 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 /**
  * FeaturedRoomCard Component
  * Displays a promotional card for the 3D room feature
  */
 export default function FeaturedRoomCard({ onEnterRoom }) {
+  const router = useRouter();
   return (
     <Card className="relative bg-gradient-to-r from-[#FFF9E6] via-[#FFE4E8] via-[#F5E8FF] to-[#E8F0FF] border-0 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:scale-[1.01] transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700 group">
       {/* Animated gradient overlay */}
@@ -26,7 +28,7 @@ export default function FeaturedRoomCard({ onEnterRoom }) {
               View and interact with your pet's cozy space in real-time.
             </p>
             <Button 
-              onClick={onEnterRoom}
+              onClick={() => router.push('/room')}
               className="bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl transition-all duration-300 text-white font-bold text-lg rounded-full px-10 py-6 shadow-lg"
             >
               Enter Room

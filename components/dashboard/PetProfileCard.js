@@ -54,7 +54,7 @@ async function getCroppedImg(imageSrc, pixelCrop) {
  * PetProfileCard Component
  * Displays the selected pet's profile information and device status
  */
-export default function PetProfileCard({ pet, onPetNameChange }) {
+export default function PetProfileCard({ pet, onPetNameChange, onDeviceSetup }) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [localName, setLocalName] = useState(pet.name);
   
@@ -223,29 +223,46 @@ export default function PetProfileCard({ pet, onPetNameChange }) {
             </div>
 
             {/* Device Status with enhanced visual feedback */}
-            <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-[#F6F3F9] to-[#FBFAFD] rounded-xl border border-[#E8E4F0]/50 shadow-sm">
-              <div className="flex items-center gap-2">
-                {pet.deviceStatus === "connected" ? (
-                  <div className="relative">
-                    <Wifi className="w-4 h-4 text-[#D4A5A5]" />
-                    <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#D4A5A5] rounded-full animate-pulse" />
-                  </div>
-                ) : (
-                  <WifiOff className="w-4 h-4 text-[#B5B1C0]" />
-                )}
-                <span className="text-sm font-medium text-[#5A5668]">{pet.deviceId}</span>
+            {pet.deviceId && pet.deviceStatus ? (
+              <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-[#F6F3F9] to-[#FBFAFD] rounded-xl border border-[#E8E4F0]/50 shadow-sm">
+                <div className="flex items-center gap-2">
+                  {pet.deviceStatus === "connected" ? (
+                    <div className="relative">
+                      <Wifi className="w-4 h-4 text-[#D4A5A5]" />
+                      <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#D4A5A5] rounded-full animate-pulse" />
+                    </div>
+                  ) : (
+                    <WifiOff className="w-4 h-4 text-[#B5B1C0]" />
+                  )}
+                  <span className="text-sm font-medium text-[#5A5668]">{pet.deviceId}</span>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={
+                    pet.deviceStatus === "connected"
+                      ? "border-pink-200 text-[#D4A5A5] bg-pink-50 shadow-sm"
+                      : "border-[#E8E4F0] text-[#5A5A5A]"
+                  }
+                >
+                  {pet.deviceStatus}
+                </Badge>
               </div>
-              <Badge
+            ) : (
+              <Button
+                onClick={() => {
+                  // Generate random device ID and set as connected
+                  const newDeviceId = `Device #${Math.floor(Math.random() * 9000) + 1000}`;
+                  if (onDeviceSetup) {
+                    onDeviceSetup(newDeviceId, "connected");
+                  }
+                }}
                 variant="outline"
-                className={
-                  pet.deviceStatus === "connected"
-                    ? "border-pink-200 text-[#D4A5A5] bg-pink-50 shadow-sm"
-                    : "border-[#E8E4F0] text-[#5A5A5A]"
-                }
+                className="w-full p-4 border-2 border-dashed border-[#E8E4F0] hover:border-[#F85BB4] hover:bg-[#FFF5F8] text-[#6B6B6B] hover:text-[#F85BB4] rounded-xl transition-all duration-300"
               >
-                {pet.deviceStatus}
-              </Badge>
-            </div>
+                <Wifi className="w-4 h-4 mr-2" />
+                Set up device
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>

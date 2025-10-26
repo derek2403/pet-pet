@@ -85,6 +85,11 @@ export default function Dashboard() {
     1: { type: "Running", duration: "12 mins", location: "Proof verified" } // NuNa default
   });
   
+  // Pet-specific device setup state
+  const [petDevices, setPetDevices] = useState({
+    1: { deviceId: "Device #5431", deviceStatus: "connected" } // NuNa default
+  });
+  
   // Tab order for direction-based animations
   const tabOrder = ["dashboard", "timeline", "insights", "settings"];
   const getTabDirection = (newTab) => {
@@ -358,8 +363,8 @@ export default function Dashboard() {
         name: newPetName.trim(),
         species: "Dog",
         status: "Active",
-        deviceId: `Device #${Math.floor(Math.random() * 9000) + 1000}`,
-        deviceStatus: "connected",
+        deviceId: null, // New pets have no device setup
+        deviceStatus: null,
         avatar: petImagePath,
         contractAddress: petAddress,
       };
@@ -433,12 +438,16 @@ export default function Dashboard() {
       name: "NuNa",
       species: "Cat",
       status: "Active",
-      deviceId: "Device #5431",
-      deviceStatus: "connected",
+      deviceId: petDevices[1]?.deviceId || "Device #5431",
+      deviceStatus: petDevices[1]?.deviceStatus || "connected",
       avatar: "/NuNa.jpeg",
       contractAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb1",
     },
-    ...createdPets
+    ...createdPets.map(pet => ({
+      ...pet,
+      deviceId: petDevices[pet.id]?.deviceId || null,
+      deviceStatus: petDevices[pet.id]?.deviceStatus || null,
+    }))
   ];
 
   // Get currently selected pet
@@ -621,7 +630,15 @@ export default function Dashboard() {
               key={selectedPetId} // Force re-render on pet change to reset camera
             />
 
-            <PetProfileCard pet={selectedPet} />
+            <PetProfileCard 
+              pet={selectedPet}
+              onDeviceSetup={(deviceId, deviceStatus) => {
+                setPetDevices(prev => ({
+                  ...prev,
+                  [selectedPetId]: { deviceId, deviceStatus }
+                }));
+              }}
+            />
 
             <FeaturedRoomCard />
 
