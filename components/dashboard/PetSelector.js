@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
  * PetSelector Component
  * Displays the pet selection dropdown, "Add Pet" button, and camera button
  */
-export default function PetSelector({ pets }) {
+export default function PetSelector({ pets, selectedPetId, onPetChange, onAddPet }) {
   const [cameraSetup, setCameraSetup] = useState(false);
   const [selectedCamera, setSelectedCamera] = useState(null);
   const [showCameraSetup, setShowCameraSetup] = useState(false);
@@ -182,7 +182,10 @@ export default function PetSelector({ pets }) {
         </Select>
 
         {/* Add Pet Button with solid pink */}
-        <Button className="bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 transition-all duration-300 text-white font-semibold rounded-2xl shadow-lg px-6">
+        <Button 
+          onClick={onAddPet}
+          className="bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 transition-all duration-300 text-white font-semibold rounded-2xl shadow-lg px-6"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Pet
         </Button>
