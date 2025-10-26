@@ -61,6 +61,10 @@ export default function Dashboard() {
   const [selectedDevice, setSelectedDevice] = useState(null);
   const socketRef = useRef(null);
   
+  // Activity tracking state
+  const [activityHistory, setActivityHistory] = useState([]);
+  const [currentPets, setCurrentPets] = useState([]);
+  
   // Tab order for direction-based animations
   const tabOrder = ["dashboard", "timeline", "insights", "settings"];
   const getTabDirection = (newTab) => {
@@ -71,12 +75,14 @@ export default function Dashboard() {
 
   // No persistence - fresh upload required each session
 
-  // Set up socket connection for location tracking
+  // Set up socket connection for location tracking and activity monitoring
   useEffect(() => {
     socketRef.current = io();
 
     socketRef.current.on('connect', () => {
-      console.log('Connected to location tracking server');
+      console.log('Connected to server');
+      // Request current pet activities
+      socketRef.current.emit('request-pet-activities');
     });
 
     socketRef.current.on('location-update', (locationData) => {
@@ -100,6 +106,12 @@ export default function Dashboard() {
           return [...prevDevices, deviceData];
         }
       });
+    });
+
+    socketRef.current.on('pet-activities-update', (data) => {
+      console.log('Pet activities update:', data);
+      setCurrentPets(data.current || []);
+      setActivityHistory(data.history || []);
     });
 
     return () => {
@@ -259,36 +271,30 @@ export default function Dashboard() {
     vetVisits: 1,
   };
 
-  const recentEvents = [
-    {
-      date: "Oct 21",
-      type: "Running",
-      details: "5 mins",
+  // Helper function to map activity to icon
+  const getActivityIcon = (activity) => {
+    const activityLower = activity?.toLowerCase() || '';
+    if (activityLower.includes('walk') || activityLower.includes('run')) return Footprints;
+    if (activityLower.includes('eat') || activityLower.includes('food')) return Heart;
+    if (activityLower.includes('play')) return Users;
+    if (activityLower.includes('sleep') || activityLower.includes('rest')) return Heart;
+    if (activityLower.includes('drink') || activityLower.includes('water')) return Heart;
+    return Footprints; // default icon
+  };
+
+  // Transform activity history into timeline events format
+  const recentEvents = activityHistory.slice().reverse().slice(0, 20).map(activity => {
+    const date = new Date(activity.timestamp);
+    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    
+    return {
+      date: dateStr,
+      type: activity.activity,
+      details: activity.petName,
       status: "verified",
-      icon: Footprints,
-    },
-    {
-      date: "Oct 20",
-      type: "Feeding",
-      details: "80 g",
-      status: "verified",
-      icon: Heart,
-    },
-    {
-      date: "Oct 18",
-      type: "Played",
-      details: "with luna.petpet.eth",
-      status: "verified",
-      icon: Users,
-    },
-    {
-      date: "Oct 15",
-      type: "Vet Visit",
-      details: "Annual checkup",
-      status: "pending",
-      icon: Stethoscope,
-    },
-  ];
+      icon: getActivityIcon(activity.activity),
+    };
+  });
 
   const alerts = [
     {
