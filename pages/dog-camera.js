@@ -184,22 +184,6 @@ export default function DogCamera() {
             </div>
           </div>
 
-          {/* Manual Control Mode Indicator */}
-          {manualMode && (
-            <div className="mb-4 p-3 bg-orange-100 border border-orange-300 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-semibold text-orange-800">
-                    🎮 Manual Mode Active
-                  </div>
-                  <div className="text-xs text-orange-700">
-                    Current: {manualActivity} | Press 0 or A to return to auto detection
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Keyboard Shortcuts Guide */}
           <Card className="mb-4 p-4 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
             <h3 className="font-semibold text-purple-900 mb-2">⌨️ Keyboard Shortcuts:</h3>
