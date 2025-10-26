@@ -172,19 +172,11 @@ export function handleFeedDog(params) {
     z: dogTransform.position?.z || 0
   };
 
-  // Enforce distance gate: only allow feeding if target within max step distance
-  const stepLimit = typeof maxStepDistance === 'number' && maxStepDistance > 0 ? maxStepDistance : 12;
-  const distToBowl = Math.hypot(bowlLocation.x - startPos.x, bowlLocation.z - startPos.z);
-  if (distToBowl > stepLimit) {
-    // Too far: queue feed and exit. Random walk cycles will re-attempt when closer.
-    feedQueuedRef.current = true;
-    console.log(`⛔ Too far to feed (dist=${distToBowl.toFixed(2)} > stepLimit=${stepLimit}). Queued feed.`);
-    return;
-  }
-
   // Set feeding flag to prevent other animations
   isFeedingRef.current = true;
-  console.log('🍖 Starting feed sequence...');
+  
+  const distToBowl = Math.hypot(bowlLocation.x - startPos.x, bowlLocation.z - startPos.z);
+  console.log(`🍖 Starting feed sequence... Distance to bowl: ${distToBowl.toFixed(2)} units`);
 
   // Stop current animation and go to idle
   emitDogEvent(splineApp, 'mouseUp', dogEventTarget);
@@ -196,41 +188,23 @@ export function handleFeedDog(params) {
   const dz = bowlLocation.z - startPos.z;
   const targetRotation = Math.atan2(dx, dz);
 
-  // Phase 1: Rotate to face the bowl
-  const currentY = dogTransform?.rotation?.y || 0;
-  let remainingTurn = normalizeAngle(targetRotation - currentY);
-  const needTurn = Math.abs(remainingTurn) > 0.03;
-  const maxTurnSpeed = 7.5; // rad/sec
-  let lastTurnTs = performance.now();
-
-  function rotateTowardsBowl(nowTs) {
-    if (!isMountedRef.current) return;
-    const dt = Math.min(0.05, Math.max(0, (nowTs - lastTurnTs) / 1000));
-    lastTurnTs = nowTs;
-    if (dogTransform?.rotation) {
-      const step = Math.sign(remainingTurn) * Math.min(Math.abs(remainingTurn), maxTurnSpeed * dt);
-      dogTransform.rotation.y += step;
-      remainingTurn -= step;
-    }
-    if (Math.abs(remainingTurn) <= 0.01) {
-      if (dogTransform?.rotation) dogTransform.rotation.y = targetRotation;
-      // Start walking to bowl
-      emitDogEvent(splineApp, 'mouseDown', dogEventTarget);
-      requestAnimationFrame(walkToBowl);
-      return;
-    }
-    requestAnimationFrame(rotateTowardsBowl);
+  // Set rotation immediately
+  if (dogTransform?.rotation) {
+    dogTransform.rotation.y = targetRotation;
   }
+  
+  // Start running animation immediately
+  emitDogEvent(splineApp, 'mouseDown', dogEventTarget);
 
-  // Phase 2: Walk to the bowl
-  const unitsPerSecond = 18;
-  let lastWalkTs = performance.now();
+  // Run to the bowl at ultra high speed - instant movement
+  const unitsPerSecond = 500; // ultra fast instant run to bowl
+  let lastRunTs = performance.now();
 
-  function walkToBowl(nowTs) {
+  function runToBowl(nowTs) {
     if (!isMountedRef.current) return;
 
-    const dt = Math.min(0.05, Math.max(0, (nowTs - lastWalkTs) / 1000));
-    lastWalkTs = nowTs;
+    const dt = Math.min(0.05, Math.max(0, (nowTs - lastRunTs) / 1000));
+    lastRunTs = nowTs;
 
     if (dogTransform.position) {
       const rx = bowlLocation.x - dogTransform.position.x;
@@ -238,8 +212,8 @@ export function handleFeedDog(params) {
       const remaining = Math.hypot(rx, rz);
 
       const stepDist = unitsPerSecond * dt;
-      if (remaining <= stepDist + 0.5) {
-        // Arrived at bowl
+      if (remaining <= stepDist + 3.0) {
+        // Arrived at bowl - snap to exact position
         dogTransform.position.x = bowlLocation.x;
         dogTransform.position.y = bowlLocation.y;
         dogTransform.position.z = bowlLocation.z;
@@ -248,39 +222,33 @@ export function handleFeedDog(params) {
         }
         console.log('✅ Arrived at bowl!');
 
-        // Stop walking animation
+        // Stop running animation immediately
         emitDogEvent(splineApp, 'mouseUp', dogEventTarget);
 
-        // Wait a moment, then trigger eating animation
-        setTimeout(() => {
-          console.log('🍖 Starting eating animation...');
-          // Keep facing the bowl while eating so the nose stays in the bowl
-          lockYawForMs(dogTransform, targetRotation, 3300, isMountedRef);
-          triggerEatingAnimation(splineApp, dogEventTarget, isFeedingRef);
-        }, 300);
+        // Immediately trigger eating animation (no delay)
+        console.log('🍖 Starting eating animation...');
+        // Keep facing the bowl while eating so the nose stays in the bowl
+        lockYawForMs(dogTransform, targetRotation, 3300, isMountedRef);
+        triggerEatingAnimation(splineApp, dogEventTarget, isFeedingRef);
         return;
       }
 
-      // Continue walking
+      // Continue running - move at full speed
       const ux = remaining > 0 ? rx / remaining : 0;
       const uz = remaining > 0 ? rz / remaining : 0;
       dogTransform.position.x += ux * stepDist;
       dogTransform.position.z += uz * stepDist;
 
+      // Keep facing the bowl while running
       if (dogTransform.rotation) {
         dogTransform.rotation.y = targetRotation;
       }
     }
 
-    requestAnimationFrame(walkToBowl);
+    requestAnimationFrame(runToBowl);
   }
 
-  // Start the sequence
-  if (needTurn) {
-    requestAnimationFrame(rotateTowardsBowl);
-  } else {
-    emitDogEvent(splineApp, 'mouseDown', dogEventTarget);
-    requestAnimationFrame(walkToBowl);
-  }
+  // Start running immediately
+  requestAnimationFrame(runToBowl);
 }
 

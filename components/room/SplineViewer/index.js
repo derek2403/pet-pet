@@ -44,7 +44,9 @@ export default function SplineViewer({
   showNotification = false, 
   notificationMessage = '',
   onFeedReady = null, // Callback to pass the feed function to parent
-  onPlayReady = null  // Callback to pass the play function to parent
+  onPlayReady = null,  // Callback to pass the play function to parent
+  onWalkReady = null,  // Callback to pass the walk function to parent
+  onRunReady = null    // Callback to pass the run function to parent
 }) {
   // Refs for Spline and controls
   const splineRef = useRef();
@@ -163,8 +165,45 @@ export default function SplineViewer({
     };
   }, []);
 
+  // Keyboard shortcuts listener
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      // Ignore if user is typing in an input field
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      switch(e.key) {
+        case '1':
+          console.log('⌨️ Keyboard shortcut: Walk (1)');
+          handleWalk();
+          break;
+        case '2':
+          console.log('⌨️ Keyboard shortcut: Run (2)');
+          handleRun();
+          break;
+        case '4':
+        case '5':
+          console.log('⌨️ Keyboard shortcut: Feed (4/5)');
+          handleFeed();
+          break;
+        case '6':
+          console.log('⌨️ Keyboard shortcut: Play (6)');
+          handlePlay();
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, []);
+
   // Cycle through different animations and move the dog around
-  function cycleAnimations(splineApp, shibainu) {
+  function cycleAnimations(splineApp, shibainu, isRunning = false) {
     // Check if dog is already walking, feeding, or in cooldown
     if (isWalkingRef.current || isFeedingRef.current || isPlayingRef.current) {
       console.log('⏸️ Skipping cycle - dog is busy (walking, feeding, or in cooldown)');
@@ -175,7 +214,7 @@ export default function SplineViewer({
     
     try {
       if (shouldWalk) {
-        console.log('Starting walk cycle');
+        console.log(isRunning ? 'Starting run cycle' : 'Starting walk cycle');
         isWalkingRef.current = true; // Set walking flag
         
         // Reset to a known idle first; we will start walk AFTER a short pre-rotation
@@ -185,7 +224,7 @@ export default function SplineViewer({
         // Safety: ensure walk can't run forever if mouseUp is missed.
         // Compute a generous timeout based on max step distance and walk speed
         if (walkTimeoutRef.current) clearTimeout(walkTimeoutRef.current);
-        const safetyUnitsPerSecond = 8; // keep in sync with movement speed below
+        const safetyUnitsPerSecond = isRunning ? 60 : 50; // keep in sync with movement speed
         const maxDurationMs = Math.min(
           20000,
           Math.ceil((Math.max(1, maxStepDistance) / safetyUnitsPerSecond) * 1000) + 2500
@@ -232,8 +271,8 @@ export default function SplineViewer({
               };
               requestAnimationFrame(lockFinalPose);
 
-              // Wait 1 second before allowing next walk (cooldown period)
-              console.log('⏰ Starting 1-second cooldown before next walk...');
+              // Wait 200ms before allowing next walk (minimal cooldown for instant responsiveness)
+              console.log('⏰ Starting cooldown before next walk...');
               setTimeout(() => {
                 isWalkingRef.current = false;
                 console.log('✅ Cooldown complete - dog can walk again');
@@ -245,15 +284,15 @@ export default function SplineViewer({
                   // Execute feed after a brief moment
                   setTimeout(() => {
                     handleFeed();
-                  }, 100);
+                  }, 50);
               } else if (playQueuedRef.current) {
                 console.log('📋 Executing queued play action...');
                 playQueuedRef.current = false;
                 setTimeout(() => {
                   handlePlay();
-                }, 100);
+                }, 50);
                 }
-              }, 1000); // 1 second cooldown
+              }, 200); // Reduced to 200ms for instant responsiveness
               
             } catch (e) {
               console.error('Error sending mouseUp:', e);
@@ -261,7 +300,8 @@ export default function SplineViewer({
               setTimeout(() => { isWalkingRef.current = false; }, 5000);
             }
           },
-          isMountedRef
+          isMountedRef,
+          isRunning
         );
       } else {
         // Stay idle (Start event keeps idle animation running)
@@ -299,18 +339,56 @@ export default function SplineViewer({
     });
   }
 
+  // Wrapper function for walk action
+  function handleWalk() {
+    if (!splineRef.current) {
+      console.error('Spline app not loaded');
+      return;
+    }
+    
+    const allObjects = allObjectsRef.current;
+    const shibainu = findDogObject(splineRef.current, allObjects);
+    const armature =
+      splineRef.current.findObjectByName('AnimalArmature') ||
+      allObjects.find(obj => obj.name && obj.name.toLowerCase().includes('animalarmature'));
+    
+    cycleAnimations(splineRef.current, shibainu || armature, false);
+  }
+
+  // Wrapper function for run action
+  function handleRun() {
+    if (!splineRef.current) {
+      console.error('Spline app not loaded');
+      return;
+    }
+    
+    const allObjects = allObjectsRef.current;
+    const shibainu = findDogObject(splineRef.current, allObjects);
+    const armature =
+      splineRef.current.findObjectByName('AnimalArmature') ||
+      allObjects.find(obj => obj.name && obj.name.toLowerCase().includes('animalarmature'));
+    
+    cycleAnimations(splineRef.current, shibainu || armature, true);
+  }
+
   // Handle Spline scene load
   function onLoad(splineApp) {
     splineRef.current = splineApp;
     setIsLoaded(true);
     console.log('Spline scene loaded successfully');
     
-    // Pass the feed function to parent component
+    // Pass the action functions to parent component
     if (typeof onFeedReady === 'function') {
       onFeedReady(handleFeed);
     }
     if (typeof onPlayReady === 'function') {
       onPlayReady(handlePlay);
+    }
+    if (typeof onWalkReady === 'function') {
+      onWalkReady(handleWalk);
+    }
+    if (typeof onRunReady === 'function') {
+      onRunReady(handleRun);
     }
     
     // Set initial zoom

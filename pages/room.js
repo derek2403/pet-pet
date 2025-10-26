@@ -16,9 +16,11 @@ export default function Room() {
   // State for showing popup notification
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
-  // State to store the feed function from SplineViewer
+  // State to store action functions from SplineViewer
   const [feedDogFunction, setFeedDogFunction] = useState(null);
   const [playDogFunction, setPlayDogFunction] = useState(null);
+  const [walkDogFunction, setWalkDogFunction] = useState(null);
+  const [runDogFunction, setRunDogFunction] = useState(null);
   
   // Cache-busting parameter forces browser to fetch updated scene with dog
   const sceneUrl = "https://prod.spline.design/E0hO4wxfp4CCDNLm/scene.splinecode?v=33";
@@ -70,15 +72,16 @@ export default function Room() {
               notificationMessage={notificationMessage}
               onFeedReady={(feedFunc) => setFeedDogFunction(() => feedFunc)}
               onPlayReady={(playFunc) => setPlayDogFunction(() => playFunc)}
+              onWalkReady={(walkFunc) => setWalkDogFunction(() => walkFunc)}
+              onRunReady={(runFunc) => setRunDogFunction(() => runFunc)}
             />
 
             {/* Pet Action Buttons */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-5 gap-4">
               {/* Feed Button */}
               <Button
                 onClick={() => {
                   console.log('Feed action triggered');
-                  // Call the feed function if it's ready
                   if (feedDogFunction) {
                     feedDogFunction();
                   } else {
@@ -86,9 +89,11 @@ export default function Room() {
                   }
                 }}
                 className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
+                title="Press 4 or 5"
               >
                 <UtensilsCrossed className="w-10 h-10 text-white" />
                 <div className="text-base font-bold text-white">Feed</div>
+                <div className="text-xs text-white/70">Press 4/5</div>
               </Button>
 
               {/* Play Button */}
@@ -102,18 +107,47 @@ export default function Room() {
                   }
                 }}
                 className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
+                title="Press 6"
               >
                 <Gamepad2 className="w-10 h-10 text-white" />
                 <div className="text-base font-bold text-white">Play</div>
+                <div className="text-xs text-white/70">Press 6</div>
               </Button>
 
               {/* Walk Button */}
               <Button
-                onClick={() => console.log('Walk action')}
+                onClick={() => {
+                  console.log('Walk action triggered');
+                  if (walkDogFunction) {
+                    walkDogFunction();
+                  } else {
+                    console.log('Walk function not ready yet');
+                  }
+                }}
                 className="w-full h-auto py-6 px-6 bg-[#F85BB4] hover:bg-[#E14CA4] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
+                title="Press 1"
               >
                 <Footprints className="w-10 h-10 text-white" />
                 <div className="text-base font-bold text-white">Walk</div>
+                <div className="text-xs text-white/70">Press 1</div>
+              </Button>
+
+              {/* Run Button */}
+              <Button
+                onClick={() => {
+                  console.log('Run action triggered');
+                  if (runDogFunction) {
+                    runDogFunction();
+                  } else {
+                    console.log('Run function not ready yet');
+                  }
+                }}
+                className="w-full h-auto py-6 px-6 bg-[#9F7AEA] hover:bg-[#8B5CF6] hover:shadow-xl hover:scale-105 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col items-center gap-3 border-0"
+                title="Press 2"
+              >
+                <Footprints className="w-10 h-10 text-white transform scale-125" />
+                <div className="text-base font-bold text-white">Run</div>
+                <div className="text-xs text-white/70">Press 2</div>
               </Button>
 
               {/* Pet Button */}
@@ -126,6 +160,7 @@ export default function Room() {
               >
                 <Heart className="w-10 h-10 text-white" />
                 <div className="text-base font-bold text-white">Pet</div>
+                <div className="text-xs text-white/70 opacity-0">-</div>
               </Button>
             </div>
 

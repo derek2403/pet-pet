@@ -13,6 +13,7 @@ import { emitDogEvent, normalizeAngle } from './helpers';
  * @param {number} maxStepDistance - Maximum distance the dog can move in one step
  * @param {Function} onComplete - Callback function called when movement is complete
  * @param {Object} isMountedRef - Ref to check if component is still mounted
+ * @param {boolean} isRunning - Whether the dog should run (faster) instead of walk
  */
 export function moveDogToRandomPosition(
   shibainu,
@@ -20,7 +21,8 @@ export function moveDogToRandomPosition(
   dogEventTarget,
   maxStepDistance,
   onComplete,
-  isMountedRef
+  isMountedRef,
+  isRunning = false
 ) {
   if (!shibainu) return;
   
@@ -109,7 +111,7 @@ export function moveDogToRandomPosition(
     const currentY = shibainu?.rotation?.y || 0;
     let remainingTurn = normalizeAngle(targetRotation - currentY);
     const needTurn = Math.abs(remainingTurn) > 0.03; // small threshold
-    const maxTurnSpeed = 7.5; // rad/sec – quick but noticeable
+    const maxTurnSpeed = isRunning ? 20.0 : 16.0; // rad/sec – much faster rotation
     let lastTurnTs = performance.now();
 
     function rotateInPlace(nowTs) {
@@ -132,7 +134,7 @@ export function moveDogToRandomPosition(
     }
 
     // Phase 2: constant-speed movement with overshoot clamp so we land exactly on target
-    const unitsPerSecond = 18; // tuned to match footstep rate
+    const unitsPerSecond = isRunning ? 60 : 50; // much faster movement speeds
     let lastTs = performance.now();
 
     function animateMove(nowTs) {
